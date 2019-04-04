@@ -1,0 +1,12 @@
+{
+    "config":{
+        "config_name":"static",
+        "config_params":{
+            "params_axi":{
+                "axi_lite":{},
+                "axi_stream":{},
+                "axi":{}
+            }
+        }
+    }
+}

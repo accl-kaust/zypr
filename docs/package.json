@@ -1,0 +1,17 @@
+{
+  "name": "zycap-docs",
+  "version": "1.0.0",
+  "author": "alex bucknall <a.r.bucknall@warwick.ac.uk> (https://github.com/Bucknalla)",
+  "repository": "https://github.com/Bucknall",
+  "license": "MIT",
+  "now": {
+    "alias": "docsify",
+    "env": {
+      "NODE_ENV": "production",
+      "DEBUG": "docsify"
+    }
+  },
+  "dependencies": {
+    "docsify-cli": "^4.3.0"
+  }
+}

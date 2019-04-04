@@ -1,0 +1,21 @@
+{
+    "config":{
+        "config_vivado":{
+            "vivado_version":"2018.2",
+            "vivado_params":"-nojou -nolog"
+        }
+    },
+    "project":{
+        "project_name":"example",
+        "project_owner":"bucknalla",
+        "project_device":{
+            "part":"xc7z020clg484-1",
+            "board":"em.avnet.com:zed:part0:1.0"
+        },
+        "project_config":{
+            "config_default":"default",
+            "config_1":"config_1",
+            "config_2":"config_2"
+        }
+    }
+}
