@@ -34,45 +34,58 @@ foreach config $CONFIG_LIST {
         set_property BOARD_PART $DEVICE_BOARD [current_project]
         set top_file [lindex [dict get $local_config config config_region $region region_top] 0]
         set top_module [lindex [dict get $local_config config config_region $region region_top] 1]
-        add_files ./configs/$config/$region/rtl/
-        set_property top_file ./configs/$config/$region/rtl/$top_file [current_fileset]
-        set_property top $top_module [current_fileset]
+        set top [string trimright $top_file ".v"]
+        set top_module_json [json::json2dict [read [open "./configs/$config/$region/rtl/.json/$top.json" r]]]
+        puts $top_module
+        puts [dict keys [dict keys $top_module_json modules]]
+        # add_files ./configs/$config/$region/rtl/
+        # set_property top_file ./configs/$config/$region/rtl/$top_file [current_fileset]
+        # set_property top $top_module [current_fileset]
 
-        update_compile_order -fileset sources_1
-        set_property source_mgmt_mode All [current_project]        
-        # Partial Reconfiguration
-        set_property PR_FLOW 1 [current_project] 
 
-        set MODE_LIST [dict create]
-        dict for {mode modes} [dict get $local_config config config_region $region region_mode] {
-            dict set MODE_LIST $mode [lindex $modes 0] [lindex $modes 1]
-        }
-        create_partition_def -name $region -module [lindex [lindex [dict get $MODE_LIST] 1] 1]
+        
 
-        foreach {mode info} $MODE_LIST {
-            incr i
-            create_reconfig_module -name $mode -partition_def [get_partition_defs $region]  -define_from  [lindex $info 1] -define_from_file ./configs/$config/$region/rtl/[lindex $info 0]
-            import_files -norecurse ./configs/$config/$region/rtl/[lindex $info 0]  -of_objects [get_reconfig_modules $mode]
-            create_pr_configuration -name "config_$i" -partitions [list partial_led_test_v1_0_S00_AXI_inst:$mode ]
-        }
+        ############ CLOSE JSON FILES ###############
 
 
 
-        setup_pr_configurations
-        # set_property PR_CONFIGURATION config-1 [get_runs impl_1]
-        # create_run child_0_impl_1 -parent_run impl_1 -flow {Vivado Implementation 2018} -pr_config config-2
 
-        # create_reconfig_module -name region_2 -partition_def [get_partition_defs mode_1 ] 
-        # create_pr_configuration -name config_1 -partitions [list partial_led_test_v1_0_S00_AXI_inst:region_1 ]
-        # create_pr_configuration -name config_2 -partitions [list partial_led_test_v1_0_S00_AXI_inst:region_2 ]
-        # set_property PR_CONFIGURATION config_1 [get_runs impl_1]
-        # create_run child_0_impl_1 -parent_run impl_1 -flow {Vivado Implementation 2018} -pr_config config_2
-        #         puts "test"
+        # update_compile_order -fileset sources_1
+        # set_property source_mgmt_mode All [current_project]        
+        # # Partial Reconfiguration
+        # set_property PR_FLOW 1 [current_project] 
+        
 
-        launch_runs synth_1 -jobs 4
-        puts "test"
+        # set MODE_LIST [dict create]
+        # dict for {mode modes} [dict get $local_config config config_region $region region_mode] {
+        #     dict set MODE_LIST $mode [lindex $modes 0] [lindex $modes 1]
+        # }
+        # create_partition_def -name $region -module [lindex [lindex [dict get $MODE_LIST] 1] 1]
 
-        write_checkpoint -force "./configs/.checkpoints/$config-$region.dcp"
+        # foreach {mode info} $MODE_LIST {
+        #     incr i
+        #     create_reconfig_module -name $mode -partition_def [get_partition_defs $region]  -define_from  [lindex $info 1] -define_from_file ./configs/$config/$region/rtl/[lindex $info 0]
+        #     import_files -norecurse ./configs/$config/$region/rtl/[lindex $info 0]  -of_objects [get_reconfig_modules $mode]
+        #     create_pr_configuration -name "config_$i" -partitions [list partial_led_test_v1_0_S00_AXI_inst:$mode ]
+        # }
+
+
+
+        # setup_pr_configurations
+        # # set_property PR_CONFIGURATION config-1 [get_runs impl_1]
+        # # create_run child_0_impl_1 -parent_run impl_1 -flow {Vivado Implementation 2018} -pr_config config-2
+
+        # # create_reconfig_module -name region_2 -partition_def [get_partition_defs mode_1 ] 
+        # # create_pr_configuration -name config_1 -partitions [list partial_led_test_v1_0_S00_AXI_inst:region_1 ]
+        # # create_pr_configuration -name config_2 -partitions [list partial_led_test_v1_0_S00_AXI_inst:region_2 ]
+        # # set_property PR_CONFIGURATION config_1 [get_runs impl_1]
+        # # create_run child_0_impl_1 -parent_run impl_1 -flow {Vivado Implementation 2018} -pr_config config_2
+        # #         puts "test"
+
+        # launch_runs synth_1 -jobs 4
+        # puts "test"
+
+        # write_checkpoint -force "./configs/.checkpoints/$config-$region.dcp"
         close_project
     }
     cd $ROOT_PATH/$PROJECT_NAME/

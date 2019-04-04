@@ -12,9 +12,11 @@
 *.out
 
 node_modules
-.vscode
-.vivado
-.python
+# .vscode
+# .vivado
+# .python
+# .json
+.*
 
 # vivado
 *.log
