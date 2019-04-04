@@ -56,9 +56,7 @@ foreach config $CONFIG_LIST {
             create_pr_configuration -name "config_$i" -partitions [list partial_led_test_v1_0_S00_AXI_inst:$mode ]
         }
 
-        exec [yosys cmd read_verilog top.v]
-        exec [yosys cmd hierarchy; proc; flatten;]
-        exec [yosys cmd write_json test.json]
+
 
         setup_pr_configurations
         # set_property PR_CONFIGURATION config-1 [get_runs impl_1]

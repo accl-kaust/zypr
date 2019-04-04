@@ -1,4 +1,7 @@
 SHELL := /usr/bin/env zsh
+
+VIVADO_PATH
+
 clean:
 	rm -rf ./vivado/*
 	rm -R ./vivado/.Xil

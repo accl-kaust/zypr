@@ -11,8 +11,8 @@ all:
 setup:
 	@echo "Installing prerequisites...";
 	sudo apt install iverilog;
-	ifeq (3,3)
-		# @echo "Python 3 found..."
+	ifeq ($(python_version_major),3)
+		@echo "Python 3 found..."
 	else
 		set -e
 	endif
