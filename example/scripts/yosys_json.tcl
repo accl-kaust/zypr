@@ -1,8 +1,3 @@
-# yosys -import
-# set json ".json"
-# read_verilog $argv
-# hierarchy; proc; flatten;
-# write_json $argv$json
 package require fileutil
 
 set json_dir "/.json/"
