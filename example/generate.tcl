@@ -36,52 +36,67 @@ foreach config $CONFIG_LIST {
         set top_module [lindex [dict get $local_config config config_region $region region_top] 1]
         set top [string trimright $top_file ".v"]
         set top_module_json [json::json2dict [read [open "./configs/$config/$region/rtl/.json/$top.json" r]]]
-        puts $top_module
-        puts [dict keys [dict keys $top_module_json modules]]
-        # add_files ./configs/$config/$region/rtl/
-        # set_property top_file ./configs/$config/$region/rtl/$top_file [current_fileset]
-        # set_property top $top_module [current_fileset]
+        set x 0
+        dict for {mods mod} [dict get [dict get $top_module_json modules]] {
+            incr x
+            if { $x == 1} {
+                set top_module_inst [dict keys [dict get $mod cells]]
+                puts [dict keys [dict get $mod cells]]
+                break
+            }
+        }
 
-
-        
+        add_files ./configs/$config/$region/rtl/
+        set_property top_file ./configs/$config/$region/rtl/$top_file [current_fileset]
+        set_property top $top_module [current_fileset]
 
         ############ CLOSE JSON FILES ###############
 
 
 
-
-        # update_compile_order -fileset sources_1
-        # set_property source_mgmt_mode All [current_project]        
-        # # Partial Reconfiguration
-        # set_property PR_FLOW 1 [current_project] 
+        update_compile_order -fileset sources_1
+        set_property source_mgmt_mode All [current_project]        
+        # Partial Reconfiguration
+        set_property PR_FLOW 1 [current_project] 
         
+        set MODE_LIST [dict create]
+        dict for {mode modes} [dict get $local_config config config_region $region region_mode] {
+            dict set MODE_LIST $mode [lindex $modes 0] [lindex $modes 1]
+        }
+        create_partition_def -name $region -module [lindex [lindex [dict get $MODE_LIST] 1] 1]
 
-        # set MODE_LIST [dict create]
-        # dict for {mode modes} [dict get $local_config config config_region $region region_mode] {
-        #     dict set MODE_LIST $mode [lindex $modes 0] [lindex $modes 1]
-        # }
-        # create_partition_def -name $region -module [lindex [lindex [dict get $MODE_LIST] 1] 1]
+        foreach {mode info} $MODE_LIST {
+            incr i
+            create_reconfig_module -name $mode -partition_def [get_partition_defs $region]  -define_from  [lindex $info 1] -define_from_file ./configs/$config/$region/rtl/[lindex $info 0]
+            import_files -norecurse ./configs/$config/$region/rtl/[lindex $info 0]  -of_objects [get_reconfig_modules $mode]
+            create_pr_configuration -name "config_$i" -partitions [list $top_module_inst:$mode ]
+        }
 
-        # foreach {mode info} $MODE_LIST {
-        #     incr i
-        #     create_reconfig_module -name $mode -partition_def [get_partition_defs $region]  -define_from  [lindex $info 1] -define_from_file ./configs/$config/$region/rtl/[lindex $info 0]
-        #     import_files -norecurse ./configs/$config/$region/rtl/[lindex $info 0]  -of_objects [get_reconfig_modules $mode]
-        #     create_pr_configuration -name "config_$i" -partitions [list partial_led_test_v1_0_S00_AXI_inst:$mode ]
-        # }
+        setup_pr_configurations
 
 
 
-        # setup_pr_configurations
-        # # set_property PR_CONFIGURATION config-1 [get_runs impl_1]
-        # # create_run child_0_impl_1 -parent_run impl_1 -flow {Vivado Implementation 2018} -pr_config config-2
+        # set_property PR_CONFIGURATION config-1 [get_runs impl_1]
+        # create_run child_0_impl_1 -parent_run impl_1 -flow {Vivado Implementation 2018} -pr_config config-2
 
-        # # create_reconfig_module -name region_2 -partition_def [get_partition_defs mode_1 ] 
-        # # create_pr_configuration -name config_1 -partitions [list partial_led_test_v1_0_S00_AXI_inst:region_1 ]
-        # # create_pr_configuration -name config_2 -partitions [list partial_led_test_v1_0_S00_AXI_inst:region_2 ]
-        # # set_property PR_CONFIGURATION config_1 [get_runs impl_1]
-        # # create_run child_0_impl_1 -parent_run impl_1 -flow {Vivado Implementation 2018} -pr_config config_2
-        # #         puts "test"
+        # create_reconfig_module -name region_2 -partition_def [get_partition_defs mode_1 ] 
+        # create_pr_configuration -name config_1 -partitions [list partial_led_test_v1_0_S00_AXI_inst:region_1 ]
+        # create_pr_configuration -name config_2 -partitions [list partial_led_test_v1_0_S00_AXI_inst:region_2 ]
+        # set_property PR_CONFIGURATION config_1 [get_runs impl_1]
+        # create_run child_0_impl_1 -parent_run impl_1 -flow {Vivado Implementation 2018} -pr_config config_2
+        #         puts "test"
+        set runs [get_runs -regexp -filter {IS_SYNTHESIS}]
 
+        foreach run [get_runs -regexp -filter {IS_SYNTHESIS}] {
+            puts $run
+            if { "BlockSrcs" == [get_property FILESET_TYPE [get_property SRCSET [get_runs $run]]] } {
+                puts "Yes"
+            # return ooc
+            } {
+            # return not ooc
+                puts "No"
+            }
+        }
         # launch_runs synth_1 -jobs 4
         # puts "test"
 
