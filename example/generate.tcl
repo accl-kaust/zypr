@@ -60,6 +60,7 @@ foreach config $CONFIG_LIST {
         set_property PR_FLOW 1 [current_project] 
         
         set MODE_LIST [dict create]
+        puts "Generating modes..."
         dict for {mode modes} [dict get $local_config config config_region $region region_mode] {
             dict set MODE_LIST $mode [lindex $modes 0] [lindex $modes 1]
         }
@@ -94,6 +95,7 @@ foreach config $CONFIG_LIST {
             # return ooc
             } {
             # return not ooc
+                synth $run -mode out_of_context -part $DEVICE_PART
                 puts "No"
             }
         }

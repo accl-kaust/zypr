@@ -3,6 +3,13 @@
         "config_vivado":{
             "vivado_version":"2018.2",
             "vivado_params":"-nojou -nolog"
+        },
+        "config_run":{
+            "static_synth":1,
+            "rm_synth":1,
+            "pr_impl":1,
+            "pr_verify":1,
+            "gen_bitstream":1
         }
     },
     "project":{

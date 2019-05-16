@@ -1,11 +1,11 @@
 SHELL := /usr/bin/env zsh
 
-VIVADO_PATH
+VIVADO_PATH = /tools/Xilinx/Vivado/2018.2/bin/vivado
 
 clean:
 	rm -rf ./vivado/*
 	rm -R ./vivado/.Xil
 
 build:
-	/tools/Xilinx/Vivado/2018.2/bin/vivado -mode batch -source generate.tcl
+	proxychains $(VIVADO_PATH) -mode batch -source generate.tcl -nojou -nolog
 	
