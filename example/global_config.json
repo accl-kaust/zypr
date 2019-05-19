@@ -10,13 +10,18 @@
             "pr_impl":1,
             "pr_verify":1,
             "gen_bitstream":1
+        },
+        "config_settings":{
+            "top_file":"top.v"
         }
     },
     "project":{
         "project_name":"example",
         "project_owner":"bucknalla",
         "project_device":{
-            "part":"xc7z020clg484-1",
+            "device":"xc7z020",
+            "package":"clg484",
+            "speed":"-1",
             "board":"em.avnet.com:zed:part0:1.0"
         },
         "project_config":{

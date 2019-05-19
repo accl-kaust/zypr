@@ -4,19 +4,25 @@
         "config_region":{
             "region_1":{
                 "region_mode":{
-                    "default":["mode_up.v", "partial_led_test_v1_0_S00_AXI"],
-                    "mode_1":["mode_up.v", "partial_led_test_v1_0_S00_AXI"],
-                    "mode_2":["mode_down.v", "partial_led_test_v1_0_S00_AXI"]
+                    "default":["mode_up.v"],
+                    "mode_1":["mode_up.v"],
+                    "mode_2":["mode_down.v"]
                 },
                 "region_top":["top.v","partial_led_test_v1_0"]
             },
             "region_2":{
                 "region_mode":{
-                    "default":["mode_up.v", "partial_led_test_v1_0_S00_AXI"],
-                    "mode_1":"",
-                    "mode_2":""
+                    "default":["mode_up.v"],
+                    "mode_1":["mode_up.v"],
+                    "mode_2":["mode_down.v"]
                 },
                 "region_top":["top.v","partial_led_test_v1_0"]
+            }
+        },
+        "config_valid":{
+            "default":{
+                "region_1":"default",
+                "region_2":"default"
             }
         }
     }

@@ -411,4 +411,4 @@
     end     
 	// User logic ends
 
-	endmodule
+	endmodule // End of Module addbit
