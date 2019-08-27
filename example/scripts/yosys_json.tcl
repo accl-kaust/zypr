@@ -15,5 +15,6 @@ foreach file $log_files {
     set fi [file tail $file]    
     exec mkdir -p $dir$json_dir
     # exec yosys -p "read_verilog $file; hierarchy; proc; flatten; write_json $dir$json_dir[string trimright $fi ".v"].json"
-    exec yosys -p "read_verilog $file; write_json $dir$json_dir[string trimright $fi ".v"].json"
+    # exec yosys -p "read_verilog $file; write_json $dir$json_dir[string trimright $fi ".v"].json"
+    exec ./examples/scripts/perl/extract_modules.pl $file
 }

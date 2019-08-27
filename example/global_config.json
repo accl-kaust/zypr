@@ -1,8 +1,10 @@
 {
     "config":{
         "config_vivado":{
+            "vivado_path":"/opt",
             "vivado_version":"2018.2",
-            "vivado_params":"-nojou -nolog"
+            "vivado_params":"-nojou -nolog",
+            "vivado_proxy":"proxychains"
         },
         "config_run":{
             "static_synth":1,
