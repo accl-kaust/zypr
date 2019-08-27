@@ -1,7 +1,11 @@
 SHELL := /usr/bin/env zsh
 
 # VIVADO
-VIVADO_PATH = /tools/Xilinx/Vivado/2018.2/bin/vivado
+#VIVADO_PATH = /tools/Xilinx/Vivado/2018.2/bin/vivado
+VIVADO_PATH = /opt/Xilinx/Vivado/2018.2/bin/vivado
+
+# PROXY
+PROXY = false
 
 # PYTHON
 PYV_FULL := $(wordlist 2,4,$(subst ., ,$(shell python --version 2>&1)))
@@ -29,5 +33,11 @@ endif
 vivado:
 
 build: python
-	# proxychains $(VIVADO_PATH) -mode batch -source generate.tcl -nojou -nolog
+	@echo "Starting Vivado"
+ifeq (${PROXY}, true)
+	@echo "Proxy Enabled" 
+	proxychains $(VIVADO_PATH) -mode batch -source generate.tcl -nojou -nolog
+else
+	$(VIVADO_PATH) -mode batch -source generate.tcl -nojou -nolog
+endif
 

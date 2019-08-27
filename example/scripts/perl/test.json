@@ -1,88 +1,21 @@
 {
-   "file_name" : "test.v",
-   "top_module" : "partial_led_test_v1_0",
-   "module" : {
-      "partial_led_test_v1_0_S00_AXI" : {
-         "S_AXI_RREADY" : {
-            "in" : ""
+   "MODULE" : {
+      "led_sw" : {
+         "PORT" : {
+            "led" : {
+               "WIDTH" : "[test:0]",
+               "DIRECTION" : "output"
+            },
+            "sw" : {
+               "DIRECTION" : "input",
+               "WIDTH" : 8
+            }
          },
-         "S_AXI_ARESETN" : {
-            "in" : ""
-         },
-         "leds" : {
-            "out" : "[3:0]"
-         },
-         "S_AXI_ACLK" : {
-            "in" : ""
-         }
-      },
-      "partial_led_test_v1_0" : {
-         "s00_axi_wdata" : {
-            "in" : "[C_S00_AXI_DATA_WIDTH-1:0]"
-         },
-         "s00_axi_arvalid" : {
-            "in" : ""
-         },
-         "s00_axi_awready" : {
-            "out" : ""
-         },
-         "s00_axi_bresp" : {
-            "out" : "[1:0]"
-         },
-         "s00_axi_araddr" : {
-            "in" : "[C_S00_AXI_ADDR_WIDTH-1:0]"
-         },
-         "s00_axi_wvalid" : {
-            "in" : ""
-         },
-         "s00_axi_arready" : {
-            "out" : ""
-         },
-         "s00_axi_rdata" : {
-            "out" : "[C_S00_AXI_DATA_WIDTH-1:0]"
-         },
-         "leds" : {
-            "out" : "[7:0]"
-         },
-         "s00_axi_awvalid" : {
-            "in" : ""
-         },
-         "s00_axi_aresetn" : {
-            "in" : ""
-         },
-         "s00_axi_rresp" : {
-            "out" : "[1:0]"
-         },
-         "s00_axi_bready" : {
-            "in" : ""
-         },
-         "s00_axi_awprot" : {
-            "in" : "[2:0]"
-         },
-         "s00_axi_rvalid" : {
-            "out" : ""
-         },
-         "s00_axi_wstrb" : {
-            "in" : "[(C_S00_AXI_DATA_WIDTH/8)-1:0]"
-         },
-         "s00_axi_bvalid" : {
-            "out" : ""
-         },
-         "s00_axi_aclk" : {
-            "in" : ""
-         },
-         "s00_axi_wready" : {
-            "out" : ""
-         },
-         "s00_axi_arprot" : {
-            "in" : "[2:0]"
-         },
-         "s00_axi_awaddr" : {
-            "in" : "[C_S00_AXI_ADDR_WIDTH-1:0]"
-         },
-         "s00_axi_rready" : {
-            "in" : ""
+         "LOCALPARAM" : {
+            "test" : "12"
          }
       }
-   }
+   },
+   "TOP_MODULE" : "led_sw",
+   "FILE_NAME" : "test.v"
 }
