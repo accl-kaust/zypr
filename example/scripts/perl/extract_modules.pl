@@ -3,10 +3,10 @@ use strict;
 use warnings;
 use 5.010;
 use Scalar::Util qw(looks_like_number);
-
+use Math::Calc::Parser 'calc';
 binmode STDOUT, ":utf8";
 use utf8;
- 
+use Try::Tiny;
 use Data::Dumper qw(Dumper);
 use JSON;
 # Setup options so files can be found
@@ -16,13 +16,13 @@ use File::Basename;
 
 my $input_file = $ARGV[0];
 my %json_data; 
+my $nl;
 # $json_data{"FILE_NAME"} = $input_file;
 my $opt = new Verilog::Getopt;
 $opt->parameter( "+incdir+verilog",
                  "-y","verilog",
                  );
 
-my $nl = new Verilog::Netlist(options => $opt,);
 
 my @dirs = (".");
 my %seen;
@@ -41,10 +41,12 @@ while (my $pwd = shift @dirs) {
                 next if ($path !~ /\.v$/i);
                 # my %json_data;
                 undef %json_data;
-                $json_data{"FILE_NAME"} = $input_file;
+                undef $nl;
                 my $mtime = (stat($path))[9];
                 print "File found: $path | $pwd\n";
+                $nl = new Verilog::Netlist(options => $opt,);
                 $nl->read_file(filename=>$path);
+                $json_data{"FILE_NAME"} = basename($path);
                 # Read in any sub-modules
                 $nl->link();
                 # $nl->lint();  # Optional, see docs; probably not wanted
@@ -127,7 +129,7 @@ sub show_hier {
             if($mod->find_net($sig->name)->data_type =~ /.[a-z]+/i){
                 foreach my $params ($json_data{'MODULE'}{$mod->name}{'PARAMETER'}){
                     foreach my $param (keys %$params) {
-                        print "PARAMETER: $param\n";
+                        # print "PARAMETER: $param\n";
                     }
                     # if (index($sig->data_type, $param) != -1) {
                     #     print "It contains parameter'$param'\n";
@@ -135,7 +137,7 @@ sub show_hier {
                 }
                 foreach my $params ($json_data{'MODULE'}{$mod->name}{'LOCALPARAM'}){
                     foreach my $param (keys %$params) {
-                        print "LOCALPARAM: $param\n";
+                        # print "LOCALPARAM: $param\n";
                     }
                     # if (index($sig->data_type, $param) != -1) {
                     #     print "It contains parameter'$param'\n";
@@ -143,6 +145,41 @@ sub show_hier {
                 }
                 $json_data{'MODULE'}{$mod->name}{'PORT'}{$sig->name}{'WIDTH'} = $sig->data_type;
                 printf("%s - WIDE\n", $mod->find_net($sig->name)->data_type);
+                # print "Width: ",$mod->find_net($sig->name)->data_type, "\n";
+                if ( $mod->find_net($sig->name)->data_type =~ /\[(.*?)\:/ )
+                {
+                    my $inside = $1;
+                    print "Extracted A: ", $inside, " at ", $sig->name,"\n";
+                    try {
+                        calc $inside;
+                    } 
+                    catch {
+                        warn "Requires Param: $_";
+                    }
+                    finally {
+                        $inside =~ s/(\d+)/replace_param($mod,$1)/eig;
+                        print "Changed to: ", $inside, "\n";
+                        foreach my $params ($json_data{'MODULE'}{$mod->name}{'PARAMETER'}){
+                            foreach my $param (keys %$params) {
+                                print "PARAM: ",$param, "\n";
+                                if (index($inside, $param) != -1) {
+                                    print "$inside contains $param\n";
+                                } 
+                                # print "PARAMETER: $param\n";
+                            }
+                            # if (index($sig->data_type, $param) != -1) {
+                            #     print "It contains parameter'$param'\n";
+                            # }
+                        };
+                    }
+                }
+                if ( $mod->find_net($sig->name)->data_type =~ /\:(.*?)\]/ )
+                {
+                    my $inside = $1;
+                    print "Extracted B: ", $inside, " at ", $sig->name,"\n";
+                    my $result = calc $inside;
+                    print "Result : ", $result, "\n";
+                }                   
                 # TODO: Add check/replace for parameters in bus widths  
             }
             # if($mod->find_net($sig->name)->data_type =~ /.[a-z]+/i){
@@ -156,7 +193,56 @@ sub show_hier {
             #     printf("%s - WIDE\n", $mod->find_net($sig->name)->data_type);
             # }
             else{
-                $json_data{'MODULE'}{$mod->name}{'PORT'}{$sig->name}{'WIDTH'} = $mod->find_net($sig->name)->width;
+                if (defined $mod->find_net($sig->name)->width)
+                {
+                    $json_data{'MODULE'}{$mod->name}{'PORT'}{$sig->name}{'WIDTH'} = $mod->find_net($sig->name)->width;
+                    # print "Width: ",$mod->find_net($sig->name)->data_type, "\n";
+                    if ( $mod->find_net($sig->name)->data_type =~ /\[(.*?)\:/ )
+                    {
+                        my $inside = $1;
+                        print "Extracted Net A: ", $inside, " at ", $sig->name,"\n";
+                        try {
+                            calc $inside;
+                        } 
+                        catch {
+                            warn "Requires Param: $_";
+                        }
+                        finally {
+                            if (@_) {
+                                print "The try block died with: @_\n";
+                            } else {
+                                print "The try block ran without error.\n";
+                            }
+                            print "POP\n";
+                            foreach my $params ($json_data{'MODULE'}{$mod->name}{'PARAMETER'}){
+                                foreach my $param (keys %$params) {
+                                    print $param, "\n";
+                                    if (index($inside, $param) != -1) {
+                                        print "$inside contains $param\n";
+                                    } 
+                                    # print "PARAMETER: $param\n";
+                                }
+                                # if (index($sig->data_type, $param) != -1) {
+                                #     print "It contains parameter'$param'\n";
+                                # }
+                            };
+                        }
+                    }
+                    if ( $mod->find_net($sig->name)->data_type =~ /\:(.*?)\]/ )
+                    {
+                        my $inside = $1;
+                        print "Extracted Net B: ", $inside, " at ", $sig->name,"\n";
+                        my $result = calc $inside;
+                        print "Result : ", $result, "\n";
+                    }                   
+                }
+                else
+                {
+                    $json_data{'MODULE'}{$mod->name}{'PORT'}{$sig->name}{'WIDTH'} = 1;
+                }
+
+                # printf("%s - WIDE\n", $mod->find_net($sig->name)->data_type);
+
                 # printf("NUM\n");
             }            
     }
@@ -170,3 +256,40 @@ sub show_hier {
     # print Dumper \%json_data;
 }
 
+sub replace_param {
+   # Get the subroutine's argument.
+    my $mod = shift;
+    my $arg = shift;
+    
+    # Hash of stuff we want to replace.
+    my %replace = (
+        "13" => "thirteen",
+        "4" => "four",
+    );
+    my %compare = %{$json_data{'MODULE'}{$mod->name}{'PARAMETER'}};
+    # for (sort keys %{ $json_data{'MODULE'}{$mod->name}{'PARAMETER'} }) {
+    #     print "$_ A => ${ $json_data{'MODULE'}{$mod->name}{'PARAMETER'} }{$_}\n";
+    # } 
+    # for (sort keys %replace) {
+    #     print "$_ B => $replace{$_}\n";
+    # } 
+    for (sort keys %compare) {
+        print "$_ C => $compare{$_}\n";
+    } 
+    # print "REPLACED: ", $json_data{'MODULE'}{$mod->name}{'PARAMETER'}, "\n";
+
+    # See if there's a replacement
+    # for the given text.
+    my $text = $compare{$arg};
+    
+    if(defined($text)) 
+    {
+        # Got a replacement; return it.
+        print "REPLACED: ", $text, "\n";
+        return $text;
+    }
+    
+    # No replacement; return original text.
+    return $arg;
+
+}
