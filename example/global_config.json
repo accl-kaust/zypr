@@ -25,11 +25,30 @@
             "package":"clg484",
             "speed":"-1",
             "board":"em.avnet.com:zed:part0:1.0"
-        },
-        "project_config":{
-            "config_default":"default",
-            "config_1":"config_1",
-            "config_2":"config_2"
+        }
+    },
+    "design":{
+        "design_name":"dynamic-peripheral",
+        "design_owner":"bucknalla",
+        "design_mode":{
+            "mode_a":{
+                "name":"I2C",
+                "configurations":{
+
+                }
+            },
+            "mode_b":{
+                "name":"SPI",
+                "configurations":{
+                    
+                }
+            },
+            "mode_c":{
+                "name":"UART",
+                "configurations":{
+                    
+                }
+            }
         }
     }
 }
