@@ -1,0 +1,107 @@
+{
+    "FILE_NAME" : "mode_up.v",
+    "MODULE" : {
+       "partial_led_test_v1_0_S00_AXI" : {
+          "PARAMETER" : {
+             "C_S_AXI_DATA_WIDTH" : "32",
+             "C_S_AXI_ADDR_WIDTH" : "4"
+          },
+          "PORT" : {
+             "S_AXI_WREADY" : {
+                "DIRECTION" : "output",
+                "WIDTH" : 1
+             },
+             "S_AXI_ARESETN" : {
+                "DIRECTION" : "input",
+                "WIDTH" : 1
+             },
+             "S_AXI_ARVALID" : {
+                "WIDTH" : 1,
+                "DIRECTION" : "input"
+             },
+             "S_AXI_RRESP" : {
+                "WIDTH" : 2,
+                "DIRECTION" : "output"
+             },
+             "S_AXI_RDATA" : {
+                "DIRECTION" : "output",
+                "WIDTH" : 32
+             },
+             "S_AXI_BREADY" : {
+                "DIRECTION" : "input",
+                "WIDTH" : 1
+             },
+             "S_AXI_RREADY" : {
+                "WIDTH" : 1,
+                "DIRECTION" : "input"
+             },
+             "S_AXI_BRESP" : {
+                "DIRECTION" : "output",
+                "WIDTH" : 2
+             },
+             "S_AXI_ARREADY" : {
+                "DIRECTION" : "output",
+                "WIDTH" : 1
+             },
+             "S_AXI_AWPROT" : {
+                "WIDTH" : 3,
+                "DIRECTION" : "input"
+             },
+             "S_AXI_ACLK" : {
+                "DIRECTION" : "input",
+                "WIDTH" : 1
+             },
+             "S_AXI_AWREADY" : {
+                "WIDTH" : 1,
+                "DIRECTION" : "output"
+             },
+             "SQUID" : {
+                "DIRECTION" : "input",
+                "WIDTH" : 1
+             },
+             "S_AXI_AWVALID" : {
+                "WIDTH" : 1,
+                "DIRECTION" : "input"
+             },
+             "S_AXI_ARPROT" : {
+                "DIRECTION" : "input",
+                "WIDTH" : 3
+             },
+             "S_AXI_ARADDR" : {
+                "DIRECTION" : "input",
+                "WIDTH" : 4
+             },
+             "S_AXI_RVALID" : {
+                "WIDTH" : 1,
+                "DIRECTION" : "output"
+             },
+             "leds" : {
+                "DIRECTION" : "output",
+                "WIDTH" : 8
+             },
+             "S_AXI_WSTRB" : {
+                "DIRECTION" : "input",
+                "WIDTH" : 4
+             },
+             "S_AXI_WDATA" : {
+                "DIRECTION" : "input",
+                "WIDTH" : 32
+             },
+             "S_AXI_BVALID" : {
+                "DIRECTION" : "output",
+                "WIDTH" : 1
+             },
+             "S_AXI_AWADDR" : {
+                "WIDTH" : 4,
+                "DIRECTION" : "input"
+             }
+          },
+          "LOCALPARAM" : {
+             "OPT_MEM_ADDR_BITS" : "1",
+             "ADDR_LSB" : "(C_S_AXI_DATA_WIDTH/32)+1"
+          }
+       }
+    },
+    "TOP_MODULE" : "partial_led_test_v1_0_S00_AXI"
+ }
+ 

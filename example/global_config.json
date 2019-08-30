@@ -33,21 +33,41 @@
         "design_mode":{
             "mode_a":{
                 "name":"I2C",
-                "configurations":{
+                "configs":{
+                    "config_a":{
+                        "rtl":[
+                            "top.v",
+                            "i2c.v"
+                        ]
+                    },
+                    "config_b":{
+                        "rtl":[
 
+                        ]
+                    }
+                },
+                "interfaces":{
+                    "master": {
+                        "AXI_S":{},
+                        "AXI_LITE":{},
+                        "AXI":{}
+                    },
+                    "slave": {
+                        "AXI_S":{},
+                        "AXI_LITE":{},
+                        "AXI":{}
+                    }
                 }
             },
             "mode_b":{
                 "name":"SPI",
-                "configurations":{
-                    
-                }
+                "configurations":{},
+                "interfaces":{}
             },
             "mode_c":{
                 "name":"UART",
-                "configurations":{
-                    
-                }
+                "configurations":{},
+                "interfaces":{}
             }
         }
     }
