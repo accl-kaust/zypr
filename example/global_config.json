@@ -37,12 +37,14 @@
                     "config_a":{
                         "rtl":[
                             "top.v",
-                            "i2c.v"
-                        ]
+                            "i2c_master.v"
+                        ],
+                        "top_module":"top.v"
                     },
                     "config_b":{
                         "rtl":[
-
+                            "top.v",
+                            "i2c_slave.v"
                         ]
                     }
                 },
@@ -61,12 +63,12 @@
             },
             "mode_b":{
                 "name":"SPI",
-                "configurations":{},
+                "configs":{},
                 "interfaces":{}
             },
             "mode_c":{
                 "name":"UART",
-                "configurations":{},
+                "configs":{},
                 "interfaces":{}
             }
         }

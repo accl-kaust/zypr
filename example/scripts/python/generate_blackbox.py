@@ -34,6 +34,7 @@ def main():
                             elif direction == "output":
                                 port_list.append(vast.Ioport(vast.Output(module_port)))
                     print(port_list)
+                    file.close()
                 params = vast.Paramlist('')
                 ports = vast.Portlist( port_list )
                 ast = vast.ModuleDef("black_box", params, ports, [])
