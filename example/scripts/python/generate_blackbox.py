@@ -11,9 +11,10 @@ def main():
         path = root.split(os.sep)
         # print((len(path) - 1) * '---', os.path.basename(root))
         for file in files:
-            if file.endswith('.json'):            
+            if file.endswith('.json'):           
+                print(root) 
                 print(len(path) * '---', file)
-                with open(file) as json_file:
+                with open(root+os.sep+file) as json_file:
                     data = json.load(json_file)
                     top_module = data['TOP_MODULE']
                     port_list = []
@@ -34,10 +35,10 @@ def main():
                             elif direction == "output":
                                 port_list.append(vast.Ioport(vast.Output(module_port)))
                     print(port_list)
-                    file.close()
+                    json_file.close()
                 params = vast.Paramlist('')
                 ports = vast.Portlist( port_list )
-                ast = vast.ModuleDef("black_box", params, ports, [])
+                ast = vast.ModuleDef(top_module, params, ports, [])
                 codegen = ASTCodeGenerator()
                 rslt = codegen.visit(ast)
                 print(rslt)

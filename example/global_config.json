@@ -37,27 +37,28 @@
                     "config_a":{
                         "rtl":[
                             "top.v",
-                            "i2c_master.v"
+                            "mode_a.v"
                         ],
                         "top_module":"top.v"
                     },
                     "config_b":{
                         "rtl":[
                             "top.v",
-                            "i2c_slave.v"
-                        ]
+                            "mode_b.v"
+                        ],
+                        "top_module":"top.v"
                     }
                 },
                 "interfaces":{
                     "master": {
-                        "AXI_S":{},
-                        "AXI_LITE":{},
-                        "AXI":{}
+                        "axis":{
+                            "axis_0":{
+                                "TDATA":32
+                            }
+                        }
                     },
                     "slave": {
-                        "AXI_S":{},
-                        "AXI_LITE":{},
-                        "AXI":{}
+                        "axis":{}
                     }
                 }
             },

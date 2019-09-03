@@ -1,0 +1,422 @@
+{
+    "abstractionDefinition": {
+      "vendor": "xilinx.com",
+      "library": "interface",
+      "name": "axi_lite",
+      "version": "1.0",
+      "ports": {
+        "port": [
+          {
+            "logicalName": "AWADDR",
+            "description": "Write address",
+            "wire": {
+              "onMaster": {
+                "presence": "optional",
+                "direction": "out"
+              },
+              "onSlave": {
+                "presence": "optional",
+                "direction": "in"
+              },
+              "defaultValue": "0"
+            },
+            "vendorExtensions": {
+              "xilinx:abstractionDefinitionPortInfo": { "xilinx:group": "AW" }
+            }
+          },
+          {
+            "logicalName": "AWCACHE",
+            "description": "Cache type",
+            "wire": {
+              "onMaster": {
+                "presence": "optional",
+                "width": "4",
+                "direction": "out"
+              },
+              "onSlave": {
+                "presence": "optional",
+                "width": "4",
+                "direction": "in"
+              },
+              "defaultValue": "3"
+            },
+            "vendorExtensions": {
+              "xilinx:abstractionDefinitionPortInfo": { "xilinx:group": "AW" }
+            }
+          },
+          {
+            "logicalName": "AWPROT",
+            "description": "Protection type",
+            "wire": {
+              "onMaster": {
+                "presence": "optional",
+                "width": "3",
+                "direction": "out"
+              },
+              "onSlave": {
+                "presence": "optional",
+                "width": "3",
+                "direction": "in"
+              },
+              "defaultValue": "0"
+            },
+            "vendorExtensions": {
+              "xilinx:abstractionDefinitionPortInfo": { "xilinx:group": "AW" }
+            }
+          },
+          {
+            "logicalName": "AWVALID",
+            "description": "Write address valid",
+            "wire": {
+              "onMaster": {
+                "presence": "optional",
+                "width": "1",
+                "direction": "out"
+              },
+              "onSlave": {
+                "presence": "optional",
+                "width": "1",
+                "direction": "in"
+              },
+              "defaultValue": "0"
+            },
+            "vendorExtensions": {
+              "xilinx:abstractionDefinitionPortInfo": { "xilinx:group": "AW" }
+            }
+          },
+          {
+            "logicalName": "AWREADY",
+            "description": "Write address ready",
+            "wire": {
+              "onMaster": {
+                "presence": "optional",
+                "width": "1",
+                "direction": "in"
+              },
+              "onSlave": {
+                "presence": "optional",
+                "width": "1",
+                "direction": "out"
+              },
+              "defaultValue": "0"
+            },
+            "vendorExtensions": {
+              "xilinx:abstractionDefinitionPortInfo": { "xilinx:group": "AW" }
+            }
+          },
+          {
+            "logicalName": "WDATA",
+            "description": "Write data",
+            "wire": {
+              "onMaster": {
+                "presence": "optional",
+                "direction": "out"
+              },
+              "onSlave": {
+                "presence": "optional",
+                "direction": "in"
+              },
+              "defaultValue": "0"
+            },
+            "vendorExtensions": {
+              "xilinx:abstractionDefinitionPortInfo": { "xilinx:group": "W" }
+            }
+          },
+          {
+            "logicalName": "WSTRB",
+            "description": "Write strobes",
+            "wire": {
+              "onMaster": {
+                "presence": "optional",
+                "direction": "out"
+              },
+              "onSlave": {
+                "presence": "optional",
+                "direction": "in"
+              },
+              "defaultValue": "1"
+            },
+            "vendorExtensions": {
+              "xilinx:abstractionDefinitionPortInfo": { "xilinx:group": "W" }
+            }
+          },
+          {
+            "logicalName": "WVALID",
+            "description": "Write valid",
+            "wire": {
+              "onMaster": {
+                "presence": "optional",
+                "width": "1",
+                "direction": "out"
+              },
+              "onSlave": {
+                "presence": "optional",
+                "width": "1",
+                "direction": "in"
+              },
+              "defaultValue": "0"
+            },
+            "vendorExtensions": {
+              "xilinx:abstractionDefinitionPortInfo": { "xilinx:group": "W" }
+            }
+          },
+          {
+            "logicalName": "WREADY",
+            "description": "Write ready",
+            "wire": {
+              "onMaster": {
+                "presence": "optional",
+                "width": "1",
+                "direction": "in"
+              },
+              "onSlave": {
+                "presence": "optional",
+                "width": "1",
+                "direction": "out"
+              },
+              "defaultValue": "0"
+            },
+            "vendorExtensions": {
+              "xilinx:abstractionDefinitionPortInfo": { "xilinx:group": "W" }
+            }
+          },
+          {
+            "logicalName": "BRESP",
+            "description": "Write response",
+            "wire": {
+              "onMaster": {
+                "presence": "optional",
+                "width": "2",
+                "direction": "in"
+              },
+              "onSlave": {
+                "presence": "optional",
+                "width": "2",
+                "direction": "out"
+              },
+              "defaultValue": "0"
+            },
+            "vendorExtensions": {
+              "xilinx:abstractionDefinitionPortInfo": { "xilinx:group": "B" }
+            }
+          },
+          {
+            "logicalName": "BVALID",
+            "description": "Write response valid",
+            "wire": {
+              "onMaster": {
+                "presence": "optional",
+                "width": "1",
+                "direction": "in"
+              },
+              "onSlave": {
+                "presence": "optional",
+                "width": "1",
+                "direction": "out"
+              },
+              "defaultValue": "0"
+            },
+            "vendorExtensions": {
+              "xilinx:abstractionDefinitionPortInfo": { "xilinx:group": "B" }
+            }
+          },
+          {
+            "logicalName": "BREADY",
+            "description": "Write response ready",
+            "wire": {
+              "onMaster": {
+                "presence": "optional",
+                "width": "1",
+                "direction": "out"
+              },
+              "onSlave": {
+                "presence": "optional",
+                "width": "1",
+                "direction": "in"
+              },
+              "defaultValue": "0"
+            },
+            "vendorExtensions": {
+              "xilinx:abstractionDefinitionPortInfo": { "xilinx:group": "B" }
+            }
+          },
+          {
+            "logicalName": "ARADDR",
+            "description": "Read address",
+            "wire": {
+              "onMaster": {
+                "presence": "optional",
+                "direction": "out"
+              },
+              "onSlave": {
+                "presence": "optional",
+                "direction": "in"
+              },
+              "defaultValue": "0"
+            },
+            "vendorExtensions": {
+              "xilinx:abstractionDefinitionPortInfo": { "xilinx:group": "AR" }
+            }
+          },
+          {
+            "logicalName": "ARCACHE",
+            "description": "Cache type",
+            "wire": {
+              "onMaster": {
+                "presence": "optional",
+                "width": "4",
+                "direction": "out"
+              },
+              "onSlave": {
+                "presence": "optional",
+                "width": "4",
+                "direction": "in"
+              },
+              "defaultValue": "3"
+            },
+            "vendorExtensions": {
+              "xilinx:abstractionDefinitionPortInfo": { "xilinx:group": "AR" }
+            }
+          },
+          {
+            "logicalName": "ARPROT",
+            "description": "Protection type",
+            "wire": {
+              "onMaster": {
+                "presence": "optional",
+                "width": "3",
+                "direction": "out"
+              },
+              "onSlave": {
+                "presence": "optional",
+                "width": "3",
+                "direction": "in"
+              },
+              "defaultValue": "0"
+            },
+            "vendorExtensions": {
+              "xilinx:abstractionDefinitionPortInfo": { "xilinx:group": "AR" }
+            }
+          },
+          {
+            "logicalName": "ARVALID",
+            "description": "Read address valid",
+            "wire": {
+              "onMaster": {
+                "presence": "optional",
+                "width": "1",
+                "direction": "out"
+              },
+              "onSlave": {
+                "presence": "optional",
+                "width": "1",
+                "direction": "in"
+              },
+              "defaultValue": "0"
+            },
+            "vendorExtensions": {
+              "xilinx:abstractionDefinitionPortInfo": { "xilinx:group": "AR" }
+            }
+          },
+          {
+            "logicalName": "ARREADY",
+            "description": "Read address ready",
+            "wire": {
+              "onMaster": {
+                "presence": "optional",
+                "width": "1",
+                "direction": "in"
+              },
+              "onSlave": {
+                "presence": "optional",
+                "width": "1",
+                "direction": "out"
+              },
+              "defaultValue": "0"
+            },
+            "vendorExtensions": {
+              "xilinx:abstractionDefinitionPortInfo": { "xilinx:group": "AR" }
+            }
+          },
+          {
+            "logicalName": "RDATA",
+            "description": "Read data",
+            "wire": {
+              "onMaster": {
+                "presence": "optional",
+                "direction": "in"
+              },
+              "onSlave": {
+                "presence": "optional",
+                "direction": "out"
+              },
+              "defaultValue": "0"
+            },
+            "vendorExtensions": {
+              "xilinx:abstractionDefinitionPortInfo": { "xilinx:group": "R" }
+            }
+          },
+          {
+            "logicalName": "RRESP",
+            "description": "Read response",
+            "wire": {
+              "onMaster": {
+                "presence": "optional",
+                "width": "2",
+                "direction": "in"
+              },
+              "onSlave": {
+                "presence": "optional",
+                "width": "2",
+                "direction": "out"
+              },
+              "defaultValue": "0"
+            },
+            "vendorExtensions": {
+              "xilinx:abstractionDefinitionPortInfo": { "xilinx:group": "R" }
+            }
+          },
+          {
+            "logicalName": "RVALID",
+            "description": "Read valid",
+            "wire": {
+              "onMaster": {
+                "presence": "optional",
+                "width": "1",
+                "direction": "in"
+              },
+              "onSlave": {
+                "presence": "optional",
+                "width": "1",
+                "direction": "out"
+              },
+              "defaultValue": "0"
+            },
+            "vendorExtensions": {
+              "xilinx:abstractionDefinitionPortInfo": { "xilinx:group": "R" }
+            }
+          },
+          {
+            "logicalName": "RREADY",
+            "description": "Read ready",
+            "wire": {
+              "onMaster": {
+                "presence": "optional",
+                "width": "1",
+                "direction": "out"
+              },
+              "onSlave": {
+                "presence": "optional",
+                "width": "1",
+                "direction": "in"
+              },
+              "defaultValue": "0"
+            },
+            "vendorExtensions": {
+              "xilinx:abstractionDefinitionPortInfo": { "xilinx:group": "R" }
+            }
+          }
+        ]
+      }
+    }
+  }
