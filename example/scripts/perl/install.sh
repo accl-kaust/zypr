@@ -17,4 +17,5 @@ PERL_MM_USE_DEFAULT=1 perl -MCPAN -e \
 'install Verilog::Netlist; \
  install Verilog::Preproc; \
  install Verilog::CodeGen; \
+ install Math::Calc::Parser; \
  install JSON::XS'
