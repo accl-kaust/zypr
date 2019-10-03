@@ -1,6 +1,0 @@
-* [Home](/)
-* [About](/about/README.md)
-    * [Abbreviations & Glossary](/about/abbreviations.md)
-    * [Partial Reconfiguration](/about/partial-reconfig.md)
-* [Installing](/install/README.md)
-* [SDK](/sdk/README.md)

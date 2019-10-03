@@ -1,0 +1,25 @@
+site_name: ZyCAP2 Docs
+
+nav:
+  - Intro: 'index.md'
+  - Getting Started: 'getting-started.md'
+  - Guides:
+    - Software: '!include ./sw/mkdocs.yml'
+    - Hardware: '!include ./hdl/mkdocs.yml'
+
+plugins:
+  - monorepo
+
+theme: 
+  name: material
+  palette:
+    primary: 'blue'
+    accent: 'indigo'
+  logo: 'images/gear.svg'
+
+extra:
+  search:
+    language: 'en'
+
+repo_name: 'warc/zycap'
+repo_url: 'https://github.com/squidfunk/mkdocs-material'

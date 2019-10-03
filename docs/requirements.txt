@@ -1,0 +1,2 @@
+mkdocs>=1.0.4
+mkdocs-monorepo-plugin>=0.4.2
