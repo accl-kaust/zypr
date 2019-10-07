@@ -24,3 +24,8 @@ node_modules
 *.str
 *.jou
 *.Xil
+*.wpc
+*.xpr
+*.wdf
+*.lpr
+webtalk_pa.xml
