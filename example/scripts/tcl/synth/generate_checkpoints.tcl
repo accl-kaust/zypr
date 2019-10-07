@@ -1,7 +1,7 @@
 ############################ Packages ############################
 package require json
 # Load config.json
-set ROOT_PATH [exec sh -c {cd ../../../; pwd}]
+set ROOT_PATH [exec sh -c {cd ../../; pwd}]
 set cfg [read [open "$ROOT_PATH/global_config.json" r]]
 set global_config [json::json2dict $cfg] 
 ############################ Setup  #############################
