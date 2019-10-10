@@ -21,10 +21,14 @@
         "project_name":"example",
         "project_owner":"bucknalla",
         "project_device":{
-            "device":"xc7z020",
-            "package":"clg484",
+            "name":"ultra96",
+            "device":"xczu3eg",
+            "package":"-sbva484",
             "speed":"-1",
-            "board":"em.avnet.com:zed:part0:1.0"
+            "option":"-e",
+            "board":"em.avnet.com:ultra96v1:part0:1.2",
+            "version":"v1",
+            "constraint":"ps-gem.xdc"
         }
     },
     "design":{

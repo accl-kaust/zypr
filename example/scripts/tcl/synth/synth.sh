@@ -1,1 +1,1 @@
-/opt/Xilinx/Vivado/2018.2/bin/vivado -nolog -nojou -mode batch -source $1
+$1 -nolog -nojou -mode batch -source $2 -tclargs $3

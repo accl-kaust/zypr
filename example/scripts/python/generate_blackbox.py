@@ -16,6 +16,7 @@ def main():
                 print(len(path) * '---', file)
                 with open(root+os.sep+file) as json_file:
                     data = json.load(json_file)
+                    print(data)
                     top_module = data['TOP_MODULE']
                     port_list = []
                     for module_port in data['MODULE'][top_module]['PORT']:
