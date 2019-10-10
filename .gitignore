@@ -29,3 +29,4 @@ node_modules
 *.wdf
 *.lpr
 webtalk_pa.xml
+*.zip
