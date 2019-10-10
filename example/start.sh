@@ -1,5 +1,5 @@
 ZYCAP_ROOT_PATH=$(pwd)
-VIVADO="/tools/Xilinx/Vivado/2018.2/bin/vivado"
+VIVADO="/opt/Xilinx/Vivado/2018.2/bin/vivado"
 
 cd $ZYCAP_ROOT_PATH/rtl && make clean-meta
 
