@@ -11,12 +11,14 @@ from pyverilog.ast_code_generator.codegen import ASTCodeGenerator
 def main():
     if not os.path.exists('.modes'):
         os.makedirs('.modes')
-    logger.info('Checking for Global Config')
+    logger.info(' Checking for Global Config')
     try:
         with open('../global_config.json') as json_file:
             config = json.load(json_file)
     except FileNotFoundError:
-        logger.error('Missing Global Config')
+        logger.error(' Missing Global Config')
+        print(os.getcwd())
+        sys.exit()
     else:
         pass
     for mode in config['design']['design_mode']:

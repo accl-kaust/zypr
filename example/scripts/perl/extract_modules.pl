@@ -14,13 +14,21 @@ use Verilog::Getopt;
 use File::Find;
 use File::Basename;
 
-my $input_file = $ARGV[0];
+my $working_dir = $ARGV[0];
 my %json_data; 
 my $nl;
 my $opt = new Verilog::Getopt;
 $opt->parameter( "+incdir+verilog",
                  "-y","verilog",
                  );
+
+my @rtlfiles =glob("$working_dir/*.v");
+foreach my $rtlfiles (@rtlfiles)
+{
+  print("$rtlfiles\n");
+}
+# print(@things);
+$opt->library(@rtlfiles);
 
 
 my @dirs = (".");
@@ -29,6 +37,7 @@ while (my $pwd = shift @dirs) {
         opendir(DIR,"$pwd") or die "Cannot open $pwd\n";
         my @files = readdir(DIR);
         closedir(DIR);
+        print "$pwd";
         foreach my $file (@files) {
                 next if $file =~ /^\.\.?$/;
                 my $path = "$pwd/$file";

@@ -11,11 +11,20 @@ set PROJECT_NAME [dict get $global_config design design_name]
 puts "Setting up $PROJECT_NAME..."
 puts $ROOT_PATH
 # Setup Device
-set DEVICE_PART [dict get $global_config project project_device device]
-set DEVICE_BOARD [dict get $global_config project project_device board]
+set board_name [dict get $global_config project project_device name]
+set board_part [dict get $global_config project project_device board]
+set board_device [dict get $global_config project project_device device]
+set board_package [dict get $global_config project project_device package]
+set board_speed [dict get $global_config project project_device speed]
+set board_option [dict get $global_config project project_device option]
+set board_version [dict get $global_config project project_device version]
+set board_constraint [dict get $global_config project project_device constraint]
 
-create_project system_top ./$PROJECT_NAME -part $DEVICE_PART -force
-set_property BOARD_PART $DEVICE_BOARD [current_project]
+set fpga_part $board_device$board_package$board_speed$board_option
+set design_name "base_design"
+
+create_project system_top "./.checkpoint_prj" -part $fpga_part -force
+set_property BOARD_PART $board_part [current_project]
 set_property ip_repo_paths ../../../../ip [current_fileset]
 update_ip_catalog
 

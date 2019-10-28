@@ -1,80 +1,80 @@
 {
-    "config":{
-        "config_vivado":{
-            "vivado_path":"/opt",
-            "vivado_version":"2018.2",
-            "vivado_params":"-nojou -nolog",
-            "vivado_proxy":"proxychains"
+    "config": {
+        "config_vivado": {
+            "vivado_path": "/opt",
+            "vivado_version": "2018.2",
+            "vivado_params": "-nojou -nolog",
+            "vivado_proxy": "proxychains"
         },
-        "config_run":{
-            "static_synth":1,
-            "rm_synth":1,
-            "pr_impl":1,
-            "pr_verify":1,
-            "gen_bitstream":1
+        "config_run": {
+            "static_synth": 1,
+            "rm_synth": 1,
+            "pr_impl": 1,
+            "pr_verify": 1,
+            "gen_bitstream": 1
         },
-        "config_settings":{
-            "top_file":"top.v"
+        "config_settings": {
+            "top_file": "top.v"
         }
     },
-    "project":{
-        "project_name":"example",
-        "project_owner":"bucknalla",
-        "project_device":{
-            "name":"ultra96",
-            "device":"xczu3eg",
-            "package":"-sbva484",
-            "speed":"-1",
-            "option":"-e",
-            "board":"em.avnet.com:ultra96v1:part0:1.2",
-            "version":"v1",
-            "constraint":"ps-gem.xdc"
+    "project": {
+        "project_name": "example",
+        "project_owner": "bucknalla",
+        "project_device": {
+            "name": "ultra96",
+            "device": "xczu3eg",
+            "package": "-sbva484",
+            "speed": "-1",
+            "option": "-e",
+            "board": "em.avnet.com:ultra96v1:part0:1.2",
+            "version": "v1",
+            "constraint": "ps-gem.xdc"
         }
     },
-    "design":{
-        "design_name":"dynamic-peripheral",
-        "design_owner":"bucknalla",
-        "design_mode":{
-            "mode_a":{
-                "name":"I2C",
-                "configs":{
-                    "config_a":{
-                        "rtl":[
+    "design": {
+        "design_name": "dynamic-peripheral",
+        "design_owner": "bucknalla",
+        "design_mode": {
+            "mode_a": {
+                "name": "I2C",
+                "configs": {
+                    "config_a": {
+                        "rtl": [
                             "top.v",
                             "mode_a.v"
                         ],
-                        "top_module":"top.v"
+                        "top_module": "top.v"
                     },
-                    "config_b":{
-                        "rtl":[
+                    "config_b": {
+                        "rtl": [
                             "top.v",
                             "mode_b.v"
                         ],
-                        "top_module":"top.v"
+                        "top_module": "top.v"
                     }
                 },
-                "interfaces":{
+                "interfaces": {
                     "master": {
-                        "axis":{
-                            "axis_0":{
-                                "TDATA":32
+                        "axis": {
+                            "axis_0": {
+                                "TDATA": 32
                             }
                         }
                     },
                     "slave": {
-                        "axis":{}
+                        "axis": {}
                     }
                 }
             },
-            "mode_b":{
-                "name":"SPI",
-                "configs":{},
-                "interfaces":{}
+            "mode_b": {
+                "name": "SPI",
+                "configs": {},
+                "interfaces": {}
             },
-            "mode_c":{
-                "name":"UART",
-                "configs":{},
-                "interfaces":{}
+            "mode_c": {
+                "name": "UART",
+                "configs": {},
+                "interfaces": {}
             }
         }
     }

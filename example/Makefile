@@ -17,8 +17,11 @@ SUCCESS := \033[0;32m
 NONE := \033[0m
 
 clean:
-	rm -rf ./vivado/*
-	rm -R ./vivado/.Xil
+	# rm -rf ./vivado/*
+	# rm -R ./vivado/.Xil
+	rm -rf rtl/.blackbox
+	rm -rf rtl/.json
+	rm -rf rtl/.modes
 
 python:
 ifeq (${PYV_MAJOR}, 3)
