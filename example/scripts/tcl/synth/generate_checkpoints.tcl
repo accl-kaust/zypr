@@ -53,10 +53,13 @@ dict for {mode modes} [dict get $global_config design design_mode] {
                 puts "test: $item"
                 lappend rtl_list $work_directory$item
             }
-            puts $rtl_list
-            add_files $rtl_list
+            set idx [lsearch $rtl_list $work_directory$top_module_file]
+            set rtl_list_clean [lreplace $rtl_list $idx $idx]
+            puts "files added : $rtl_list_clean"
+            add_files $rtl_list_clean
+            synth_design
+            write_checkpoint $ROOT_PATH/rtl/.modes/$mode/.checkpoints/static.dcp -force
         }
-        synth_design -top $top_module_name
-        write_checkpoint $ROOT_PATH/rtl/.modes/$mode/.checkpoints/static.dcp -force
+       
     }
 }

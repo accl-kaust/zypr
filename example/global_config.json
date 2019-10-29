@@ -37,6 +37,7 @@
         "design_mode": {
             "mode_a": {
                 "name": "I2C",
+                "pr_module": "partial_led_test_v1_0_S00_AXI",
                 "configs": {
                     "config_a": {
                         "rtl": [

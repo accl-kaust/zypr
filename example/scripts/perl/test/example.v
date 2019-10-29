@@ -10,6 +10,9 @@ input [7:0] sw
 );
 assign led[3] = sw[1];
 
+
+tesx dut1();
+
 test dut(
     .x(sw)
 );
