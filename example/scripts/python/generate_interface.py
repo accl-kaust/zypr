@@ -4,6 +4,7 @@ import logging
 import sys
 import os
 import shutil
+import xmltodict
 import json
 import pyverilog.vparser.ast as vast
 from pyverilog.ast_code_generator.codegen import ASTCodeGenerator
@@ -42,31 +43,21 @@ def main():
                         os.makedirs('.modes/{}/{}'.format(mode,mode_configs))
                         os.makedirs('.modes/{}/{}/.checkpoints'.format(mode,mode_configs))
                     shutil.copyfile(config_variations,'.modes/{}/{}/{}'.format(mode,mode_configs,config_variations))
-                    os.system('vhier -y .modes/{1}/{2}/. --top-module {0} --module-files .modes/{1}/{2}/*.v -o .modes/{1}/{2}/hier.txt'.format(config['design']['design_mode'][mode]["pr_module"],mode,mode_configs))
-                    inFile = open('.modes/{}/{}/hier.txt'.format(mode,mode_configs))
-                    print(_recurse_tree(None, 0, inFile))
+                    os.system('vhier -y .modes/{1}/{2}/. --top-module {0} --module-files .modes/{1}/{2}/*.v --xml -o .modes/{1}/{2}/hier.xml'.format(config['design']['design_mode'][mode]["pr_module"],mode,mode_configs))
+                    with open('.modes/{0}/{1}/hier.xml'.format(mode,mode_configs),'r+') as f_xml:
+                        data = f_xml.read()
+                        o = xmltodict.parse(data)
+                        print(json.dumps(o))
+                        f_xml.seek(0)
+                        # with open('.modes/{0}/{1}/hier.json'.format(mode,mode_configs),'w') as f_json:
+                        json.dump(o,f_xml, ensure_ascii=False, indent=4, sort_keys=True)
+                    pre, ext = os.path.splitext('.modes/{0}/{1}/hier.xml'.format(mode,mode_configs))
+                    os.rename('.modes/{0}/{1}/hier.xml'.format(mode,mode_configs), pre + '.json')
                     with open('.blackbox/{}'.format(config_variations), "r") as f_rtl:
                         for line in f_rtl:
                             f.write(line) 
                     f_rtl.close()
             f.close()
-
-def _recurse_tree(parent, depth, source):
-    last_line = source.readline().rstrip()
-    while last_line:
-        tabs = last_line.count('\t')
-        if tabs < depth:
-            break
-        node = last_line.strip()
-        if tabs >= depth:
-            if parent is not None:
-                print("%s: %s" %(parent, node))
-            last_line = _recurse_tree(node, tabs+1, source)
-    return last_line
-
-# inFile = open("test.txt")
-# _recurse_tree(None, 0, inFile)
-
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
