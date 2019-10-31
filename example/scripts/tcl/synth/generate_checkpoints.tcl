@@ -57,7 +57,8 @@ dict for {mode modes} [dict get $global_config design design_mode] {
             set rtl_list_clean [lreplace $rtl_list $idx $idx]
             puts "files added : $rtl_list_clean"
             add_files $rtl_list_clean
-            synth_design
+            set top_file [json::json2dict [read [open "$ROOT_PATH/rtl/.modes/$mode/hier.json" r]]]
+            synth_design -top_module top_module_name [dict get $top_module_name vhier modules files]
             write_checkpoint $ROOT_PATH/rtl/.modes/$mode/.checkpoints/static.dcp -force
         }
        
