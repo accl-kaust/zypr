@@ -30,37 +30,69 @@ update_ip_catalog
 
 # Setup Configs (RTL)
 set MODE_LIST [list]
-set work_directory "$ROOT_PATH/rtl/.blackbox/"
+set work_directory "$ROOT_PATH/rtl/"
 dict for {mode modes} [dict get $global_config design design_mode] {
     # puts "Mode: $mode"
-    foreach config [dict keys $modes configs] {
-        set data [dict get $modes $config]
-        puts "Mode :$data"
+    dict for {configuration configurations} [dict get $global_config design design_mode $mode configs] {
+        puts "Mode : $mode"
+        puts "Config : $configuration"
+
+        set top_module_file [dict get $configurations top_module]
+        set top_module_file_trim [string trim $top_module_file ".v"]
+        set top_module_json [read [open "$ROOT_PATH/rtl/.json/$top_module_file_trim.json" r]]
+        set top_module_json [json::json2dict $top_module_json] 
+        puts "Top Module File : $top_module_file"
+        # puts $top_module_json
+        set top_module_name [dict get $top_module_json TOP_MODULE]
+        puts "Top Module : $top_module_name"
         # Generate Static Regions
-        foreach item [dict keys $data] {
-            set top_module_file [dict get $data $item top_module]
-            set top_module_file_trim [string trim $top_module_file ".v"]
-            set top_module_json [read [open "$ROOT_PATH/rtl/.json/$top_module_file_trim.json" r]]
-            set top_module_json [json::json2dict $top_module_json] 
-            puts "-Top Module File :$top_module_file"
-            puts $top_module_json
-            set top_module_name [dict get $top_module_json TOP_MODULE]
-            puts "--Top Module :$top_module_name"
-            set rtl [dict get $data $item rtl]
-            puts "--RTL Files :$rtl"
-            set rtl_list [list]
-            foreach item $rtl {
-                puts "test: $item"
-                lappend rtl_list $work_directory$item
-            }
-            set idx [lsearch $rtl_list $work_directory$top_module_file]
-            set rtl_list_clean [lreplace $rtl_list $idx $idx]
-            puts "files added : $rtl_list_clean"
-            add_files $rtl_list_clean
-            set top_file [json::json2dict [read [open "$ROOT_PATH/rtl/.modes/$mode/hier.json" r]]]
-            synth_design -top_module top_module_name [dict get $top_module_name vhier modules files]
-            write_checkpoint $ROOT_PATH/rtl/.modes/$mode/.checkpoints/static.dcp -force
+        set rtl_list [list]
+        foreach item [dict get $configurations rtl] {
+            puts "RTL : $item"
+            lappend rtl_list $work_directory$item
         }
-       
+        set idx [lsearch $rtl_list $work_directory$top_module_file]
+        set rtl_list_clean [lreplace $rtl_list $idx $idx]
+        puts "Files added to RTL : $rtl_list_clean"
+        add_files $rtl_list_clean
+        set top_file [json::json2dict [read [open "$ROOT_PATH/rtl/.modes/$mode/$configuration/hier.json" r]]]
+        puts [lindex [split [string trimright [dict get $top_file vhier module_files file] '.v'] '/'] end]
+        set top_module [dict get [json::json2dict [read [open "$ROOT_PATH/rtl/.json/[lindex [split [string trimright [dict get $top_file vhier module_files file] '.v'] '/'] end].json" r]]] TOP_MODULE]
+        puts $top_module
+        synth_design -top $top_module
+        write_checkpoint $ROOT_PATH/rtl/.modes/$mode/$configuration/.checkpoints/pr_module.dcp -force
     }
 }
+
+
+    # foreach config [dict keys $modes configs] {
+    #     set data [dict get $modes $config]
+    #     puts "Config : $config"
+    #     puts "Mode : $data"
+    #     # Generate Static Regions
+    #     foreach item [dict keys $data] {
+    #         set top_module_file [dict get $data $item top_module]
+    #         set top_module_file_trim [string trim $top_module_file ".v"]
+    #         set top_module_json [read [open "$ROOT_PATH/rtl/.json/$top_module_file_trim.json" r]]
+    #         set top_module_json [json::json2dict $top_module_json] 
+    #         puts "-Top Module File :$top_module_file"
+    #         puts $top_module_json
+    #         set top_module_name [dict get $top_module_json TOP_MODULE]
+    #         puts "--Top Module :$top_module_name"
+    #         set rtl [dict get $data $item rtl]
+    #         puts "--RTL Files :$rtl"
+    #         set rtl_list [list]
+    #         foreach item $rtl {
+    #             puts "test: $item"
+    #             lappend rtl_list $work_directory$item
+    #         }
+    #         set idx [lsearch $rtl_list $work_directory$top_module_file]
+    #         set rtl_list_clean [lreplace $rtl_list $idx $idx]
+    #         puts "files added : $rtl_list_clean"
+    #         add_files $rtl_list_clean
+    #         set top_file [json::json2dict [read [open "$ROOT_PATH/rtl/.modes/$mode/hier.json" r]]]
+    #         synth_design -top_module top_module_name [dict get $top_module_name vhier modules files]
+    #         write_checkpoint $ROOT_PATH/rtl/.modes/$mode/.checkpoints/static.dcp -force
+    #     }
+       
+    # }
