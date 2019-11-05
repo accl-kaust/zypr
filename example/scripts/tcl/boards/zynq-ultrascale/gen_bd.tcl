@@ -132,7 +132,7 @@ puts "INFO: Project created:${design_name}"
 set num_gems 4
 
 # Create block design
-source $origin_dir/board/$board_name/$board_version/bd/bd.tcl
+source $origin_dir/board/$board_name/$board_version/bd/bd.tcl -notrace
 
 # Generate the wrapper
 make_wrapper -files [get_files *${design_name}.bd] -top

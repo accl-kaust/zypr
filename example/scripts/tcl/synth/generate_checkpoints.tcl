@@ -36,7 +36,6 @@ dict for {mode modes} [dict get $global_config design design_mode] {
     dict for {configuration configurations} [dict get $global_config design design_mode $mode configs] {
         puts "Mode : $mode"
         puts "Config : $configuration"
-
         set top_module_file [dict get $configurations top_module]
         set top_module_file_trim [string trim $top_module_file ".v"]
         set top_module_json [read [open "$ROOT_PATH/rtl/.json/$top_module_file_trim.json" r]]
