@@ -17,11 +17,7 @@ SUCCESS := \033[0;32m
 NONE := \033[0m
 
 clean:
-	# rm -rf ./vivado/*
-	# rm -R ./vivado/.Xil
-	rm -rf rtl/.blackbox
-	rm -rf rtl/.json
-	rm -rf rtl/.modes
+	rm -rf rtl/.* rtl/*.log rtl/*.jou
 
 python:
 ifeq (${PYV_MAJOR}, 3)
@@ -44,3 +40,5 @@ else
 	$(VIVADO_PATH) -mode batch -source generate.tcl -nojou -nolog
 endif
 
+start:
+	@exec ./start.sh
