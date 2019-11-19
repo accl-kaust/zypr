@@ -2,7 +2,7 @@
 .PHONY: clean
 
 clean: clean-meta
-	rm -rf .modes .json .blackbox .checkpoint_prj .Xil
+	rm -rf .modes .json .blackbox .checkpoint_prj .Xil .logs
 
 clean-meta:	
-	rm -rf *.jou *.log 
+	rm -rf *.jou

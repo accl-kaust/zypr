@@ -1,7 +1,7 @@
 {
     "config": {
         "config_vivado": {
-            "vivado_path": "/opt",
+            "vivado_path": "/opt/Xilinx/Vivado/2018.2/bin/vivado",
             "vivado_version": "2018.2",
             "vivado_params": "-nojou -nolog",
             "vivado_proxy": "proxychains"
@@ -14,7 +14,8 @@
             "gen_bitstream": 1
         },
         "config_settings": {
-            "top_file": "top.v"
+            "top_file": "top.v",
+            "check_dependencies":true
         }
     },
     "project": {
@@ -22,6 +23,7 @@
         "project_owner": "bucknalla",
         "project_device": {
             "name": "ultra96",
+            "family": "zynq-ultrascale",
             "device": "xczu3eg",
             "package": "-sbva484",
             "speed": "-1",
@@ -76,6 +78,20 @@
                 "name": "UART",
                 "configs": {},
                 "interfaces": {}
+            }
+        }
+    },
+    "linux":{
+        "linux_device_tree":{
+            "device_tree_config":{
+                "udmabuf":{
+                    "size":0
+                }
+            }
+        },
+        "linux_petalinux":{
+            "petalinux":{
+                "path":"home/alex/petalinux"
             }
         }
     }

@@ -134,6 +134,10 @@ set num_gems 4
 # Create block design
 source $origin_dir/board/$board_name/$board_version/bd/bd.tcl -notrace
 
+# Add ZyCAP IP to diagram
+# source $origin_dir/board/$board_name/$board_version/bd/bd.tcl -notrace
+
+
 # Generate the wrapper
 make_wrapper -files [get_files *${design_name}.bd] -top
 add_files -norecurse ${design_name}/${design_name}.srcs/sources_1/bd/${design_name}/hdl/${design_name}_wrapper.v

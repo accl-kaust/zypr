@@ -30,3 +30,6 @@ node_modules
 *.lpr
 webtalk_pa.xml
 *.zip
+
+# base design
+base_design

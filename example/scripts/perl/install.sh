@@ -4,12 +4,12 @@ SUCCESS="\e[0;32m"
 NONE="\e[0m"
 PERL_VERSION=`perl -v`
 
-if perl < /dev/null > /dev/null 2>&1  ; then
-    echo -e "$SUCCESS\bPerl installed."
-else
-    echo -e "$ERROR\bPerl is not installed. $NONE"
-    exit
-fi
+# if perl < /dev/null > /dev/null 2>&1  ; then
+#     echo -e "$SUCCESS\bPerl installed."
+# else
+#     echo -e "$ERROR\bPerl is not installed. $NONE"
+#     exit
+# fi
 
 echo -e "Installing Perl Dependancies... $NONE"
 sudo cpan JSON
