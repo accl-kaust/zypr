@@ -6,6 +6,9 @@ set ROOT_PATH [lindex $argv 0]
 set cfg [read [open "$ROOT_PATH/global_config.json" r]]
 set global_config [json::json2dict $cfg] 
 ############################ Setup  #############################
+
+set_param board.repoPaths [list "../board"]
+
 # Setup Project
 set PROJECT_NAME [dict get $global_config design design_name]
 puts "Setting up $PROJECT_NAME..."

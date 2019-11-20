@@ -5,19 +5,21 @@ package require json
 set ROOT_PATH "[lindex $argv 0]"
 
 # Check the version of Vivado used
-set version_required "2018.2"
-set ver [lindex [split $::env(XILINX_VIVADO) /] end]
-if {![string equal $ver $version_required]} {
-  puts "###############################"
-  puts "### Failed to build project ###"
-  puts "###############################"
-  puts "This project was designed for use with Vivado $version_required."
-  puts "You are using Vivado $ver. Please install Vivado $version_required,"
-  puts "or download the project sources from a commit of the Git repository"
-  puts "that was intended for your version of Vivado ($ver)."
-  return
-}
+# set version_required "2018.2"
+# set ver [lindex [split $::env(XILINX_VIVADO) /] end]
+# if {![string equal $ver $version_required]} {
+#   puts "###############################"
+#   puts "### Failed to build project ###"
+#   puts "###############################"
+#   puts "This project was designed for use with Vivado $version_required."
+#   puts "You are using Vivado $ver. Please install Vivado $version_required,"
+#   puts "or download the project sources from a commit of the Git repository"
+#   puts "that was intended for your version of Vivado ($ver)."
+#   return
+# }
+# set_param board.repoPaths [list "<extracted path>/vivado-boards/new/board_files"]
 
+set_param board.repoPaths [list "../board"]
 
 set cfg [read [open "$ROOT_PATH/global_config.json" r]]
 set global_config [json::json2dict $cfg] 
