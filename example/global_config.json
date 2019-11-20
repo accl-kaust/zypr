@@ -1,98 +1,98 @@
 {
-    "config": {
-        "config_vivado": {
-            "vivado_path": "/opt/Xilinx/Vivado/2018.2/bin/vivado",
-            "vivado_version": "2018.2",
-            "vivado_params": "-nojou -nolog",
-            "vivado_proxy": "proxychains"
-        },
-        "config_run": {
-            "static_synth": 1,
-            "rm_synth": 1,
-            "pr_impl": 1,
-            "pr_verify": 1,
-            "gen_bitstream": 1
-        },
-        "config_settings": {
-            "top_file": "top.v",
-            "check_dependencies":true
-        }
+  "config": {
+    "config_vivado": {
+      "vivado_path": "/opt/Xilinx/Vivado/2018.3/bin/vivado",
+      "vivado_version": "2018.3",
+      "vivado_params": "-nojou -nolog",
+      "vivado_proxy": "proxychains"
     },
-    "project": {
-        "project_name": "example",
-        "project_owner": "bucknalla",
-        "project_device": {
-            "name": "ultra96",
-            "family": "zynq-ultrascale",
-            "device": "xczu3eg",
-            "package": "-sbva484",
-            "speed": "-1",
-            "option": "-e",
-            "board": "em.avnet.com:ultra96v1:part0:1.2",
-            "version": "v1",
-            "constraint": "ps-gem.xdc"
-        }
+    "config_run": {
+      "static_synth": 1,
+      "rm_synth": 1,
+      "pr_impl": 1,
+      "pr_verify": 1,
+      "gen_bitstream": 1
     },
-    "design": {
-        "design_name": "dynamic-peripheral",
-        "design_owner": "bucknalla",
-        "design_mode": {
-            "mode_a": {
-                "name": "I2C",
-                "pr_module": "partial_led_test_v1_0_S00_AXI",
-                "configs": {
-                    "config_a": {
-                        "rtl": [
-                            "top.v",
-                            "mode_a.v"
-                        ],
-                        "top_module": "top.v"
-                    },
-                    "config_b": {
-                        "rtl": [
-                            "top.v",
-                            "mode_b.v"
-                        ],
-                        "top_module": "top.v"
-                    }
-                },
-                "interfaces": {
-                    "master": {
-                        "axis": {
-                            "axis_0": {
-                                "TDATA": 32
-                            }
-                        }
-                    },
-                    "slave": {
-                        "axis": {}
-                    }
-                }
-            },
-            "mode_b": {
-                "name": "SPI",
-                "configs": {},
-                "interfaces": {}
-            },
-            "mode_c": {
-                "name": "UART",
-                "configs": {},
-                "interfaces": {}
-            }
-        }
-    },
-    "linux":{
-        "linux_device_tree":{
-            "device_tree_config":{
-                "udmabuf":{
-                    "size":0
-                }
-            }
-        },
-        "linux_petalinux":{
-            "petalinux":{
-                "path":"home/alex/petalinux"
-            }
-        }
+    "config_settings": {
+      "top_file": "top.v",
+      "check_dependencies": false
     }
+  },
+  "project": {
+    "project_name": "example",
+    "project_owner": "bucknalla",
+    "project_device": {
+      "name": "ultra96",
+      "family": "zynq-ultrascale",
+      "device": "xczu3eg",
+      "package": "-sbva484",
+      "speed": "-1",
+      "option": "-e",
+      "board": "em.avnet.com:ultra96v1:part0:1.2",
+      "version": "1.2",
+      "constraint": "ps-gem.xdc"
+    }
+  },
+  "design": {
+    "design_name": "dynamic-peripheral",
+    "design_owner": "bucknalla",
+    "design_mode": {
+      "mode_a": {
+        "name": "I2C",
+        "pr_module": "partial_led_test_v1_0_S00_AXI",
+        "configs": {
+          "config_a": {
+            "rtl": [
+              "top.v",
+              "mode_a.v"
+            ],
+            "top_module": "top.v"
+          },
+          "config_b": {
+            "rtl": [
+              "top.v",
+              "mode_b.v"
+            ],
+            "top_module": "top.v"
+          }
+        },
+        "interfaces": {
+          "master": {
+            "axis": {
+              "axis_0": {
+                "TDATA": 32
+              }
+            }
+          },
+          "slave": {
+            "axis": {}
+          }
+        }
+      },
+      "mode_b": {
+        "name": "SPI",
+        "configs": {},
+        "interfaces": {}
+      },
+      "mode_c": {
+        "name": "UART",
+        "configs": {},
+        "interfaces": {}
+      }
+    }
+  },
+  "linux": {
+    "linux_device_tree": {
+      "device_tree_config": {
+        "udmabuf": {
+          "size": 0
+        }
+      }
+    },
+    "linux_petalinux": {
+      "petalinux": {
+        "path": "home/alex/petalinux"
+      }
+    }
+  }
 }
