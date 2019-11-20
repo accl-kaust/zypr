@@ -1,9 +1,23 @@
 #!/bin/bash
 
-# Before running this script, you must source the PetaLinux and Vivado settings:
-# source <petalinux-install-dir>/settings.sh
-# source <vivado-install-dir>/settings64.sh
+# Pass root dir into script
+ROOT_DIR=$1
 
+ERROR='\e[0;31m'
+SUCCESS="\e[0;32m"
+WARNING="\e[0;33m"
+INFO="\e[0;34m"
+NONE="\e[0m"
+
+# Check for correct shell:
+if ! [ -z $PETALINUX ]; then
+  if [ $(readlink /proc/$$/exe) != "/bin/bash" ]; then
+    echo -e "${ERROR}Incorrect shell, please use bin/bash.${NONE}"
+    exit 1
+  fi
+  source <petalinux-install-dir>/settings.sh
+  source <vivado-install-dir>/settings64.sh
+fi
 # Get a list of all the exported projects
 
 filelist=(`find ../Vivado/ -name "*.sdk"`)
