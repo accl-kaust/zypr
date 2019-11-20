@@ -4,6 +4,8 @@ SUCCESS="\e[0;32m"
 NONE="\e[0m"
 PERL_VERSION=`perl -v`
 
+export PERL_MM_USE_DEFAULT=1
+
 # if perl < /dev/null > /dev/null 2>&1  ; then
 #     echo -e "$SUCCESS\bPerl installed."
 # else
@@ -14,7 +16,8 @@ PERL_VERSION=`perl -v`
 echo -e "Installing Perl Dependancies... $NONE"
 sudo cpan JSON
 PERL_MM_USE_DEFAULT=1 perl -MCPAN -e \
-'install Verilog::Netlist; \
+'install Log::Log4perl; \
+ install Verilog::Netlist; \
  install Verilog::Preproc; \
  install Verilog::CodeGen; \
  install Math::Calc::Parser; \
