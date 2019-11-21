@@ -11,13 +11,13 @@ BOARD_NAME=$2
 BOARD_VER=$3
 
 VIVADO_BOARD_FILES="$(echo $VIVADO_ROOT | rev | cut -d"/" -f3- | tr -d '\n' | rev)/data/boards/board_files/${BOARD_NAME}/${BOARD_VER}"
-
-if [ ! -d "$VIVADO_BOARD_FILES" ]; then
-    echo -e "${SUCCESS}Board files already exist \u2713.${NONE}"
-else
+#ls ${VIVADO_BOARD_FILES}
+if [ ! -d "${VIVADO_BOARD_FILES}" ]; then
     mkdir -p $VIVADO_BOARD_FILES
     find "${BOARD_NAME}/${BOARD_VER}" -name \*.xml -exec cp {} $VIVADO_BOARD_FILES \;
     echo -e "${SUCCESS}Finished \u2713.${NONE}"
+else
+    echo -e "${SUCCESS}Board files already exist \u2713.${NONE}"
 fi
 
 
