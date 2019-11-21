@@ -15,7 +15,7 @@
     },
     "config_settings": {
       "top_file": "top.v",
-      "check_dependencies": false
+      "check_dependencies": true
     }
   },
   "project": {
@@ -30,7 +30,7 @@
       "option": "-e",
       "board": "em.avnet.com:ultra96v1:part0:1.2",
       "version": "1.2",
-      "constraint": "ps-gem.xdc"
+      "constraint": "default.xdc"
     }
   },
   "design": {
