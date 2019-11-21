@@ -76,14 +76,14 @@ install_board_files()
 
     cd ../board
     echo -e "${WARNING}May requires root for adding board files to Xilinx tool paths...${NONE}"
-    sudo bash install.sh ${VIVADO_PATH} ${BOARD_NAME} $BOARD_VER
+    sudo bash install.sh ${VIVADO_PATH} ${BOARD_NAME} ${BOARD_VER}
     cd ../rtl
 }
 
 echo "Checking Dependencies..."
 if [ $INSTALL_DEPS == "true" ]; then
     echo -e "${WARNING}Dependencies not found, install...${NONE}"
-    # install_board_files
+    install_board_files
     install_python_deps
     install_perl_deps
     $(jq -r '.config.config_settings.check_dependencies=false' "$ZYCAP_ROOT_PATH/global_config.json" > tmp.$$.json && mv tmp.$$.json "$ZYCAP_ROOT_PATH/global_config.json")
@@ -119,7 +119,7 @@ echo -e "${SUCCESS}Finished \u2713${NONE}"
 echo "Synthesising PR Configs & Modes..."
 if [ ! -d "$ZYCAP_ROOT_PATH/rtl/.checkpoint_prj" ]; then
     echo -e "${WARNING}Not found, generating...${NONE}"
-    exec $ZYCAP_ROOT_PATH/scripts/tcl/synth/synth.sh $VIVADO_PATH $ZYCAP_ROOT_PATH/scripts/tcl/synth/generate_checkpoints.tcl $ZYCAP_ROOT_PATH > "$ZYCAP_ROOT_PATH/rtl/.logs/pr_synth.log" &
+    exec $ZYCAP_ROOT_PATH/scripts/tcl/synth/synth.sh $VIVADO_PATH $VIVADO_PARAMS $ZYCAP_ROOT_PATH/scripts/tcl/synth/generate_checkpoints.tcl $ZYCAP_ROOT_PATH > "$ZYCAP_ROOT_PATH/rtl/.logs/pr_synth.log" &
     show_spinner $!
     check_error "$ZYCAP_ROOT_PATH/rtl/.logs/pr_synth.log"
 fi
@@ -128,7 +128,7 @@ echo -e "${SUCCESS}Finished \u2713${NONE}"
 echo "Building Block Diagram..."
 if [ ! -d "$ZYCAP_ROOT_PATH/rtl/$DESIGN_NAME" ]; then
     echo -e "${WARNING}Not found, generating...${NONE}"
-    exec $VIVADO_PATH -mode batch -source $ZYCAP_ROOT_PATH/scripts/tcl/boards/$BOARD/gen_bd.tcl -tclargs $ZYCAP_ROOT_PATH > "$ZYCAP_ROOT_PATH/rtl/.logs/bd_output.log" &
+    exec $VIVADO_PATH $VIVADO_PARAMS -mode batch -source $ZYCAP_ROOT_PATH/scripts/tcl/boards/$BOARD/gen_bd.tcl -tclargs $ZYCAP_ROOT_PATH > "$ZYCAP_ROOT_PATH/rtl/.logs/bd_output.log" &
     show_spinner $!
     check_error "$ZYCAP_ROOT_PATH/rtl/.logs/bd_output.log"
 fi
