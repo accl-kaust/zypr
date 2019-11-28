@@ -17,7 +17,7 @@ if [ ! -d "${VIVADO_BOARD_FILES}" ]; then
     find "${BOARD_NAME}/${BOARD_VER}" -name \*.xml -exec cp {} $VIVADO_BOARD_FILES \;
     echo -e "${SUCCESS}Finished \u2713.${NONE}"
 else
-    echo -e "${SUCCESS}Board files already exist \u2713.${NONE}"
+    echo -e "${SUCCESS}Board files already exist \u2713${NONE}"
 fi
 
 

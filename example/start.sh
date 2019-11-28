@@ -11,6 +11,7 @@ BOARD=$(jq .project.project_device.family global_config.json | tr -d \")
 DESIGN_NAME=$(jq .design.design_name global_config.json | tr -d \")
 INSTALL_DEPS=$(jq .config.config_settings.check_dependencies global_config.json | tr -d \")
 VIVADO_PATH=$(jq .config.config_vivado.vivado_path global_config.json | tr -d \")
+VIVADO_VER=$(jq .config.config_vivado.vivado_version global_config.json | tr -d \")
 VIVADO_PARAMS=$(jq .config.config_vivado.vivado_params global_config.json | tr -d \")
 
 cd $ZYCAP_ROOT_PATH/rtl && make clean-meta
@@ -18,9 +19,7 @@ if [ ! -d "$ZYCAP_ROOT_PATH/rtl/.logs" ]; then
     mkdir $ZYCAP_ROOT_PATH/rtl/.logs
 fi
 
-# if [ ${1} == "clean" ]; then
-#     make clean
-# fi
+# echo -e "Vivado Version: ${VIVADO_VER}"
 
 check_error() {
     local error=$( grep "^ERROR" $1 )
@@ -95,42 +94,42 @@ fi
 echo "Extracting Modules..."
 if [ ! -d "$ZYCAP_ROOT_PATH/rtl/.json" ]; then
     echo -e "${WARNING}Not found, generating...${NONE}"
-    perl $ZYCAP_ROOT_PATH/scripts/perl/extract_modules.pl "$ZYCAP_ROOT_PATH/rtl" > "$ZYCAP_ROOT_PATH/rtl/.logs/extract_modules.log"
-    check_error "$ZYCAP_ROOT_PATH/rtl/.logs/extract_modules.log"
+    perl $ZYCAP_ROOT_PATH/scripts/perl/extract_modules.pl "$ZYCAP_ROOT_PATH/rtl" > "$ZYCAP_ROOT_PATH/rtl/.logs/perl_mod_extract.log"
+    check_error "$ZYCAP_ROOT_PATH/rtl/.logs/perl_mod_extract.log"
 fi
 echo -e "${SUCCESS}Finished \u2713 ${NONE}"
 
 echo "Generating Black Boxes..."
 if [ ! -d "$ZYCAP_ROOT_PATH/rtl/.blackbox" ]; then
     echo -e "${WARNING}Not found, generating...${NONE}"
-    python $ZYCAP_ROOT_PATH/scripts/python/generate_blackbox.py > "$ZYCAP_ROOT_PATH/rtl/.logs/generate_bb.log"
-    check_error "$ZYCAP_ROOT_PATH/rtl/.logs/generate_bb.log"
+    python $ZYCAP_ROOT_PATH/scripts/python/generate_blackbox.py > "$ZYCAP_ROOT_PATH/rtl/.logs/python_bb_generate.log"
+    check_error "$ZYCAP_ROOT_PATH/rtl/.logs/python_bb_generate.log"
 fi
 echo -e "${SUCCESS}Finished \u2713 ${NONE}"
 
 echo "Constructing Configs & Modes..."
 if [ ! -d "$ZYCAP_ROOT_PATH/rtl/.modes" ]; then
     echo -e "${WARNING}Not found, generating...${NONE}"
-    python $ZYCAP_ROOT_PATH/scripts/python/generate_interface.py > "$ZYCAP_ROOT_PATH/rtl/.logs/construct_pr.log"
-    check_error "$ZYCAP_ROOT_PATH/rtl/.logs/construct_pr.log"
+    python $ZYCAP_ROOT_PATH/scripts/python/generate_interface.py > "$ZYCAP_ROOT_PATH/rtl/.logs/python_pr_construct.log"
+    check_error "$ZYCAP_ROOT_PATH/rtl/.logs/python_pr_construct.log"
 fi
 echo -e "${SUCCESS}Finished \u2713${NONE}"
 
 echo "Synthesising PR Configs & Modes..."
 if [ ! -d "$ZYCAP_ROOT_PATH/rtl/.checkpoint_prj" ]; then
     echo -e "${WARNING}Not found, generating...${NONE}"
-    exec $VIVADO_PATH $VIVADO_PARAMS -mode batch -source $ZYCAP_ROOT_PATH/scripts/tcl/synth/generate_checkpoints.tcl -tclargs $ZYCAP_ROOT_PATH > "$ZYCAP_ROOT_PATH/rtl/.logs/bd_output.log" &
+    exec $VIVADO_PATH $VIVADO_PARAMS -mode batch -source $ZYCAP_ROOT_PATH/scripts/tcl/synth/generate_checkpoints.tcl -tclargs $ZYCAP_ROOT_PATH > "$ZYCAP_ROOT_PATH/rtl/.logs/vivado_pr_synth.log" &
     show_spinner $!
-    check_error "$ZYCAP_ROOT_PATH/rtl/.logs/pr_synth.log"
+    check_error "$ZYCAP_ROOT_PATH/rtl/.logs/vivado_pr_synth.log"
 fi
 echo -e "${SUCCESS}Finished \u2713${NONE}"
 
 echo "Building Block Diagram..."
 if [ ! -d "$ZYCAP_ROOT_PATH/rtl/$DESIGN_NAME" ]; then
     echo -e "${WARNING}Not found, generating...${NONE}"
-    exec $VIVADO_PATH $VIVADO_PARAMS -mode batch -source $ZYCAP_ROOT_PATH/scripts/tcl/boards/$BOARD/gen_bd.tcl -tclargs $ZYCAP_ROOT_PATH > "$ZYCAP_ROOT_PATH/rtl/.logs/bd_output.log" &
+    exec $VIVADO_PATH $VIVADO_PARAMS -mode batch -source $ZYCAP_ROOT_PATH/scripts/tcl/boards/$BOARD/gen_bd.tcl -tclargs $ZYCAP_ROOT_PATH > "$ZYCAP_ROOT_PATH/rtl/.logs/vivado_bd_diagram.log" &
     show_spinner $!
-    check_error "$ZYCAP_ROOT_PATH/rtl/.logs/bd_output.log"
+    check_error "$ZYCAP_ROOT_PATH/rtl/.logs/vivado_bd_diagram.log"
 fi
 echo -e "${SUCCESS}Finished \u2713${NONE}"
 
