@@ -15,7 +15,7 @@
     },
     "config_settings": {
       "top_file": "top.v",
-      "check_dependencies": true
+      "check_dependencies": false
     }
   },
   "project": {

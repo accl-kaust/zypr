@@ -1,1 +1,1 @@
-$1 -nolog -nojou -mode batch -source $2 -tclargs $3
+$1 $2 -mode batch -source $3 -tclargs $4
