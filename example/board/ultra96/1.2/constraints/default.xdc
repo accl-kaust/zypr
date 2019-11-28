@@ -178,10 +178,10 @@ set_property IOSTANDARD LVCMOS12 [get_ports -of_objects [get_iobanks 66]];
 #set_property PACKAGE_PIN AB6  [get_ports {MIO24_SD0_DETECT        }];  # "AB6.MIO24_SD0_DETECT"
 
 # User LEDs
-set_property PACKAGE_PIN AA3  [get_ports { LED[0]           }];  # "AA3.MIO17_PS_LED3"
-set_property PACKAGE_PIN Y5   [get_ports { LED[1]           }];  # "Y5.MIO18_PS_LED2"
-set_property PACKAGE_PIN AA4  [get_ports { LED[2]      }];  # "AA4.MIO19_PS_LED1"
-set_property PACKAGE_PIN AB4  [get_ports { LED[3]     }];  # "AB4.MIO20_PS_LED0"
+set_property PACKAGE_PIN AA3  [get_ports { leds[0]           }];  # "AA3.MIO17_PS_LED3"
+set_property PACKAGE_PIN Y5   [get_ports { leds[1]           }];  # "Y5.MIO18_PS_LED2"
+set_property PACKAGE_PIN AA4  [get_ports { leds[2]      }];  # "AA4.MIO19_PS_LED1"
+set_property PACKAGE_PIN AB4  [get_ports { leds[3]     }];  # "AB4.MIO20_PS_LED0"
 
 # User Push Button
 #set_property PACKAGE_PIN AB5  [get_ports {MIO23_GPIO_PB           }];  # "AB5.MIO23_GPIO_PB"
