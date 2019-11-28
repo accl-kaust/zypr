@@ -24,7 +24,7 @@ def main():
                         direction = data['MODULE'][top_module]['PORT'][module_port]['DIRECTION']
                         # print(module_port + " : " + data['MODULE'][top_module]['PORT'][module_port]['DIRECTION'] + " : " + str(data['MODULE'][top_module]['PORT'][module_port]['WIDTH']))
                         print(module_port)
-                        if width is not 1:
+                        if width != 1:
                             width = vast.Width( vast.IntConst(width-1), vast.IntConst('0') )
                             if direction == "input":
                                 port_list.append(vast.Ioport(vast.Input(module_port, width=width)))

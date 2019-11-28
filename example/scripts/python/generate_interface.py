@@ -26,7 +26,7 @@ def main():
         # print(mode)
         if not os.path.exists('.modes/{}'.format(mode)):
             os.makedirs('.modes/{}'.format(mode))
-            os.makedirs('.modes/{}/.checkpoints'.format(mode))
+            # os.makedirs('.modes/{}/.checkpoints'.format(mode))
         f = open('.modes/{}/{}'.format(mode,'interface.v'), "w+")
         f.close()
         for mode_configs in config['design']['design_mode'][mode]['configs']:
