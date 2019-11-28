@@ -6,6 +6,11 @@
       "vivado_params": "-nojou -nolog",
       "vivado_proxy": "proxychains"
     },
+    "config_petalinux": {
+      "petalinux": {
+        "path": "home/alex/petalinux"
+      }
+    },
     "config_run": {
       "static_synth": 1,
       "rm_synth": 1,
@@ -89,10 +94,5 @@
         }
       }
     },
-    "linux_petalinux": {
-      "petalinux": {
-        "path": "home/alex/petalinux"
-      }
-    }
   }
 }
