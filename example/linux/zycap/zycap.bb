@@ -1,5 +1,5 @@
 #
-# This file is the libsample recipe.
+# This file is the ZyCAP recipe.
 #
   
 SUMMARY = "ZyCAP PR Manager"
@@ -16,20 +16,18 @@ SRC_URI = " \
          "
   
 S = "${WORKDIR}"
+
+#CPPFLAGS += "-DSOME_MACRO"
   
-PACKAGE_ARCH = "${MACHINE_ARCH}"
-PROVIDES = "sample"
-TARGET_CC_ARCH += "${LDFLAGS}"
+#PACKAGE_ARCH = "${MACHINE_ARCH}"
+#PROVIDES = "sample"
+#TARGET_CC_ARCH += "${LDFLAGS}"
   
-do_install() {
-    install -d ${D}${libdir}
-    install -d ${D}${includedir}
-    oe_libinstall -so libsample ${D}${libdir}
-    # This is optional and depends if you have any headers to copied along with libraries
-    # This example includes sample.h to to copied to <TARGET_ROOTFS>/usr/lib/SAMPLE/sample.h
-    install -d -m 0655 ${D}${includedir}/SAMPLE
-    install -m 0644 ${S}/*.h ${D}${includedir}/SAMPLE/
+do_compile() {
+	     oe_runmake
 }
-  
-FILES_${PN} = "${libdir}/*.so.* ${includedir}/*"
-FILES_${PN}-dev = "${libdir}/*.so"
+
+do_install() {
+	     install -d ${D}${bindir}
+	     install -m 0755 zycap ${D}${bindir}
+}

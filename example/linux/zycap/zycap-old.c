@@ -1,4 +1,4 @@
-/*  Author   :   Alex Bucknall
+/*  Author   :   Shreejith S
  *  File     :   zycap_linux.c
  *  Project  :   ZyCAP User-level driver for Linux
  *  Dcpr.    :   Management of bitstreams and buffers.
@@ -184,7 +184,7 @@ void cmpr (char *buffer1, char *buffer2)
     if (ret == 0) 
        printf("Both reads are identical\r\n");
     else 
-       printf("Failed!\r\n");
+       printf("Rubbissh!!\r\n");
 }
    
     
