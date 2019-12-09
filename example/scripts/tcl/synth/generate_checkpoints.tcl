@@ -56,11 +56,12 @@ dict for {mode modes} [dict get $global_config design design_mode] {
         set idx [lsearch $rtl_list $work_directory$top_module_file]
         set rtl_list_clean [lreplace $rtl_list $idx $idx]
         puts "Files added to RTL : $rtl_list_clean"
-        add_files $rtl_list_clean
+        # add_files $rtl_list_clean
         set top_file [json::json2dict [read [open "$ROOT_PATH/rtl/.modes/$mode/$configuration/hier.json" r]]]
         puts [lindex [split [string trimright [dict get $top_file vhier module_files file] '.v'] '/'] end]
         set top_module [dict get [json::json2dict [read [open "$ROOT_PATH/rtl/.json/[lindex [split [string trimright [dict get $top_file vhier module_files file] '.v'] '/'] end].json" r]]] TOP_MODULE]
         puts $top_module
+        add_files $work_directory$top_file
         synth_design -top $top_module
         write_checkpoint $ROOT_PATH/rtl/.modes/$mode/$configuration/.checkpoints/pr_module.dcp -force
     }
