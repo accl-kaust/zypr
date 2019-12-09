@@ -1,23 +1,20 @@
-# ----------------------------------------------------------------------------  
+# ----------------------------------------------------------------------------
 #       __ __
-#      / / \ \
-#     / /   \ \
-#    / /     \ \ 
-#   / / AVNET \ \          www.ultra96.org
+#      / / \ #     / /   \ #    / /     \ #   / / AVNET \ \          www.ultra96.org
 #
 # ----------------------------------------------------------------------------
-# 
-#  Created With Avnet Constraints Generator V0.8.0 
-#     Date: Sunday, March 18, 2018 
-#     Time: 1:00:11 AM 
-# 
+#
+#  Created With Avnet Constraints Generator V0.8.0
+#     Date: Sunday, March 18, 2018
+#     Time: 1:00:11 AM
+#
 #  This design is the property of Avnet.  Publication of this
 #  design is not authorized without written consent from Avnet.
-#  
+#
 #  Please direct any questions to:
 #     Avnet Ultra96 Forums
 #     http://ultra96.org
-# 
+#
 #  Disclaimer:
 #     Avnet, Inc. makes no warranty for the use of this code or design.
 #     This code is provided  "As Is". Avnet, Inc assumes no responsibility for
@@ -26,28 +23,28 @@
 #     disclaims any implied warranties of fitness for a particular purpose.
 #                      Copyright(c) 2018 Avnet, Inc.
 #                              All rights reserved.
-# 
+#
 # ----------------------------------------------------------------------------
-# 
-#  Notes: 
+#
+#  Notes:
 # 				2018 Mar 18 -- Initial version
 #
 #     IO standard for Bank 26 Vcco supply is fixed at 1.8V
 #     IO standard for Bank 65 Vcco supply is fixed at 1.2V
-# 
+#
 #     Net names are not allowed to contain hyphen characters '-' since this
-#     is not a legal VHDL87 or Verilog character within an identifier.  
-#     HDL net names are adjusted to contain no hyphen characters '-' but 
-#     rather use underscore '_' characters.  Comment net name with the hyphen 
-#     characters will remain in place since these are intended to match the 
+#     is not a legal VHDL87 or Verilog character within an identifier.
+#     HDL net names are adjusted to contain no hyphen characters '-' but
+#     rather use underscore '_' characters.  Comment net name with the hyphen
+#     characters will remain in place since these are intended to match the
 #     schematic net names in order to better enable schematic search.
 #
 # ----------------------------------------------------------------------------
- 
-  
+
+
 # ----------------------------------------------------------------------------
 # Bluetooth
-# ---------------------------------------------------------------------------- 
+# ----------------------------------------------------------------------------
 # Bank 26
 #set_property PACKAGE_PIN C8   [get_ports {BT_AUD_CLK              }];  # "C8.BT_AUD_CLK"
 #set_property PACKAGE_PIN A8   [get_ports {BT_AUD_FSYNC            }];  # "A8.BT_AUD_FSYNC"
@@ -58,7 +55,7 @@
 
 # ----------------------------------------------------------------------------
 # High-speed expansion connector
-# ---------------------------------------------------------------------------- 
+# ----------------------------------------------------------------------------
 # Bank 65
 #set_property PACKAGE_PIN P1   [get_ports {CSI0_C_N                }];  # "P1.CSI0_C_N"
 #set_property PACKAGE_PIN N2   [get_ports {CSI0_C_P                }];  # "N2.CSI0_C_P"
@@ -95,22 +92,22 @@
 
 # ----------------------------------------------------------------------------
 # Fan control
-# ---------------------------------------------------------------------------- 
+# ----------------------------------------------------------------------------
 # Bank 65
 #set_property PACKAGE_PIN F4   [get_ports {FAN_PWM                 }];  # "F4.FAN_PWM"
 
 # ----------------------------------------------------------------------------
 # Low-speed expansion connector
-# ---------------------------------------------------------------------------- 
+# ----------------------------------------------------------------------------
 # Bank 65
-#set_property PACKAGE_PIN D7   [get_ports {HD_GPIO_0               }];  # "D7.HD_GPIO_0"
-#set_property PACKAGE_PIN F8   [get_ports {HD_GPIO_1               }];  # "F8.HD_GPIO_1"
-#set_property PACKAGE_PIN F7   [get_ports {HD_GPIO_2               }];  # "F7.HD_GPIO_2"
-#set_property PACKAGE_PIN G7   [get_ports {HD_GPIO_3               }];  # "G7.HD_GPIO_3"
-#set_property PACKAGE_PIN F6   [get_ports {HD_GPIO_4               }];  # "F6.HD_GPIO_4"
-#set_property PACKAGE_PIN G5   [get_ports {HD_GPIO_5               }];  # "G5.HD_GPIO_5"
-#set_property PACKAGE_PIN A6   [get_ports {HD_GPIO_6               }];  # "A6.HD_GPIO_6"
-#set_property PACKAGE_PIN A7   [get_ports {HD_GPIO_7               }];  # "A7.HD_GPIO_7"
+set_property PACKAGE_PIN D7 [get_ports {leds[0]}]
+set_property PACKAGE_PIN F8 [get_ports {leds[1]}]
+set_property PACKAGE_PIN F7 [get_ports {leds[2]}]
+set_property PACKAGE_PIN G7 [get_ports {leds[3]}]
+set_property PACKAGE_PIN F6 [get_ports {leds[4]}]
+set_property PACKAGE_PIN G5 [get_ports {leds[5]}]
+set_property PACKAGE_PIN A6 [get_ports {leds[6]}]
+set_property PACKAGE_PIN A7 [get_ports {leds[7]}]
 #set_property PACKAGE_PIN G6   [get_ports {HD_GPIO_8               }];  # "G6.HD_GPIO_8"
 #set_property PACKAGE_PIN E6   [get_ports {HD_GPIO_9               }];  # "E6.HD_GPIO_9"
 #set_property PACKAGE_PIN E5   [get_ports {HD_GPIO_10              }];  # "E5.HD_GPIO_10"
@@ -125,16 +122,16 @@
 # IOSTANDARD Constraints
 #
 # Note that these IOSTANDARD constraints are applied to all IOs currently
-# assigned within an I/O bank.  If these IOSTANDARD constraints are 
-# evaluated prior to other PACKAGE_PIN constraints being applied, then 
-# the IOSTANDARD specified will likely not be applied properly to those 
-# pins.  Therefore, bank wide IOSTANDARD constraints should be placed 
-# within the XDC file in a location that is evaluated AFTER all 
+# assigned within an I/O bank.  If these IOSTANDARD constraints are
+# evaluated prior to other PACKAGE_PIN constraints being applied, then
+# the IOSTANDARD specified will likely not be applied properly to those
+# pins.  Therefore, bank wide IOSTANDARD constraints should be placed
+# within the XDC file in a location that is evaluated AFTER all
 # PACKAGE_PIN constraints within the target bank have been evaluated.
-# ---------------------------------------------------------------------------- 
+# ----------------------------------------------------------------------------
 
 # Set the bank voltage for IO Bank 26 to 1.8V
-set_property IOSTANDARD LVCMOS18 [get_ports -of_objects [get_iobanks 26]];
+set_property IOSTANDARD LVCMOS18 [get_ports -of_objects [get_iobanks 26]]
 
 # Set the bank voltage for IO Bank 65 to 1.2V
 set_property IOSTANDARD LVCMOS12 [get_ports -of_objects [get_iobanks 65]];
@@ -143,10 +140,10 @@ set_property IOSTANDARD LVCMOS12 [get_ports -of_objects [get_iobanks 65]];
 set_property IOSTANDARD LVCMOS12 [get_ports -of_objects [get_iobanks 66]];
 
 # ----------------------------------------------------------------------------
-# PS MIO - 
+# PS MIO -
 # For reference only - these are assigned in the FSBL
 # Pin Location and IOSTANDARD constraints are not necessary
-# ---------------------------------------------------------------------------- 
+# ----------------------------------------------------------------------------
 
 # J6 UART
 #set_property PACKAGE_PIN U4   [get_ports {MIO0_UART1_TX           }];  # "U4.MIO0_UART1_TX"
@@ -178,10 +175,10 @@ set_property IOSTANDARD LVCMOS12 [get_ports -of_objects [get_iobanks 66]];
 #set_property PACKAGE_PIN AB6  [get_ports {MIO24_SD0_DETECT        }];  # "AB6.MIO24_SD0_DETECT"
 
 # User LEDs
-set_property PACKAGE_PIN AA3  [get_ports { leds[0]           }];  # "AA3.MIO17_PS_LED3"
-set_property PACKAGE_PIN Y5   [get_ports { leds[1]           }];  # "Y5.MIO18_PS_LED2"
-set_property PACKAGE_PIN AA4  [get_ports { leds[2]      }];  # "AA4.MIO19_PS_LED1"
-set_property PACKAGE_PIN AB4  [get_ports { leds[3]     }];  # "AB4.MIO20_PS_LED0"
+#set_property PACKAGE_PIN AA3  [get_ports { leds[0]           }];  # "AA3.MIO17_PS_LED3"
+#set_property PACKAGE_PIN Y5   [get_ports { leds[1]           }];  # "Y5.MIO18_PS_LED2"
+#set_property PACKAGE_PIN AA4  [get_ports { leds[2]      }];  # "AA4.MIO19_PS_LED1"
+#set_property PACKAGE_PIN AB4  [get_ports { leds[3]     }];  # "AB4.MIO20_PS_LED0"
 
 # User Push Button
 #set_property PACKAGE_PIN AB5  [get_ports {MIO23_GPIO_PB           }];  # "AB5.MIO23_GPIO_PB"
@@ -325,7 +322,7 @@ set_property PACKAGE_PIN AB4  [get_ports { leds[3]     }];  # "AB4.MIO20_PS_LED0
 
 # ----------------------------------------------------------------------------
 # USB Transceiver -- 26 MHz clock
-# ---------------------------------------------------------------------------- 
+# ----------------------------------------------------------------------------
 # Bank 505
 #set_property PACKAGE_PIN L20  [get_ports {GTR_CLK0_USB_26M_C_N    }];  # "L20.GTR_CLK0_USB_26M_C_N"
 #set_property PACKAGE_PIN L19  [get_ports {GTR_CLK0_USB_26M_C_P    }];  # "L19.GTR_CLK0_USB_26M_C_P"
@@ -340,7 +337,7 @@ set_property PACKAGE_PIN AB4  [get_ports { leds[3]     }];  # "AB4.MIO20_PS_LED0
 
 # ----------------------------------------------------------------------------
 # Display Port -- 27 MHz clock
-# ---------------------------------------------------------------------------- 
+# ----------------------------------------------------------------------------
 # Bank 505
 #set_property PACKAGE_PIN J20  [get_ports {GTR_CLK1_DP_27M_C_N     }];  # "J20.GTR_CLK1_DP_27M_C_N"
 #set_property PACKAGE_PIN J19  [get_ports {GTR_CLK1_DP_27M_C_P     }];  # "J19.GTR_CLK1_DP_27M_C_P"
@@ -359,6 +356,12 @@ set_property PACKAGE_PIN AB4  [get_ports { leds[3]     }];  # "AB4.MIO20_PS_LED0
 
 # ----------------------------------------------------------------------------
 # PMIC Interrupt Request
-# ---------------------------------------------------------------------------- 
+# ----------------------------------------------------------------------------
 # Bank 502
 #set_property PACKAGE_PIN B18  [get_ports {PMIC_IRQ                }];  # "B18.PMIC_IRQ"
+
+set_property HD.RECONFIGURABLE true [get_cells base_design_i/partial_led_test_v1_0_0/inst/partial_led_test_v1_0_S00_AXI_inst]
+create_pblock pblock_1
+add_cells_to_pblock [get_pblocks pblock_1] [get_cells -quiet [list base_design_i/partial_led_test_v1_0_0/inst/partial_led_test_v1_0_S00_AXI_inst]]
+resize_pblock [get_pblocks pblock_1] -add {CLOCKREGION_X0Y1:CLOCKREGION_X0Y1}
+set_property SNAPPING_MODE ON [get_pblocks pblock_1]
