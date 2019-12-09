@@ -141,12 +141,12 @@ int init_zycap()
     off_t dev_base = DevCfg_BASE_ADDRESS;
     glbs.memfd = -1;
     glbs.fd = NULL;
-    memfd = open("/dev/mem", O_RDWR | O_SYNC);
+    memfd = open(UDMABUF, O_RDWR | O_SYNC);
         if (memfd == -1) {
-        printf("Can't open /dev/mem.\n");
+        printf("Can't open udmabuf.\n");
         exit(0);
     }
-    printf("/dev/mem opened.\n");
+    printf("udmabuf opened.\n");
     mapped_base = mmap(0, MAP_SIZE,PROT_READ|PROT_WRITE,MAP_SHARED,memfd,dev_base&~MAP_MASK);
     if (mapped_base == (void *) -1) {
         printf("Can't map the memory to user space.\n");
