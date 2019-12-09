@@ -4,8 +4,10 @@ nav:
   - Intro: 'index.md'
   - Getting Started: 'getting-started.md'
   - Guides:
-    - Software: '!include ./sw/mkdocs.yml'
     - Hardware: '!include ./hdl/mkdocs.yml'
+    - Software: '!include ./sw/mkdocs.yml'
+    - Linux: '!include ./linux/mkdocs.yml'
+  - References: 'references.md'
 
 plugins:
   - monorepo
@@ -13,7 +15,7 @@ plugins:
 theme: 
   name: material
   palette:
-    primary: 'blue'
+    primary: 'black'
     accent: 'indigo'
   logo: 'images/gear.svg'
 
@@ -22,4 +24,4 @@ extra:
     language: 'en'
 
 repo_name: 'warc/zycap'
-repo_url: 'https://github.com/squidfunk/mkdocs-material'
+repo_url: 'https://github.com/warc/zycap2'
