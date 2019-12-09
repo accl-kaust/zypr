@@ -15,7 +15,7 @@
 	)
 	(
 		// Users to add ports here
-        output wire [7:0] leds,
+        output wire [3:0] leds,
 		// User ports ends
 		// Do not modify the ports beyond this line
 
