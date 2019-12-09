@@ -50,8 +50,8 @@
 #set_property PACKAGE_PIN A8   [get_ports {BT_AUD_FSYNC            }];  # "A8.BT_AUD_FSYNC"
 #set_property PACKAGE_PIN A9   [get_ports {BT_AUD_IN               }];  # "A9.BT_AUD_IN"
 #set_property PACKAGE_PIN B9   [get_ports {BT_AUD_OUT              }];  # "B9.BT_AUD_OUT"
-#set_property PACKAGE_PIN B5   [get_ports {BT_HCI_CTS              }];  # "B5.BT_HCI_CTS"
-#set_property PACKAGE_PIN B7   [get_ports {BT_HCI_RTS              }];  # "B7.BT_HCI_RTS"
+set_property PACKAGE_PIN B5   [get_ports {BT_HCI_CTS              }];  # "B5.BT_HCI_CTS"
+set_property PACKAGE_PIN B7   [get_ports {BT_HCI_RTS              }];  # "B7.BT_HCI_RTS"
 
 # ----------------------------------------------------------------------------
 # High-speed expansion connector

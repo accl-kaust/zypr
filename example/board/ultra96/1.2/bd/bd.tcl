@@ -54,19 +54,15 @@ create_bd_cell -type ip -vlnv xilinx.com:ip:proc_sys_reset:5.0 proc_sys_reset_0
 
 connect_bd_net -net zynq_ultra_ps_e_0_pl_clk0 [get_bd_pins proc_sys_reset_0/slowest_sync_clk] [get_bd_pins zynq_ultra_ps_e_0/maxihpm0_fpd_aclk] [get_bd_pins zynq_ultra_ps_e_0/maxihpm1_fpd_aclk] [get_bd_pins zynq_ultra_ps_e_0/pl_clk0] [get_bd_pins zynq_ultra_ps_e_0/saxihp0_fpd_aclk]
 
-set reset_rtl [ create_bd_port -dir I -type rst reset_rtl ]
-set_property -dict [ list \
-CONFIG.POLARITY {ACTIVE_LOW} \
-] $reset_rtl
-
-connect_bd_net -net reset_rtl_1 [get_bd_ports reset_rtl] [get_bd_pins proc_sys_reset_0/ext_reset_in]
+# Connect reset lines
+connect_bd_net [get_bd_pins zynq_ultra_ps_e_0/pl_resetn0] [get_bd_pins proc_sys_reset_0/ext_reset_in]
 
 
 # Create ports for Bluetooth UART0
-create_bd_port -dir I BT_ctsn
-connect_bd_net [get_bd_ports BT_ctsn] [get_bd_pins zynq_ultra_ps_e_0/emio_uart0_ctsn]
-create_bd_port -dir O BT_rtsn
-connect_bd_net [get_bd_ports BT_rtsn] [get_bd_pins zynq_ultra_ps_e_0/emio_uart0_rtsn]
+create_bd_port -dir I BT_HCI_CTS
+connect_bd_net [get_bd_ports BT_HCI_CTS] [get_bd_pins zynq_ultra_ps_e_0/emio_uart0_ctsn]
+create_bd_port -dir O BT_HCI_RTS
+connect_bd_net [get_bd_ports BT_HCI_RTS] [get_bd_pins zynq_ultra_ps_e_0/emio_uart0_rtsn]
 
 # Restore current instance
 current_bd_instance $oldCurInst
