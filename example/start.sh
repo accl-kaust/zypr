@@ -13,6 +13,9 @@ INSTALL_DEPS=$(jq .config.config_settings.check_dependencies global_config.json 
 VIVADO_PATH=$(jq .config.config_vivado.vivado_path global_config.json | tr -d \")
 VIVADO_VER=$(jq .config.config_vivado.vivado_version global_config.json | tr -d \")
 VIVADO_PARAMS=$(jq .config.config_vivado.vivado_params global_config.json | tr -d \")
+VIVADO_PROXY=$(jq .config.config_vivado.vivado_proxy global_config.json | tr -d \")
+
+set -e
 
 cd $ZYCAP_ROOT_PATH/rtl && make clean-meta
 if [ ! -d "$ZYCAP_ROOT_PATH/rtl/.logs" ]; then
@@ -124,12 +127,22 @@ if [ ! -d "$ZYCAP_ROOT_PATH/rtl/.checkpoint_prj" ]; then
 fi
 echo -e "${SUCCESS}Finished \u2713${NONE}"
 
-echo "Building Block Diagram..."
-if [ ! -d "$ZYCAP_ROOT_PATH/rtl/$DESIGN_NAME" ]; then
+echo "Building Block Design..."
+if [ ! -d "$ZYCAP_ROOT_PATH/rtl/${DESIGN_NAME}" ]; then
     echo -e "${WARNING}Not found, generating...${NONE}"
     exec $VIVADO_PATH $VIVADO_PARAMS -mode batch -source $ZYCAP_ROOT_PATH/scripts/tcl/boards/$BOARD/gen_bd.tcl -tclargs $ZYCAP_ROOT_PATH > "$ZYCAP_ROOT_PATH/rtl/.logs/vivado_bd_diagram.log" &
+    # exec $VIVADO_PATH $VIVADO_PARAMS -mode batch -source $ZYCAP_ROOT_PATH/scripts/tcl/boards/$BOARD/gen_bd.tcl -tclargs $ZYCAP_ROOT_PATH || true
     show_spinner $!
     check_error "$ZYCAP_ROOT_PATH/rtl/.logs/vivado_bd_diagram.log"
 fi
 echo -e "${SUCCESS}Finished \u2713${NONE}"
 
+echo "Synthesize Design..."
+# if [ ! -d "$ZYCAP_ROOT_PATH/rtl/$DESIGN_NAME" ]; then
+    echo -e "${WARNING}Not found, generating...${NONE}"
+    # exec $VIVADO_PATH $VIVADO_PARAMS -mode batch -source $ZYCAP_ROOT_PATH/scripts/tcl/boards/$BOARD/synth.tcl -tclargs $ZYCAP_ROOT_PATH > "$ZYCAP_ROOT_PATH/rtl/.logs/vivado_bd_design.log" &
+    exec $VIVADO_PROXY $VIVADO_PATH $VIVADO_PARAMS -mode batch -source $ZYCAP_ROOT_PATH/scripts/tcl/boards/$BOARD/synth.tcl -tclargs $ZYCAP_ROOT_PATH || true
+    # show_spinner $!
+    check_error "$ZYCAP_ROOT_PATH/rtl/.logs/vivado_bd_design.log"
+# fi
+echo -e "${SUCCESS}Finished \u2713${NONE}"
