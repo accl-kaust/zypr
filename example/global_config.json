@@ -4,7 +4,7 @@
       "vivado_path": "/opt/Xilinx/Vivado/2018.3/bin/vivado",
       "vivado_version": "2018.3",
       "vivado_params": "-nojou -nolog",
-      "vivado_proxy": "proxychains"
+      "vivado_proxy": "proxychains4"
     },
     "config_petalinux": {
       "petalinux": {
@@ -39,7 +39,7 @@
     }
   },
   "design": {
-    "design_name": "dynamic-peripheral",
+    "design_name": "base_design",
     "design_owner": "bucknalla",
     "design_mode": {
       "mode_a": {
