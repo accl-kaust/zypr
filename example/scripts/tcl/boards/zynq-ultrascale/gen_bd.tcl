@@ -28,6 +28,7 @@ set global_config [json::json2dict $cfg]
 set board_name [dict get $global_config project project_device name]
 set board_part [dict get $global_config project project_device board]
 set board_device [dict get $global_config project project_device device]
+set board_family [dict get $global_config project project_device family]
 set board_package [dict get $global_config project project_device package]
 set board_speed [dict get $global_config project project_device speed]
 set board_option [dict get $global_config project project_device option]
@@ -42,6 +43,10 @@ set origin_dir $ROOT_PATH
 puts $origin_dir
 # Set the directory path for the original project from where this script was exported
 set orig_proj_dir "[file normalize "$origin_dir/rtl/$design_name"]"
+
+# Set function for CPU threads
+source $origin_dir/scripts/tcl/generic/cpu_threads.tcl
+set log_dir $origin_dir/rtl/.logs
 
 # Create project
 create_project $design_name "$origin_dir/rtl/$design_name" -part $fpga_part -force
@@ -131,17 +136,26 @@ current_run -implementation [get_runs impl_1]
 puts "INFO: Project created:${design_name}"
 
 # Input arguments for block design script
-set num_gems 4
+set threads [numberOfCPUs]
 
 # Create block design
 source $origin_dir/board/$board_name/$board_version/bd/bd.tcl -notrace
 
-# Add ZyCAP IP to diagram
-# source $origin_dir/board/$board_name/$board_version/bd/bd.tcl -notrace
+###################################################
+# Add ZyCAP to Block Diagram
+###################################################
+source $origin_dir/scripts/tcl/boards/$board_family/zycap_bd.tcl -notrace
 
+###################################################
+# Add PR Modules to Block Diagram
+###################################################
+set top_mod_file [dict get $global_config config config_settings top_file]
+source $origin_dir/scripts/tcl/boards/$board_family/pr_module_bd.tcl -notrace
 
 # Generate the wrapper
 make_wrapper -files [get_files *${design_name}.bd] -top
+set_property top base_design_wrapper [current_fileset]
+
 add_files -norecurse ${design_name}/${design_name}.srcs/sources_1/bd/${design_name}/hdl/${design_name}_wrapper.v
 
 # Update the compile order
@@ -154,3 +168,23 @@ open_bd_design [get_files ${design_name}.bd]
 validate_bd_design -force
 save_bd_design
 
+###################################################
+# Synthesis 
+###################################################
+# source $origin_dir/scripts/tcl/boards/$board_family/synth.tcl
+
+# Set output logs
+# link_design > $log_dir/vivado_bd_link.log
+# opt_design > $log_dir/vivado_bd_opt.log
+# place_design > $log_dir/vivado_bd_place.log
+# route_design > $log_dir/vivado_bd_route.log
+
+
+# SYNTH SCRIPT GOES HERE
+
+
+# open_run synth_1 -name synth_1
+# set_property HD.RECONFIGURABLE true [get_cells base_design_i/partial_led_test_v1_0_0]
+
+# manually load the checkpoint
+# read_checkpoint $origin_dir/rtl/.modes/$modes/$configs/.checkpoints/pr_module.dcp -cell base_design_i/partial_led_test_0

@@ -4,7 +4,12 @@
       "vivado_path": "/opt/Xilinx/Vivado/2018.3/bin/vivado",
       "vivado_version": "2018.3",
       "vivado_params": "-nojou -nolog",
-      "vivado_proxy": "proxychains"
+      "vivado_proxy": "proxychains4"
+    },
+    "config_petalinux": {
+      "petalinux": {
+        "path": "home/alex/petalinux"
+      }
     },
     "config_run": {
       "static_synth": 1,
@@ -15,7 +20,7 @@
     },
     "config_settings": {
       "top_file": "top.v",
-      "check_dependencies": true
+      "check_dependencies": false
     }
   },
   "project": {
@@ -34,7 +39,7 @@
     }
   },
   "design": {
-    "design_name": "dynamic-peripheral",
+    "design_name": "base_design",
     "design_owner": "bucknalla",
     "design_mode": {
       "mode_a": {
@@ -87,11 +92,6 @@
         "udmabuf": {
           "size": 0
         }
-      }
-    },
-    "linux_petalinux": {
-      "petalinux": {
-        "path": "home/alex/petalinux"
       }
     }
   }

@@ -46,11 +46,13 @@ set_property -dict [list CONFIG.PSU__USE__M_AXI_GP0 {1} \
 CONFIG.PSU__USE__M_AXI_GP1 {0} \
 CONFIG.PSU__USE__M_AXI_GP2 {0} \
 CONFIG.PSU__NUM_FABRIC_RESETS {1} \
+CONFIG.PSU__USE__S_AXI_ACP {0} \
+CONFIG.PSU__USE__S_AXI_GP2 {1} \
 CONFIG.PSU__UART0__MODEM__ENABLE {1}] [get_bd_cells zynq_ultra_ps_e_0]
 
 create_bd_cell -type ip -vlnv xilinx.com:ip:proc_sys_reset:5.0 proc_sys_reset_0
 
-connect_bd_net -net zynq_ultra_ps_e_0_pl_clk0 [get_bd_pins proc_sys_reset_0/slowest_sync_clk] [get_bd_pins zynq_ultra_ps_e_0/maxihpm0_fpd_aclk] [get_bd_pins zynq_ultra_ps_e_0/maxihpm1_fpd_aclk] [get_bd_pins zynq_ultra_ps_e_0/pl_clk0]
+connect_bd_net -net zynq_ultra_ps_e_0_pl_clk0 [get_bd_pins proc_sys_reset_0/slowest_sync_clk] [get_bd_pins zynq_ultra_ps_e_0/maxihpm0_fpd_aclk] [get_bd_pins zynq_ultra_ps_e_0/maxihpm1_fpd_aclk] [get_bd_pins zynq_ultra_ps_e_0/pl_clk0] [get_bd_pins zynq_ultra_ps_e_0/saxihp0_fpd_aclk]
 
 set reset_rtl [ create_bd_port -dir I -type rst reset_rtl ]
 set_property -dict [ list \
