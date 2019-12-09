@@ -82,6 +82,38 @@ install_board_files()
     cd ../rtl
 }
 
+bootgen_bitstreams()
+{
+    if command -v bootgen &>/dev/null; then
+        echo -e "${INFO}Converting bit to bin...${NONE}"
+        case "$BOARD" in
+            zynq-ultrascale)  
+                ARCH="zynqmp"
+                ;;
+            zynq) 
+                ARCH="zynq"
+                ;;
+            fpga)  
+                ARCH="fpga"
+                ;;
+            *) 
+                ARCH="zynqmp"
+                ;;
+        esac
+        for i in ${1}/*_partial.bit; do
+            echo -e "${INFO}Generating ${i: 0 : ${#i}-21 }.bin...${NONE}" 
+            echo -e "the_ROM_image:\r{\r${i}\r}" >> "${i}.bif"
+            bootgen -arch ${ARCH} -image ${i}.bif -w -process_bitstream bin >/dev/null
+            mv "${i}.bin" "${i: 0 : ${#i}-21 }.bin" 
+        done
+        rm ${1}/*.bif
+        echo -e "${SUCCESS}Finished \u2713 ${NONE}"
+    else
+        echo -e "${ERROR}Error - Bootgen not in PATH.${NONE}"
+        exit 1
+    fi
+}
+
 echo "Checking Dependencies..."
 if [ $INSTALL_DEPS == "true" ]; then
     echo -e "${WARNING}Dependencies not found, install...${NONE}"
@@ -121,6 +153,7 @@ echo -e "${SUCCESS}Finished \u2713${NONE}"
 echo "Synthesising PR Configs & Modes..."
 if [ ! -d "$ZYCAP_ROOT_PATH/rtl/.checkpoint_prj" ]; then
     echo -e "${WARNING}Not found, generating...${NONE}"
+    # exec $VIVADO_PATH $VIVADO_PARAMS -mode batch -source $ZYCAP_ROOT_PATH/scripts/tcl/synth/generate_checkpoints.tcl -tclargs $ZYCAP_ROOT_PATH
     exec $VIVADO_PATH $VIVADO_PARAMS -mode batch -source $ZYCAP_ROOT_PATH/scripts/tcl/synth/generate_checkpoints.tcl -tclargs $ZYCAP_ROOT_PATH > "$ZYCAP_ROOT_PATH/rtl/.logs/vivado_pr_synth.log" &
     show_spinner $!
     check_error "$ZYCAP_ROOT_PATH/rtl/.logs/vivado_pr_synth.log"
@@ -128,10 +161,10 @@ fi
 echo -e "${SUCCESS}Finished \u2713${NONE}"
 
 echo "Building Block Design..."
-if [ ! -d "$ZYCAP_ROOT_PATH/rtl/${DESIGN_NAME}" ]; then
+if [ ! -d "$ZYCAP_ROOT_PATH/rtl/${DESIGN_NAME}.srcs" ]; then
     echo -e "${WARNING}Not found, generating...${NONE}"
     exec $VIVADO_PATH $VIVADO_PARAMS -mode batch -source $ZYCAP_ROOT_PATH/scripts/tcl/boards/$BOARD/gen_bd.tcl -tclargs $ZYCAP_ROOT_PATH > "$ZYCAP_ROOT_PATH/rtl/.logs/vivado_bd_diagram.log" &
-    # exec $VIVADO_PATH $VIVADO_PARAMS -mode batch -source $ZYCAP_ROOT_PATH/scripts/tcl/boards/$BOARD/gen_bd.tcl -tclargs $ZYCAP_ROOT_PATH || true
+    # exec $VIVADO_PATH $VIVADO_PARAMS -mode batch -source $ZYCAP_ROOT_PATH/scripts/tcl/boards/$BOARD/gen_bd.tcl -tclargs $ZYCAP_ROOT_PATH
     show_spinner $!
     check_error "$ZYCAP_ROOT_PATH/rtl/.logs/vivado_bd_diagram.log"
 fi
@@ -141,8 +174,15 @@ echo "Synthesize Design..."
 # if [ ! -d "$ZYCAP_ROOT_PATH/rtl/$DESIGN_NAME" ]; then
     echo -e "${WARNING}Not found, generating...${NONE}"
     # exec $VIVADO_PATH $VIVADO_PARAMS -mode batch -source $ZYCAP_ROOT_PATH/scripts/tcl/boards/$BOARD/synth.tcl -tclargs $ZYCAP_ROOT_PATH > "$ZYCAP_ROOT_PATH/rtl/.logs/vivado_bd_design.log" &
-    exec $VIVADO_PROXY $VIVADO_PATH $VIVADO_PARAMS -mode batch -source $ZYCAP_ROOT_PATH/scripts/tcl/boards/$BOARD/synth.tcl -tclargs $ZYCAP_ROOT_PATH || true
+    exec $VIVADO_PATH $VIVADO_PARAMS -mode batch -source $ZYCAP_ROOT_PATH/scripts/tcl/boards/$BOARD/synth.tcl -tclargs $ZYCAP_ROOT_PATH || true
     # show_spinner $!
     check_error "$ZYCAP_ROOT_PATH/rtl/.logs/vivado_bd_design.log"
 # fi
+echo -e "${SUCCESS}Finished \u2713${NONE}"
+
+echo "Generate Bitstreams..."
+if [ ! -d "$ZYCAP_ROOT_PATH/rtl/${DESIGN_NAME}.bitstreams" ]; then
+    echo -e "${WARNING}Not found, generating...${NONE}"
+    bootgen_bitstreams "$ZYCAP_ROOT_PATH/rtl/${DESIGN_NAME}.bitstreams"
+fi
 echo -e "${SUCCESS}Finished \u2713${NONE}"
