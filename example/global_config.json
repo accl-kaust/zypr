@@ -7,9 +7,7 @@
       "vivado_proxy": "proxychains4"
     },
     "config_petalinux": {
-      "petalinux": {
-        "path": "home/alex/petalinux"
-      }
+      "petalinux_path": "/home/alex/petalinux"
     },
     "config_run": {
       "static_synth": 1,
