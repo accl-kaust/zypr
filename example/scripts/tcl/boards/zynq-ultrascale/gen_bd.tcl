@@ -45,7 +45,7 @@ puts $origin_dir
 set orig_proj_dir "[file normalize "$origin_dir/rtl/$design_name"]"
 
 # Set function for CPU threads
-source $origin_dir/scripts/tcl/generic/cpu_threads.tcl
+source $origin_dir/scripts/tcl/utils/cpu_threads.tcl
 set log_dir $origin_dir/rtl/.logs
 
 # Create project

@@ -5,8 +5,8 @@ set log_dir "$ROOT_PATH/rtl/.logs"
 set cfg [read [open "$ROOT_PATH/global_config.json" r]]
 set global_config [json::json2dict $cfg] 
 
-source "$ROOT_PATH/scripts/tcl/generic/cpu_threads.tcl"
-source "$ROOT_PATH/scripts/tcl/generic/log_colors.tcl"
+source "$ROOT_PATH/scripts/tcl/utils/cpu_threads.tcl"
+source "$ROOT_PATH/scripts/tcl/utils/log_colors.tcl"
 
 open_project "$ROOT_PATH/rtl/base_design/base_design.xpr"
 
@@ -48,6 +48,7 @@ dict for {mode modes} [dict get $global_config design design_mode] {
         # puts "$INFO Generating for $mode $configuration... $NONE"
         if { ![info exists initial_checkpoint] } {
             set initial_checkpoint "$ROOT_PATH/rtl/base_design/base_design.checkpoints/$mode-$configuration.dcp"
+            set initial_mode "$mode-$configuration"
         }
 
         if { ![file exists "$ROOT_PATH/rtl/base_design/base_design.checkpoints/static.dcp"] } {
@@ -78,6 +79,8 @@ dict for {mode modes} [dict get $global_config design design_mode] {
 
             opt_design > $log_dir/vivado_cp_$mode-$configuration-opt.log
             place_design > $log_dir/vivado_cp_$mode-$configuration-place.log
+            file mkdir "$ROOT_PATH/rtl/base_design/base_design.hardware"
+            write_hwdef -force "$ROOT_PATH/rtl/base_design/base_design.hardware/base_design.hdf"
             route_design > $log_dir/vivado_cp_$mode-$configuration-route.log
 
             write_checkpoint -force "$ROOT_PATH/rtl/base_design/base_design.checkpoints/$mode-$configuration.dcp"
@@ -96,19 +99,19 @@ dict for {mode modes} [dict get $global_config design design_mode] {
 
             puts "${INFO}Generating $mode $configuration checkpoint... $NONE"
 
-            open_checkpoint "$ROOT_PATH/rtl/base_design/base_design.checkpoints/static.dcp"
+            # open_checkpoint "$ROOT_PATH/rtl/base_design/base_design.checkpoints/static.dcp"
 
-            read_checkpoint "$ROOT_PATH/rtl/.modes/$mode/$configuration/.checkpoints/pr_module.dcp" -cell "base_design_i/partial_led_test_v1_0_0/inst/partial_led_test_v1_0_S00_AXI_inst"
+            # read_checkpoint "$ROOT_PATH/rtl/.modes/$mode/$configuration/.checkpoints/pr_module.dcp" -cell "base_design_i/partial_led_test_v1_0_0/inst/partial_led_test_v1_0_S00_AXI_inst"
 
-            # file mkdir "$ROOT_PATH/rtl/.modes/$mode/$configuration/.constraint"
-            # write_xdc -force "$ROOT_PATH/rtl/.modes/$mode/$configuration/.constraint/top.xdc"
+            # # file mkdir "$ROOT_PATH/rtl/.modes/$mode/$configuration/.constraint"
+            # # write_xdc -force "$ROOT_PATH/rtl/.modes/$mode/$configuration/.constraint/top.xdc"
             
-            opt_design > $log_dir/vivado_cp_$mode-$configuration-opt.log
-            place_design > $log_dir/vivado_cp_$mode-$configuration-place.log
-            route_design > $log_dir/vivado_cp_$mode-$configuration-route.log
+            # opt_design > $log_dir/vivado_cp_$mode-$configuration-opt.log
+            # place_design > $log_dir/vivado_cp_$mode-$configuration-place.log
+            # route_design > $log_dir/vivado_cp_$mode-$configuration-route.log
 
-            # write_checkpoint $ROOT_PATH/rtl/.modes/$mode/$configuration/.checkpoints/pr_module.dcp -force
-            write_checkpoint -force "$ROOT_PATH/rtl/base_design/base_design.checkpoints/$mode-$configuration.dcp"
+            # # write_checkpoint $ROOT_PATH/rtl/.modes/$mode/$configuration/.checkpoints/pr_module.dcp -force
+            # write_checkpoint -force "$ROOT_PATH/rtl/base_design/base_design.checkpoints/$mode-$configuration.dcp"
 
             lappend design_checkpoints "$ROOT_PATH/rtl/base_design/base_design.checkpoints/$mode-$configuration.dcp"
 
@@ -129,8 +132,14 @@ dict for {mode modes} [dict get $global_config design design_mode] {
     dict for {configuration configurations} [dict get $global_config design design_mode $mode configs] {
         open_checkpoint "$ROOT_PATH/rtl/base_design/base_design.checkpoints/$mode-$configuration.dcp"
         write_bitstream -force "$ROOT_PATH/rtl/base_design/base_design.bitstreams/$mode-$configuration.bit"
+        if { "$mode-$configuration" eq $initial_mode } {
+            puts "${INFO}Writing sysdef for ${mode}-${configuration}...${NONE}"
+            write_sysdef -force -hwdef "$ROOT_PATH/rtl/base_design/base_design.hardware/base_design.hdf" -bitfile "$ROOT_PATH/rtl/base_design/base_design.bitstreams/$mode-$configuration.bit" "$ROOT_PATH/rtl/base_design/base_design.bitstreams/$mode-$configuration.sysdef"
+        }
         if {[current_design] ne ""} {
             close_design
         }
     }
 }
+
+# file copy -force /home/alex/Documents/PhD/Labs/ES3F1/Zybo-Z7-20-pcam-5c-2018.2-2/vivado_proj/Zybo-Z7-20-pcam-5c/Zybo-Z7-20-pcam-5c.runs/impl_1/system_wrapper.sysdef /home/alex/Documents/PhD/Labs/ES3F1/Zybo-Z7-20-pcam-5c-2018.2-2/vivado_proj/Zybo-Z7-20-pcam-5c/Zybo-Z7-20-pcam-5c.sdk/system_wrapper.hdf
