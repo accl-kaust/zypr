@@ -2,93 +2,109 @@
 
 # Pass root dir into script
 # ROOT_DIR=$1
-DESIGN_NAME=$1
+INITIAL_BITSTREAM=$1
 
-ERROR='\e[0;31m'
-SUCCESS="\e[0;32m"
-WARNING="\e[0;33m"
-INFO="\e[0;34m"
-NONE="\e[0m"
+BOARD=$(jq .project.project_device.family global_config.json | tr -d \")
+DESIGN_NAME=$(jq .design.design_name global_config.json | tr -d \")
+INSTALL_DEPS=$(jq .config.config_settings.check_dependencies global_config.json | tr -d \")
+VIVADO_PATH=$(jq .config.config_vivado.vivado_path global_config.json | tr -d \")
+VIVADO_VER=$(jq .config.config_vivado.vivado_version global_config.json | tr -d \")
+VIVADO_PARAMS=$(jq .config.config_vivado.vivado_params global_config.json | tr -d \")
+VIVADO_PROXY=$(jq .config.config_vivado.vivado_proxy global_config.json | tr -d \")
+PETALINUX_PATH=$(jq .config.config_petalinux.petalinux_path global_config.json | tr -d \")
+
+source "$(pwd)/scripts/bash/logger.sh"
+
+pyenv local 2.7.15
 
 # Check for correct shell:
-if ! [ -z $PETALINUX ]; then
-  if [ $(readlink /proc/$$/exe) != "/bin/bash" ]; then
-    echo -e "${ERROR}Incorrect shell, please use bin/bash.${NONE}"
-    exit 1
-  fi
-  source <petalinux-install-dir>/settings.sh
-  source <vivado-install-dir>/settings64.sh
+if [ $(readlink /proc/$$/exe) != "/bin/bash" ]; then
+  echo -e "${ERROR}Incorrect shell, please use bin/bash.${NONE}"
+  exit 1
 fi
-# Get a list of all the exported projects
-pwd
-project_name=(`find ${DESIGN_NAME} -name "*.sdk"`)
 
-# Iterate through all of those files
+# Ensure that petalinux and vivado tools are in PATH
+VIVADO_PATH_SETTING=$(echo ${VIVADO_PATH} | rev | cut -d '/' -f 3,4,5,6 | rev)
+echo $VIVADO_PATH_SETTING
+source "/${VIVADO_PATH_SETTING}/settings64.sh"
 
-# Get the project name
-proj=$(echo $project_name | tr "/" "\n" | sed -n '3p')
-echo "INFO: Exported Vivado project found: $proj"
-echo "> Export location [$project_name]"
+# Get the exported project
+ZYCAP_ROOT_PATH=$(pwd)
+
+hardware_dir=(`find ${ZYCAP_ROOT_PATH}/rtl/${DESIGN_NAME}/ -name "*.hardware"`)
+bitstream_dir=(`find ${ZYCAP_ROOT_PATH}/rtl/${DESIGN_NAME}/ -name "*.bitstreams"`)
+echo -e "Exported hardware found: [$hardware_dir]"
+
 
 # Name of the HDF file
-hdf="$project_name/${proj}_wrapper.hdf"
+hdf="${hardware_dir}/${DESIGN_NAME}.hdf"
 if [ -f "$hdf" ]; then
-  echo "> HDF file exists [$hdf]"
+  log_success "- HDF file exists [`basename "$hdf"`] \u2713"
 else
-  echo "> HDF file does not exist"
-  echo "> PetaLinux will not be built for this project"
+  log_err "- HDF file does not exist"
+  log_err "- PetaLinux will not be built for this project"
   echo
   continue
 fi
 
 # Name of the BIT file
-runs=$(echo $project_name | sed -e "s/.sdk/.runs/g")
-bit="$runs/impl_1/${proj}_wrapper.bit"
+bit="${bitstream_dir}/${INITIAL_BITSTREAM}.bit"
 if [ -f "$bit" ]; then
-  echo "> BIT file exists [$bit]"
+  log_success "- BIT file exists [`basename "$bit"`] \u2713"
 else
-  echo "> BIT file does not exist"
-  echo "> PetaLinux will not be built for this project"
+  log_err "- BIT file does not exist"
+  log_err "- PetaLinux will not be built for this project"
   echo
   continue
 fi
 
-# Get the port configuration
-if [[ $proj == "axi_eth" ]]; then
-  portconfig="ports-0123-axieth"
-else
-  portconfig="ports-0123"
-fi
+# set CPU type
+case "$BOARD" in
+  zynq-ultrascale)  
+      ARCH="zynqMP"
+      ;;
+  zynq) 
+      ARCH="zynq"
+      ;;
+  fpga)  
+      ARCH="fpga"
+      ;;
+  *) 
+      ARCH="zynqmp"
+      ;;
+esac
 
-# CPU type is ZynqMP
-cpu_type="zynqMP"
-fsbl_option="--fsbl ./images/linux/zynqmp_fsbl.elf"
+fsbl_option="--fsbl ./images/linux/${ARCH}_fsbl.elf"
 
-echo "> CPU_TYPE: $cpu_type"
+log_info "- SOC Type: [$ARCH]"
 
 # Create PetaLinux project if it does not exists
-if [ -d "./$proj" ]; then
-  echo "> PetaLinux project already exists"
+if [ -d "${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}" ]; then
+  log_success "- PetaLinux project already exists \u2713"
 else
-  echo "> Creating PetaLinux project"
-  petalinux-create --type project --template $cpu_type --name $proj
+  log_info "- Creating PetaLinux project..."
+  echo -e "${INFO}$(petalinux-create --type project --template $ARCH --name "linux/${DESIGN_NAME}")${NONE}"
+  log_success "- PetaLinux project created \u2713"
 fi
 
-cd $proj
+cd "${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}"
 
 # Configure PetaLinux project with hardware description if 'components' dir doesn't exist
-if [ -d "./components" ]; then
-  echo "> PetaLinux project already configured with hardware description"
+if [ -d "${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/components" ]; then
+  log_success "- PetaLinux project already configured with hardware description \u2713"
 else
-  echo "> Configuring PetaLinux project with hardware description"
-  petalinux-config --get-hw-description ../$project_name --oldconfig
+  log_info "- Configuring PetaLinux project with hardware description..."
+  echo -e "${INFO}$(petalinux-config --get-hw-description ${hardware_dir} --oldconfig)${NONE}"
+  log_success "- PetaLinux project configured with hardware description \u2713"
 fi
 
+exit 0
+
 # Copy PetaLinux config files
-if [[ -f "configdone.txt" ]]; then
-  echo "> PetaLinux config files already transferred"
+if [[ -f "${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/configdone.txt" ]]; then
+  log_success "- PetaLinux config files already transferred \u2713"
 else
-  echo "> Transferring PetaLinux config files"
+  log_info "- Transferring PetaLinux config files"
   cp -R ../src/common/* .
   cp -R ../src/$portconfig/* .
   # Append mods to config file
@@ -104,17 +120,19 @@ else
     cat $project_name >> ./project-spec/configs/rootfs_config
   done
   # File to indicate that config files have been transferred
-  touch configdone.txt
+  touch ${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/configdone.txt
   # Run petalinux-config again to register the config files
   petalinux-config --oldconfig
+  log_success "- PetaLinux config prepared \u2713"
 fi
 
 # Build PetaLinux project if not built already
 if [ -d "./images" ]; then
-  echo "> PetaLinux project already built"
+  log_success "- PetaLinux project already built \u2713"
 else
-  echo "> Building PetaLinux project"
+  log_info "- Building PetaLinux project..."
   petalinux-build
+  log_success "- PetaLinux project built \u2713"
 fi
 
 # Package PetaLinux project if not packaged
