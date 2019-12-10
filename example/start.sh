@@ -10,6 +10,7 @@ VIVADO_PARAMS=$(jq .config.config_vivado.vivado_params global_config.json | tr -
 VIVADO_PROXY=$(jq .config.config_vivado.vivado_proxy global_config.json | tr -d \")
 
 source "$(pwd)/scripts/bash/logger.sh"
+source "$(pwd)/scripts/bash/spinner.sh"
 
 log_info "Checking Petalinux is in PATH..."
 source "/home/alex/petalinux/settings.sh" > /dev/null
@@ -31,22 +32,6 @@ check_error() {
     if [ -n "$error" ]; then
         echo -e "${ERROR}$1 - $error${NONE}"
     fi
-}
-
-show_spinner()
-{
-  local -r pid="${1}"
-  local -r delay='0.75'
-  local spinstr='\|/-'
-  local temp
-  while ps a | awk '{print $1}' | grep -q "${pid}"; do
-    temp="${spinstr#?}"
-    printf " [%c]  " "${spinstr}"
-    spinstr=${temp}${spinstr%"${temp}"}
-    sleep "${delay}"
-    printf "\b\b\b\b\b\b"
-  done
-  printf "    \b\b\b\b"
 }
 
 install_python_deps()

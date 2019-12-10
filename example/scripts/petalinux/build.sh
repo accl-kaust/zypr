@@ -14,6 +14,7 @@ VIVADO_PROXY=$(jq .config.config_vivado.vivado_proxy global_config.json | tr -d 
 PETALINUX_PATH=$(jq .config.config_petalinux.petalinux_path global_config.json | tr -d \")
 
 source "$(pwd)/scripts/bash/logger.sh"
+source "$(pwd)/scripts/bash/spinner.sh"
 
 pyenv local 2.7.15
 
@@ -94,7 +95,8 @@ if [ -d "${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/components" ]; then
   log_success "- PetaLinux project already configured with hardware description \u2713"
 else
   log_info "- Configuring PetaLinux project with hardware description..."
-  echo -e "${INFO}$(petalinux-config --get-hw-description ${hardware_dir} --oldconfig)${NONE}"
+  echo -e "${INFO}$(petalinux-config --get-hw-description ${hardware_dir} --oldconfig)${NONE}" > "$ZYCAP_ROOT_PATH/rtl/.logs/petalinux_hdf.log" &
+  show_spinner $!
   log_success "- PetaLinux project configured with hardware description \u2713"
 fi
 
