@@ -1,11 +1,5 @@
 #!/bin/bash
 
-ERROR='\e[0;31m'
-SUCCESS="\e[0;32m"
-WARNING="\e[0;33m"
-INFO="\e[0;34m"
-NONE="\e[0m"
-
 ZYCAP_ROOT_PATH=$(pwd)
 BOARD=$(jq .project.project_device.family global_config.json | tr -d \")
 DESIGN_NAME=$(jq .design.design_name global_config.json | tr -d \")
@@ -15,14 +9,22 @@ VIVADO_VER=$(jq .config.config_vivado.vivado_version global_config.json | tr -d 
 VIVADO_PARAMS=$(jq .config.config_vivado.vivado_params global_config.json | tr -d \")
 VIVADO_PROXY=$(jq .config.config_vivado.vivado_proxy global_config.json | tr -d \")
 
-set -e
+source "$(pwd)/scripts/bash/logger.sh"
 
-cd $ZYCAP_ROOT_PATH/rtl && make clean-meta
+log_info "Checking Petalinux is in PATH..."
+source "/home/alex/petalinux/settings.sh" > /dev/null
+
+cd $ZYCAP_ROOT_PATH/rtl && make clean-meta >/dev/null
 if [ ! -d "$ZYCAP_ROOT_PATH/rtl/.logs" ]; then
     mkdir $ZYCAP_ROOT_PATH/rtl/.logs
 fi
 
-# echo -e "Vivado Version: ${VIVADO_VER}"
+print_proj_info() {
+    log_info "PROJECT: ${DESIGN_NAME}"
+    log_info "VIVADO_VER: ${VIVADO_VER}"
+    log_info "VIVADO_PROXY: ${VIVADO_PROXY}"
+}
+
 
 check_error() {
     local error=$( grep "^ERROR" $1 )
@@ -114,6 +116,13 @@ bootgen_bitstreams()
     fi
 }
 
+# Entry Point
+# -----------
+# This Tcl script will create an SDK workspace with software applications for each of the
+# exported hardware designs in the ../Vivado directory.
+
+print_proj_info
+
 echo "Checking Dependencies..."
 if [ $INSTALL_DEPS == "true" ]; then
     echo -e "${WARNING}Dependencies not found, install...${NONE}"
@@ -161,7 +170,7 @@ fi
 echo -e "${SUCCESS}Finished \u2713${NONE}"
 
 echo "Building Block Design..."
-if [ ! -d "$ZYCAP_ROOT_PATH/rtl/${DESIGN_NAME}.srcs" ]; then
+if [ ! -d "$ZYCAP_ROOT_PATH/rtl/${DESIGN_NAME}/${DESIGN_NAME}.srcs" ]; then
     echo -e "${WARNING}Not found, generating...${NONE}"
     exec $VIVADO_PATH $VIVADO_PARAMS -mode batch -source $ZYCAP_ROOT_PATH/scripts/tcl/boards/$BOARD/gen_bd.tcl -tclargs $ZYCAP_ROOT_PATH > "$ZYCAP_ROOT_PATH/rtl/.logs/vivado_bd_diagram.log" &
     # exec $VIVADO_PATH $VIVADO_PARAMS -mode batch -source $ZYCAP_ROOT_PATH/scripts/tcl/boards/$BOARD/gen_bd.tcl -tclargs $ZYCAP_ROOT_PATH
