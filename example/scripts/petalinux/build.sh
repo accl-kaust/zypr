@@ -15,6 +15,7 @@ PETALINUX_PATH=$(jq .config.config_petalinux.petalinux_path global_config.json |
 
 source "$(pwd)/scripts/bash/logger.sh"
 source "$(pwd)/scripts/bash/spinner.sh"
+source "$(pwd)/scripts/petalinux/sd.sh"
 
 pyenv local 2.7.15
 
@@ -26,7 +27,7 @@ fi
 
 # Ensure that petalinux and vivado tools are in PATH
 VIVADO_PATH_SETTING=$(echo ${VIVADO_PATH} | rev | cut -d '/' -f 3,4,5,6 | rev)
-echo $VIVADO_PATH_SETTING
+log_none "Petalinux Build Script"
 source "/${VIVADO_PATH_SETTING}/settings64.sh"
 
 # Get the exported project
@@ -34,7 +35,7 @@ ZYCAP_ROOT_PATH=$(pwd)
 
 hardware_dir=(`find ${ZYCAP_ROOT_PATH}/rtl/${DESIGN_NAME}/ -name "*.hardware"`)
 bitstream_dir=(`find ${ZYCAP_ROOT_PATH}/rtl/${DESIGN_NAME}/ -name "*.bitstreams"`)
-echo -e "Exported hardware found: [$hardware_dir]"
+log_success "- Exported hardware found: [$hardware_dir] \u2713"
 
 
 # Name of the HDF file
@@ -75,8 +76,8 @@ case "$BOARD" in
       ;;
 esac
 
-fsbl_option="--fsbl ./images/linux/${ARCH}_fsbl.elf"
-
+fsbl_option="--fsbl ./images/linux/$(echo "${ARCH}" | tr '[:upper:]' '[:lower:]')_fsbl.elf"
+echo $fsbl_option
 log_info "- SOC Type: [$ARCH]"
 
 # Create PetaLinux project if it does not exists
@@ -95,56 +96,82 @@ if [ -d "${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/components" ]; then
   log_success "- PetaLinux project already configured with hardware description \u2713"
 else
   log_info "- Configuring PetaLinux project with hardware description..."
-  echo -e "${INFO}$(petalinux-config --get-hw-description ${hardware_dir} --oldconfig)${NONE}" > "$ZYCAP_ROOT_PATH/rtl/.logs/petalinux_hdf.log" &
-  show_spinner $!
+  petalinux-config --get-hw-description ${hardware_dir}
+  # echo -e "${INFO}$(petalinux-config --get-hw-description ${hardware_dir} --oldconfig)${NONE}" > "$ZYCAP_ROOT_PATH/rtl/.logs/petalinux_hdf.log" &
+  # show_spinner $!
   log_success "- PetaLinux project configured with hardware description \u2713"
 fi
 
-exit 0
-
-# Copy PetaLinux config files
-if [[ -f "${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/configdone.txt" ]]; then
-  log_success "- PetaLinux config files already transferred \u2713"
-else
-  log_info "- Transferring PetaLinux config files"
-  cp -R ../src/common/* .
-  cp -R ../src/$portconfig/* .
-  # Append mods to config file
-  config_mod_list=(`find ./project-spec/configs/ -name "config_*.append"`)
-  for project_name in ${config_mod_list[*]}
-  do
-    cat $project_name >> ./project-spec/configs/config
-  done
-  # Append mods to rootfs_config file
-  rootfs_config_mod_list=(`find ./project-spec/configs/ -name "rootfs_config_*.append"`)
-  for project_name in ${rootfs_config_mod_list[*]}
-  do
-    cat $project_name >> ./project-spec/configs/rootfs_config
-  done
-  # File to indicate that config files have been transferred
-  touch ${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/configdone.txt
-  # Run petalinux-config again to register the config files
-  petalinux-config --oldconfig
-  log_success "- PetaLinux config prepared \u2713"
-fi
+# # Copy PetaLinux config files
+# if [[ -f "${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/configdone.txt" ]]; then
+#   log_success "- PetaLinux config files already transferred \u2713"
+# else
+#   log_info "- Transferring PetaLinux config files"
+#   cp -R ../src/common/* .
+#   cp -R ../src/$portconfig/* .
+#   # Append mods to config file
+#   config_mod_list=(`find ./project-spec/configs/ -name "config_*.append"`)
+#   for project_name in ${config_mod_list[*]}
+#   do
+#     cat $project_name >> ./project-spec/configs/config
+#   done
+#   # Append mods to rootfs_config file
+#   rootfs_config_mod_list=(`find ./project-spec/configs/ -name "rootfs_config_*.append"`)
+#   for project_name in ${rootfs_config_mod_list[*]}
+#   do
+#     cat $project_name >> ./project-spec/configs/rootfs_config
+#   done
+#   # File to indicate that config files have been transferred
+#   touch ${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/configdone.txt
+#   # Run petalinux-config again to register the config files
+#   petalinux-config --oldconfig
+#   log_success "- PetaLinux config prepared \u2713"
+# fi
 
 # Build PetaLinux project if not built already
-if [ -d "./images" ]; then
+if [ -d "${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/images" ]; then
   log_success "- PetaLinux project already built \u2713"
 else
   log_info "- Building PetaLinux project..."
-  petalinux-build
+  petalinux-build > "$ZYCAP_ROOT_PATH/rtl/.logs/petalinux_build.log" &
+  show_spinner $!
   log_success "- PetaLinux project built \u2713"
 fi
 
 # Package PetaLinux project if not packaged
-if [[ -f "./images/linux/BOOT.BIN" && -f "./images/linux/image.ub" ]]; then
-  echo "> PetaLinux project already packaged"
+if [[ -f "${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/images/linux/BOOT.BIN" && -f "${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/images/linux/image.ub" ]]; then
+  log_success "- PetaLinux project already packaged \u2713"
 else
-  echo "> Packaging PetaLinux project"
-  petalinux-package --boot $fsbl_option --fpga ../$bit --u-boot
+  log_info "- Packaging PetaLinux project..."
+  $(petalinux-package --boot $fsbl_option --fpga $bit --u-boot)  > "$ZYCAP_ROOT_PATH/rtl/.logs/petalinux_package.log" &
+  show_spinner $!
+  log_success "- PetaLinux packaged \u2713"
 fi
 cd ..
 
-echo "PetaLinux build script completed"
+log_success "PetaLinux build script completed \u2713"
+
+echo -n -e "Select boot option: \n"
+log_info "1) JTAG"
+log_info "2) SD"
+log_info "3) None"
+read option
+case $option in
+1 )
+        log_info "Booting via JTAG..."
+        petalinux-boot --jtag --fpga
+        petalinux-boot --jtag --kernel
+        ;;
+
+2 )
+        log_info "Preparing SD card..."
+        prepare_sd
+        ;;
+3 )
+        log_warn "Exiting..."
+        ;;
+*) 
+        echo "Invalid input"
+        ;;
+esac
 

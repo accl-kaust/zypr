@@ -21,3 +21,7 @@ log_err() {
 log_success() {
     echo -e "${SUCCESS}${1}${NONE}"
 }
+
+log_none() {
+    echo -e "${NONE}${1}${NONE}"
+}

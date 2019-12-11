@@ -180,3 +180,13 @@ if [ ! -d "$ZYCAP_ROOT_PATH/rtl/${DESIGN_NAME}.bitstreams" ]; then
     bootgen_bitstreams "$ZYCAP_ROOT_PATH/rtl/${DESIGN_NAME}.bitstreams"
 fi
 echo -e "${SUCCESS}Finished \u2713${NONE}"
+
+echo "Build Petalinux..."
+if [ ! -d "$ZYCAP_ROOT_PATH/rtl/${DESIGN_NAME}.bitstreams" ]; then
+    log_warn "Not found, generating..."
+    bootgen_bitstreams "$ZYCAP_ROOT_PATH/rtl/${DESIGN_NAME}.bitstreams"
+fi
+echo -e "${SUCCESS}Finished \u2713${NONE}"
+
+echo "Deploying Petalinux..."
+echo -e "${SUCCESS}Finished \u2713${NONE}"
