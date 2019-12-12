@@ -17,6 +17,11 @@ source "$(pwd)/scripts/bash/logger.sh"
 source "$(pwd)/scripts/bash/spinner.sh"
 source "$(pwd)/scripts/petalinux/sd.sh"
 
+ZYCAP_ROOT_PATH=$(pwd)
+
+mkdir -p "${ZYCAP_ROOT_PATH}/linux/.logs"
+LOG_DIR="${ZYCAP_ROOT_PATH}/linux/.logs"
+
 pyenv local 2.7.15
 
 # Check for correct shell:
@@ -31,7 +36,6 @@ log_none "Petalinux Build Script"
 source "/${VIVADO_PATH_SETTING}/settings64.sh"
 
 # Get the exported project
-ZYCAP_ROOT_PATH=$(pwd)
 
 hardware_dir=(`find ${ZYCAP_ROOT_PATH}/rtl/${DESIGN_NAME}/ -name "*.hardware"`)
 bitstream_dir=(`find ${ZYCAP_ROOT_PATH}/rtl/${DESIGN_NAME}/ -name "*.bitstreams"`)
@@ -80,6 +84,8 @@ fsbl_option="--fsbl ./images/linux/$(echo "${ARCH}" | tr '[:upper:]' '[:lower:]'
 echo $fsbl_option
 log_info "- SOC Type: [$ARCH]"
 
+############################ Generate Project ############################
+
 # Create PetaLinux project if it does not exists
 if [ -d "${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}" ]; then
   log_success "- PetaLinux project already exists \u2713"
@@ -90,6 +96,8 @@ else
 fi
 
 cd "${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}"
+
+############################ Generate Hardware ############################
 
 # Configure PetaLinux project with hardware description if 'components' dir doesn't exist
 if [ -d "${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/components" ]; then
@@ -102,51 +110,71 @@ else
   log_success "- PetaLinux project configured with hardware description \u2713"
 fi
 
-# # Copy PetaLinux config files
-# if [[ -f "${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/configdone.txt" ]]; then
-#   log_success "- PetaLinux config files already transferred \u2713"
-# else
-#   log_info "- Transferring PetaLinux config files"
-#   cp -R ../src/common/* .
-#   cp -R ../src/$portconfig/* .
-#   # Append mods to config file
-#   config_mod_list=(`find ./project-spec/configs/ -name "config_*.append"`)
-#   for project_name in ${config_mod_list[*]}
-#   do
-#     cat $project_name >> ./project-spec/configs/config
-#   done
-#   # Append mods to rootfs_config file
-#   rootfs_config_mod_list=(`find ./project-spec/configs/ -name "rootfs_config_*.append"`)
-#   for project_name in ${rootfs_config_mod_list[*]}
-#   do
-#     cat $project_name >> ./project-spec/configs/rootfs_config
-#   done
-#   # File to indicate that config files have been transferred
-#   touch ${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/configdone.txt
-#   # Run petalinux-config again to register the config files
-#   petalinux-config --oldconfig
-#   log_success "- PetaLinux config prepared \u2713"
-# fi
+############################ Generate Config ############################
+
+# Copy PetaLinux config files
+if [[ -f "${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/configdone.txt" ]]; then
+  log_success "- PetaLinux config files already transferred \u2713"
+else
+  log_info "- Transferring PetaLinux config files"
+  cp -R ${ZYCAP_ROOT_PATH}/board/ultra96/1.2/linux/configs/* ${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/project-spec/configs
+  # Append mods to config file
+  config_mod_list=(`find ${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/project-spec/configs -name "config_*.append"`)
+  for project_name in ${config_mod_list[*]}
+  do
+    echo $project_name
+    cat $project_name
+    cat $project_name >> ${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/project-spec/configs/config
+  done
+  # Append mods to rootfs_config file
+  # rootfs_config_mod_list=(`find ${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/project-spec/configs -name "rootfs_config_*.append"`)
+  # for project_name in ${rootfs_config_mod_list[*]}
+  # do
+  #   echo $project_name
+  #   cat $project_name
+  #   cat $project_name >> ${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/project-spec/configs/rootfs_config
+  # done
+  # File to indicate that config files have been transferred
+  touch ${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/configdone.txt
+  # Run petalinux-config again to register the config files
+  petalinux-config --oldconfig
+  log_success "- PetaLinux config prepared \u2713"
+fi
+
+############################ Custom Modules ############################
+
+# Generate UDMABUF module
+if ! [ -d "${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/project-spec/meta-user/recipes-modules/udmabuf" ]; then
+  log_info "Generating Petalinux module..."
+  petalinux-create -t modules -n udmabuf --enable
+  cp ${ZYCAP_ROOT_PATH}/linux/udmabuf/udmabuf.c ${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/project-spec/meta-user/recipes-modules/udmabuf/files/udmabuf.c
+  # cp ${ZYCAP_ROOT_PATH}/linux/udmabuf/Makefile ${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/project-spec/meta-user/recipes-modules/udmabuf/files/Makefile
+fi
+
+############################ Build Project ############################
 
 # Build PetaLinux project if not built already
-if [ -d "${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/images" ]; then
-  log_success "- PetaLinux project already built \u2713"
-else
+# if [ -d "${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/images" ]; then
+#   log_success "- PetaLinux project already built \u2713"
+# else
   log_info "- Building PetaLinux project..."
-  petalinux-build > "$ZYCAP_ROOT_PATH/rtl/.logs/petalinux_build.log" &
+  petalinux-build > "${LOG_DIR}/petalinux_build.log" &
   show_spinner $!
   log_success "- PetaLinux project built \u2713"
-fi
+# fi
+
+############################ Psackage Project ############################
 
 # Package PetaLinux project if not packaged
 if [[ -f "${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/images/linux/BOOT.BIN" && -f "${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/images/linux/image.ub" ]]; then
   log_success "- PetaLinux project already packaged \u2713"
 else
   log_info "- Packaging PetaLinux project..."
-  $(petalinux-package --boot $fsbl_option --fpga $bit --u-boot)  > "$ZYCAP_ROOT_PATH/rtl/.logs/petalinux_package.log" &
+  exec petalinux-package --boot $fsbl_option --fpga $bit --u-boot  > "${LOG_DIR}/petalinux_package.log" &
   show_spinner $!
   log_success "- PetaLinux packaged \u2713"
 fi
+
 cd ..
 
 log_success "PetaLinux build script completed \u2713"
