@@ -3,6 +3,7 @@
 # Pass root dir into script
 # ROOT_DIR=$1
 INITIAL_BITSTREAM=$1
+if [ $2 -eq SKIP ]; then SKIP=1 ; else SKIP=0 ; fi 
 
 BOARD=$(jq .project.project_device.family global_config.json | tr -d \")
 DESIGN_NAME=$(jq .design.design_name global_config.json | tr -d \")
@@ -86,6 +87,8 @@ log_info "- SOC Type: [$ARCH]"
 
 ############################ Generate Project ############################
 
+log_info "- SKIP = ${SKIP}"
+
 # Create PetaLinux project if it does not exists
 if [ -d "${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}" ]; then
   log_success "- PetaLinux project already exists \u2713"
@@ -126,6 +129,11 @@ else
     cat $project_name
     cat $project_name >> ${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/project-spec/configs/config
   done
+
+  log_info "- Ammending udmabuf to device tree"
+  # cp ${ZYCAP_ROOT_PATH}/linux/udmabuf/udmabuf.dtsi ${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/project-spec/meta-user/recipes-bsp/device-tree/files
+
+  # echo 'SRC_URI += "file://udmabuf.dtsi"' >> ${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/project-spec/meta-user/recipes-bsp/device-tree/device-tree.bbappend
   # Append mods to rootfs_config file
   # rootfs_config_mod_list=(`find ${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/project-spec/configs -name "rootfs_config_*.append"`)
   # for project_name in ${rootfs_config_mod_list[*]}
