@@ -99,19 +99,19 @@ dict for {mode modes} [dict get $global_config design design_mode] {
 
             puts "${INFO}Generating $mode $configuration checkpoint... $NONE"
 
-            # open_checkpoint "$ROOT_PATH/rtl/base_design/base_design.checkpoints/static.dcp"
+            open_checkpoint "$ROOT_PATH/rtl/base_design/base_design.checkpoints/static.dcp"
 
-            # read_checkpoint "$ROOT_PATH/rtl/.modes/$mode/$configuration/.checkpoints/pr_module.dcp" -cell "base_design_i/partial_led_test_v1_0_0/inst/partial_led_test_v1_0_S00_AXI_inst"
+            read_checkpoint "$ROOT_PATH/rtl/.modes/$mode/$configuration/.checkpoints/pr_module.dcp" -cell "base_design_i/partial_led_test_v1_0_0/inst/partial_led_test_v1_0_S00_AXI_inst"
 
-            # # file mkdir "$ROOT_PATH/rtl/.modes/$mode/$configuration/.constraint"
-            # # write_xdc -force "$ROOT_PATH/rtl/.modes/$mode/$configuration/.constraint/top.xdc"
+            # file mkdir "$ROOT_PATH/rtl/.modes/$mode/$configuration/.constraint"
+            # write_xdc -force "$ROOT_PATH/rtl/.modes/$mode/$configuration/.constraint/top.xdc"
             
-            # opt_design > $log_dir/vivado_cp_$mode-$configuration-opt.log
-            # place_design > $log_dir/vivado_cp_$mode-$configuration-place.log
-            # route_design > $log_dir/vivado_cp_$mode-$configuration-route.log
+            opt_design > $log_dir/vivado_cp_$mode-$configuration-opt.log
+            place_design > $log_dir/vivado_cp_$mode-$configuration-place.log
+            route_design > $log_dir/vivado_cp_$mode-$configuration-route.log
 
-            # # write_checkpoint $ROOT_PATH/rtl/.modes/$mode/$configuration/.checkpoints/pr_module.dcp -force
-            # write_checkpoint -force "$ROOT_PATH/rtl/base_design/base_design.checkpoints/$mode-$configuration.dcp"
+            # write_checkpoint $ROOT_PATH/rtl/.modes/$mode/$configuration/.checkpoints/pr_module.dcp -force
+            write_checkpoint -force "$ROOT_PATH/rtl/base_design/base_design.checkpoints/$mode-$configuration.dcp"
 
             lappend design_checkpoints "$ROOT_PATH/rtl/base_design/base_design.checkpoints/$mode-$configuration.dcp"
 

@@ -1,14 +1,14 @@
 {
-    reserved-memory {
-    #address-cells = <1>;
-    #size-cells = <1>;
-    ranges;
-        image_buf0: image_buf@0 {
-            compatible = "shared-dma-pool";
-            reusable;
-            reg = <0x3C000000 0x04000000>; 
-            label = "image_buf0";
-        };
+	reserved-memory {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		ranges;
+		image_buf0: image_buf@0 {
+			compatible = "shared-dma-pool";
+			reusable;
+			reg = <0x3C000000 0x04000000>; 
+			label = "image_buf0";
+		};
 	};
 	udmabuf@0 {
 		compatible = "ikwzm,udmabuf-0.10.a";

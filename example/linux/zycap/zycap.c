@@ -16,7 +16,7 @@
 #include <sys/mman.h>
 #include <sys/utsname.h>
 
-#define DevCfg_BASE_ADDRESS 0xF8007000
+#define DevCfg_BASE_ADDRESS 0x000000006fd00000
 #define MAP_SIZE 4096UL
 #define MAP_MASK (MAP_SIZE - 1)
 #define BS_BASEADDR

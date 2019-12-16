@@ -3,7 +3,7 @@
 # Pass root dir into script
 # ROOT_DIR=$1
 INITIAL_BITSTREAM=$1
-if [ $2 -eq SKIP ]; then SKIP=1 ; else SKIP=0 ; fi 
+# if [ $2 -eq SKIP ]; then SKIP=1 ; else SKIP=0 ; fi 
 
 BOARD=$(jq .project.project_device.family global_config.json | tr -d \")
 DESIGN_NAME=$(jq .design.design_name global_config.json | tr -d \")
@@ -130,7 +130,7 @@ else
     cat $project_name >> ${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/project-spec/configs/config
   done
 
-  log_info "- Ammending udmabuf to device tree"
+  log_info "\n- Ammending udmabuf to device tree"
   # cp ${ZYCAP_ROOT_PATH}/linux/udmabuf/udmabuf.dtsi ${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/project-spec/meta-user/recipes-bsp/device-tree/files
 
   # echo 'SRC_URI += "file://udmabuf.dtsi"' >> ${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/project-spec/meta-user/recipes-bsp/device-tree/device-tree.bbappend
@@ -149,13 +149,23 @@ else
   log_success "- PetaLinux config prepared \u2713"
 fi
 
-############################ Custom Modules ############################
+############################ UDMABUF Modules ############################
 
 # Generate UDMABUF module
 if ! [ -d "${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/project-spec/meta-user/recipes-modules/udmabuf" ]; then
   log_info "Generating Petalinux module..."
   petalinux-create -t modules -n udmabuf --enable
   cp ${ZYCAP_ROOT_PATH}/linux/udmabuf/udmabuf.c ${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/project-spec/meta-user/recipes-modules/udmabuf/files/udmabuf.c
+  # cp ${ZYCAP_ROOT_PATH}/linux/udmabuf/Makefile ${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/project-spec/meta-user/recipes-modules/udmabuf/files/Makefile
+fi
+
+# Generate UDMABUF module
+if ! [ -d "${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/project-spec/meta-user/recipes-apps/zycap" ]; then
+  log_info "Generating Petalinux module..."
+  petalinux-create -t apps -n zycap --enable
+  cp ${ZYCAP_ROOT_PATH}/linux/zycap/zycap.c ${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/project-spec/meta-user/recipes-apps/zycap/files/zycap.c
+  cp ${ZYCAP_ROOT_PATH}/linux/zycap/zycap.h ${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/project-spec/meta-user/recipes-apps/zycap/files/zycap.h
+  cp ${ZYCAP_ROOT_PATH}/linux/zycap/zycap.bb ${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/project-spec/meta-user/recipes-apps/zycap/zycap.bb
   # cp ${ZYCAP_ROOT_PATH}/linux/udmabuf/Makefile ${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/project-spec/meta-user/recipes-modules/udmabuf/files/Makefile
 fi
 

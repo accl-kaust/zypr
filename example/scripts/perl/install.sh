@@ -15,7 +15,7 @@ export PERL_MM_USE_DEFAULT=1
 
 echo -e "Installing Perl Dependancies... $NONE"
 sudo cpan JSON
-PERL_MM_USE_DEFAULT=1 perl -MCPAN -e \
+sudo PERL_MM_USE_DEFAULT=1 perl -MCPAN -e \
 'install Log::Log4perl; \
  install Verilog::Netlist; \
  install Verilog::Preproc; \

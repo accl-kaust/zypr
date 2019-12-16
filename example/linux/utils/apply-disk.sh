@@ -1,19 +1,20 @@
 
 # WARNING THIS WILL ERASE YOUR DISK, CHOOSE CAREFULLY!
-sudo sfdisk -d /dev/sda > sda.sfdisk
+DRIVE=${1}
+sudo sfdisk -d /dev/${DRIVE} > ${DRIVE}.sfdisk
 
-if ! cmp sda.sfdisk SD.sfdisk > /dev/null 2>&1
+if ! cmp ${DRIVE}.sfdisk SD.sfdisk > /dev/null 2>&1
 then
     echo "Disk requires formatting."
-    sudo sfdisk /dev/sda < SD.sfdisk --force
-    sudo mkfs.vfat -F 32 -n boot /dev/sda1
-    sudo mkfs.ext4 -L root /dev/sda2
+    sudo sfdisk /dev/${DRIVE} < SD.sfdisk --force
+    sudo mkfs.vfat -F 32 -n boot /dev/${DRIVE}1
+    sudo mkfs.ext4 -L root /dev/${DRIVE}2
 else
     echo "Disk already formatted correctly."
 fi
 
-sudo mount /dev/sda1 /media/$(whoami)/boot
-sudo mount /dev/sda2 /media/$(whoami)/root
+sudo mount /dev/${DRIVE}1 /media/$(whoami)/boot
+sudo mount /dev/${DRIVE}2 /media/$(whoami)/root
 
 cd /media/$(whoami)/boot/
 sudo cp /home/alex/GitHub/zycap2/example/linux/base_design/images/linux/BOOT.BIN .
