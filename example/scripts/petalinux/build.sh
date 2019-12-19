@@ -154,20 +154,20 @@ fi
 # Generate UDMABUF module
 if ! [ -d "${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/project-spec/meta-user/recipes-modules/udmabuf" ]; then
   log_info "Generating Petalinux module..."
-  petalinux-create -t modules -n udmabuf --enable
+  petalinux-create -t modules -n udmabuf --enable --force
   cp ${ZYCAP_ROOT_PATH}/linux/udmabuf/udmabuf.c ${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/project-spec/meta-user/recipes-modules/udmabuf/files/udmabuf.c
   # cp ${ZYCAP_ROOT_PATH}/linux/udmabuf/Makefile ${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/project-spec/meta-user/recipes-modules/udmabuf/files/Makefile
 fi
 
-# Generate UDMABUF module
-if ! [ -d "${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/project-spec/meta-user/recipes-apps/zycap" ]; then
+# Generate ZYCAP module
+# if ! [ -d "${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/project-spec/meta-user/recipes-apps/zycap" ]; then
   log_info "Generating Petalinux module..."
-  petalinux-create -t apps -n zycap --enable
+  petalinux-create -t apps -n zycap --enable --force
   cp ${ZYCAP_ROOT_PATH}/linux/zycap/zycap.c ${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/project-spec/meta-user/recipes-apps/zycap/files/zycap.c
   cp ${ZYCAP_ROOT_PATH}/linux/zycap/zycap.h ${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/project-spec/meta-user/recipes-apps/zycap/files/zycap.h
   cp ${ZYCAP_ROOT_PATH}/linux/zycap/zycap.bb ${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/project-spec/meta-user/recipes-apps/zycap/zycap.bb
   # cp ${ZYCAP_ROOT_PATH}/linux/udmabuf/Makefile ${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/project-spec/meta-user/recipes-modules/udmabuf/files/Makefile
-fi
+# fi
 
 ############################ Build Project ############################
 

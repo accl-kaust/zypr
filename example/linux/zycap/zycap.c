@@ -359,3 +359,9 @@ int Prefetch_PR_Bitstream(char *bs_name)
     }
 	return 1;
 }
+
+int main(int argc, char *argv[])
+{
+    printf("Hello!\n");
+	return 0;
+}
