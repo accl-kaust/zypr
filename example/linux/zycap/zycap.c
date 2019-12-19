@@ -362,6 +362,6 @@ int Prefetch_PR_Bitstream(char *bs_name)
 
 int main(int argc, char *argv[])
 {
-    printf("Hello!\n");
+    printf("Hello Version 2!\n");
 	return 0;
 }

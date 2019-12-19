@@ -125,12 +125,10 @@ else
   config_mod_list=(`find ${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/project-spec/configs -name "config_*.append"`)
   for project_name in ${config_mod_list[*]}
   do
-    echo $project_name
-    cat $project_name
     cat $project_name >> ${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/project-spec/configs/config
   done
 
-  log_info "\n- Ammending udmabuf to device tree"
+  log_info "- Ammending udmabuf to device tree"
   # cp ${ZYCAP_ROOT_PATH}/linux/udmabuf/udmabuf.dtsi ${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/project-spec/meta-user/recipes-bsp/device-tree/files
 
   # echo 'SRC_URI += "file://udmabuf.dtsi"' >> ${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/project-spec/meta-user/recipes-bsp/device-tree/device-tree.bbappend
@@ -149,22 +147,26 @@ else
   log_success "- PetaLinux config prepared \u2713"
 fi
 
-############################ UDMABUF Modules ############################
+############################ UDMABUF Module ############################
 
 # Generate UDMABUF module
-if ! [ -d "${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/project-spec/meta-user/recipes-modules/udmabuf" ]; then
-  log_info "Generating Petalinux module..."
+# if ! [ -d "${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/project-spec/meta-user/recipes-modules/udmabuf" ]; then
+  log_info "- Generating udmabuf module..."
   petalinux-create -t modules -n udmabuf --enable --force
   cp ${ZYCAP_ROOT_PATH}/linux/udmabuf/udmabuf.c ${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/project-spec/meta-user/recipes-modules/udmabuf/files/udmabuf.c
+  cp ${ZYCAP_ROOT_PATH}/linux/udmabuf/udmabuf.dtsi ${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/project-spec/meta-user/recipes-bsp/device-tree/files/udmabuf.dtsi
   # cp ${ZYCAP_ROOT_PATH}/linux/udmabuf/Makefile ${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/project-spec/meta-user/recipes-modules/udmabuf/files/Makefile
-fi
+# fi
 
-# Generate ZYCAP module
+############################ ZYCAP Application ############################
+
 # if ! [ -d "${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/project-spec/meta-user/recipes-apps/zycap" ]; then
-  log_info "Generating Petalinux module..."
+  log_info "- Generating zycap application..."
   petalinux-create -t apps -n zycap --enable --force
+  log_info "- Copying application files across"
   cp ${ZYCAP_ROOT_PATH}/linux/zycap/zycap.c ${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/project-spec/meta-user/recipes-apps/zycap/files/zycap.c
   cp ${ZYCAP_ROOT_PATH}/linux/zycap/zycap.h ${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/project-spec/meta-user/recipes-apps/zycap/files/zycap.h
+  cp ${ZYCAP_ROOT_PATH}/linux/zycap/Makefile ${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/project-spec/meta-user/recipes-apps/zycap/files/Makefile
   cp ${ZYCAP_ROOT_PATH}/linux/zycap/zycap.bb ${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/project-spec/meta-user/recipes-apps/zycap/zycap.bb
   # cp ${ZYCAP_ROOT_PATH}/linux/udmabuf/Makefile ${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/project-spec/meta-user/recipes-modules/udmabuf/files/Makefile
 # fi
@@ -211,7 +213,10 @@ case $option in
 
 2 )
         log_info "Preparing SD card..."
-        prepare_sd
+        cd ${ZYCAP_ROOT_PATH}/linux/utils
+        log_info "Enter drive name:"
+        read drive
+        exec apply-disk.sh $drive
         ;;
 3 )
         log_warn "Exiting..."
