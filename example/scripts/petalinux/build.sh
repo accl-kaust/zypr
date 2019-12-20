@@ -82,7 +82,7 @@ case "$BOARD" in
 esac
 
 fsbl_option="--fsbl ./images/linux/$(echo "${ARCH}" | tr '[:upper:]' '[:lower:]')_fsbl.elf"
-echo $fsbl_option
+# echo $fsbl_option
 log_info "- SOC Type: [$ARCH]"
 
 ############################ Generate Project ############################
@@ -168,6 +168,7 @@ fi
   cp ${ZYCAP_ROOT_PATH}/linux/zycap/zycap.h ${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/project-spec/meta-user/recipes-apps/zycap/files/zycap.h
   cp ${ZYCAP_ROOT_PATH}/linux/zycap/Makefile ${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/project-spec/meta-user/recipes-apps/zycap/files/Makefile
   cp ${ZYCAP_ROOT_PATH}/linux/zycap/zycap.bb ${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/project-spec/meta-user/recipes-apps/zycap/zycap.bb
+  cp ${ZYCAP_ROOT_PATH}/linux/zycap/bitstreams.tar.gz ${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/project-spec/meta-user/recipes-apps/zycap/files/bitstreams.tar.gz
   # cp ${ZYCAP_ROOT_PATH}/linux/udmabuf/Makefile ${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/project-spec/meta-user/recipes-modules/udmabuf/files/Makefile
 # fi
 

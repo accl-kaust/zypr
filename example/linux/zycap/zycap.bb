@@ -12,6 +12,7 @@ FILESEXTRAPATHS_prepend := "${THISDIR}/files:"
 SRC_URI = " \
           file://zycap.c \
           file://zycap.h \
+          file://bitstreams.tar.gz \
           file://Makefile \
          "
   
@@ -30,4 +31,5 @@ do_compile() {
 do_install() {
 	     install -d ${D}${bindir}
 	     install -m 0755 zycap ${D}${bindir}
+         tar -xzf bitstreams.tar.gz -C ${D}${bindir}
 }
