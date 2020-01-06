@@ -1,4 +1,4 @@
-// (c) Copyright 1995-2019 Xilinx, Inc. All rights reserved.
+// (c) Copyright 1995-2020 Xilinx, Inc. All rights reserved.
 // 
 // This file contains confidential and proprietary information
 // of Xilinx, Inc. and is protected under U.S. and
@@ -47,7 +47,7 @@
 // DO NOT MODIFY THIS FILE.
 
 // IP VLNV: xilinx.com:ip:axi_dma:7.1
-// IP Revision: 18
+// IP Revision: 19
 
 // The following must be inserted into your Verilog file for this
 // core to be instantiated. Change the instance name and port connections
@@ -74,7 +74,7 @@ zycap_axi_dma_0_0 your_instance_name (
   .s_axi_lite_rready(s_axi_lite_rready),            // input wire s_axi_lite_rready
   .s_axi_lite_rdata(s_axi_lite_rdata),              // output wire [31 : 0] s_axi_lite_rdata
   .s_axi_lite_rresp(s_axi_lite_rresp),              // output wire [1 : 0] s_axi_lite_rresp
-  .m_axi_mm2s_araddr(m_axi_mm2s_araddr),            // output wire [31 : 0] m_axi_mm2s_araddr
+  .m_axi_mm2s_araddr(m_axi_mm2s_araddr),            // output wire [63 : 0] m_axi_mm2s_araddr
   .m_axi_mm2s_arlen(m_axi_mm2s_arlen),              // output wire [7 : 0] m_axi_mm2s_arlen
   .m_axi_mm2s_arsize(m_axi_mm2s_arsize),            // output wire [2 : 0] m_axi_mm2s_arsize
   .m_axi_mm2s_arburst(m_axi_mm2s_arburst),          // output wire [1 : 0] m_axi_mm2s_arburst

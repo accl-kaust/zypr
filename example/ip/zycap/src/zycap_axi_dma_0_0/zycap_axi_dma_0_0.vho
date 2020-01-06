@@ -1,4 +1,4 @@
--- (c) Copyright 1995-2019 Xilinx, Inc. All rights reserved.
+-- (c) Copyright 1995-2020 Xilinx, Inc. All rights reserved.
 -- 
 -- This file contains confidential and proprietary information
 -- of Xilinx, Inc. and is protected under U.S. and
@@ -47,7 +47,7 @@
 -- DO NOT MODIFY THIS FILE.
 
 -- IP VLNV: xilinx.com:ip:axi_dma:7.1
--- IP Revision: 18
+-- IP Revision: 19
 
 -- The following code must appear in the VHDL architecture header.
 
@@ -73,7 +73,7 @@ COMPONENT zycap_axi_dma_0_0
     s_axi_lite_rready : IN STD_LOGIC;
     s_axi_lite_rdata : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
     s_axi_lite_rresp : OUT STD_LOGIC_VECTOR(1 DOWNTO 0);
-    m_axi_mm2s_araddr : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+    m_axi_mm2s_araddr : OUT STD_LOGIC_VECTOR(63 DOWNTO 0);
     m_axi_mm2s_arlen : OUT STD_LOGIC_VECTOR(7 DOWNTO 0);
     m_axi_mm2s_arsize : OUT STD_LOGIC_VECTOR(2 DOWNTO 0);
     m_axi_mm2s_arburst : OUT STD_LOGIC_VECTOR(1 DOWNTO 0);
