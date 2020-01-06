@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <fcntl.h>
 #include <string.h>
+#include <dirent.h>
 #include <stdlib.h>
 #include <sys/time.h>
 #include <stdlib.h>
@@ -15,12 +16,17 @@
 #include <sys/types.h>
 #include <sys/mman.h>
 #include <sys/utsname.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <errno.h>
 
-#define DevCfg_BASE_ADDRESS 0x000000006fd00000
+#define CSU_BASE_ADDRESS 0xFFCA0000
+#define PCAP_CTRL 0x00003008
 #define MAP_SIZE 4096UL
 #define MAP_MASK (MAP_SIZE - 1)
 #define BS_BASEADDR
 #define MAX_BS_NUM 5
+#define DATE "27/12/19"
 
 
 static int check_bs_present(bs_info *bs_list,char *bs_name);
@@ -109,12 +115,188 @@ void print_schedule(bs_info *bs_list)
     }
 }
 
+// used to verify bitstream file sizes
+off_t fsize(const char *filename) {
+    struct stat st;
+
+    if (stat(filename, &st) == 0)
+        return st.st_size;
+
+    fprintf(stderr, "Cannot determine size of %s: %s\n",
+            filename, strerror(errno));
+
+    return -1;
+}
+
+// check udmabuf for errors
+int check_buf(unsigned char* buf, unsigned int size)
+{
+    int m = 256;
+    int n = 10;
+    int i, k;
+    int error_count = 0;
+    while(--n > 0) {
+      for(i = 0; i < size; i = i + m) {
+        m = (i+256 < size) ? 256 : (size-i);
+        for(k = 0; k < m; k++) {
+          buf[i+k] = (k & 0xFF);
+        }
+        for(k = 0; k < m; k++) {
+          if (buf[i+k] != (k & 0xFF)) {
+            error_count++;
+          }
+        }
+      }
+    }
+    return error_count;
+}
+
+unsigned int get_uio_size()
+{
+	FILE *size_fp;
+	unsigned int size;
+
+	/* Step 2, open the file that describes the memory range needed to map the TTC into
+	 * this address space, this is the range of the TTC in the device tree
+	 */
+	size_fp = fopen("/sys/class/uio/uio1/maps/map0/size", "r");
+
+	if (!size_fp) {
+		printf("unable to open the uio size file\n");
+		exit(-1);
+	}
+
+	/* Step 3, get the size which is an ASCII string such as 0xXXXXXXXX and then be stop
+	 * using the file
+	 */
+
+	fscanf(size_fp, "0x%16X", &size);
+	fclose(size_fp);
+
+	return size;
+}
+
+char* concat(const char *s1, const char *s2)
+{
+    char *result = malloc(strlen(s1) + strlen(s2) + 1); // +1 for the null-terminator
+    // in real code you would check for errors in malloc here
+    strcpy(result, s1);
+    strcat(result, s2);
+    return result;
+}
+
+char *get_filename_ext(const char *filename) {
+    const char *dot = strrchr(filename, '.');
+    if(!dot || dot == filename) return "";
+    return dot + 1;
+}
+
+int calculate_buf_size(char * dir_name){
+	DIR *dir;
+	struct dirent *ent;
+	off_t total_size = 0;
+	if ((dir = opendir (dir_name)) != NULL) {
+	  /* print all the bitstreams within directory */
+	  printf("available bitstreams:\n");
+	  while ((ent = readdir (dir)) != NULL) {
+		  char * ext = get_filename_ext(ent->d_name);
+		  if (strcmp(ext,"bin") == 0) {
+			 char* s = concat(dir_name, ent->d_name);
+			 printf ("- %s : %d\n", ent->d_name, fsize(s));
+			 total_size += fsize(s);
+			 free(s); // deallocate the string
+		  }
+	  }
+	  closedir (dir);
+	} else {
+	  /* could not open directory */
+	  perror ("");
+	  return EXIT_FAILURE;
+	}
+	ubuf.buf_size = (unsigned int) total_size;
+    printf("allocating %d for udmabuf\n", (int) total_size);
+	return 0;
+}
+
+unsigned int zycap_set(unsigned int* zycap_address, int offset, unsigned int value) {
+    zycap_address[offset>>2] = value;
+}
+
+unsigned int zycap_get(unsigned int* zycap_address, int offset) {
+    return zycap_address[offset>>2];
+}
+
+void zycap_status(unsigned int* zycap_address) {
+    unsigned int status = zycap_get(zycap_address, MM2S_STATUS_REGISTER);
+    printf("Memory-mapped to stream status (0x%08x@0x%02x):", status, MM2S_STATUS_REGISTER);
+    if (status & 0x00000001) printf(" halted"); else printf(" running");
+    if (status & 0x00000002) printf(" idle");
+    if (status & 0x00000008) printf(" SGIncld");
+    if (status & 0x00000010) printf(" DMAIntErr");
+    if (status & 0x00000020) printf(" DMASlvErr");
+    if (status & 0x00000040) printf(" DMADecErr");
+    if (status & 0x00000100) printf(" SGIntErr");
+    if (status & 0x00000200) printf(" SGSlvErr");
+    if (status & 0x00000400) printf(" SGDecErr");
+    if (status & 0x00001000) printf(" IOC_Irq");
+    if (status & 0x00002000) printf(" Dly_Irq");
+    if (status & 0x00004000) printf(" Err_Irq");
+    printf("\n");
+}
+
+int zycap_sync(unsigned int* zycap_address) {
+    unsigned int mm2s_status =  zycap_get(zycap_address, MM2S_STATUS_REGISTER);
+    while(!(mm2s_status & 1<<12) || !(mm2s_status & 1<<1) ){
+        zycap_status(zycap_address);
+
+        mm2s_status =  zycap_get(zycap_address, MM2S_STATUS_REGISTER);
+    }
+}
+
+int config_csu(){
+	int mem, data;
+    void * mem_address;
+    void * mapped_mem_address;
+    unsigned int size = get_uio_size();
+    off_t csu_base = CSU_BASE_ADDRESS;
+
+    if ((mem = open("/dev/mem", O_RDWR)) != -1) {
+        if (mem == -1) {
+			printf("Can't open uio.\n");
+			exit(0);
+        }
+    }
 
 
-unsigned long memCpy_DMA(FILE *fd, char *bufferIn, unsigned long elems) 
+    mem_address = mmap(0, size, PROT_READ | PROT_WRITE, MAP_SHARED, mem, 0);
+        if (!mem_address) {
+            printf("err");
+            exit(0);
+        }
+
+    mapped_mem_address = mem_address + (csu_base & 0x00003008);
+	*((volatile unsigned long *) (mapped_mem_address))=0x00000000;
+	data = *((volatile unsigned long *) (mapped_mem_address));
+
+	printf("data: %d\n",data);
+
+	return 0;
+}
+
+void memdump(void* virtual_address, int byte_count) {
+    char *p = virtual_address;
+    int offset;
+    for (offset = 0; offset < byte_count; offset++) {
+        printf("%02x", p[offset]);
+        if (offset % 4 == 3) { printf(" "); }
+    }
+    printf("\n");
+}
+
+unsigned long memCpy_DMA(FILE *fd, char *bufferIn, unsigned long elems)
 
 {
-    #define FIFO_LEN 4*1024*1024 
+    #define FIFO_LEN 4*1024*1024
 	unsigned long byteMoved  = 0;
 	unsigned long byteToMove = elems;
 	int i;
@@ -127,67 +309,238 @@ unsigned long memCpy_DMA(FILE *fd, char *bufferIn, unsigned long elems)
 
 	close(fd);
 
+	printf("finished transfer\n");
+
 	return byteMoved;
 }
-
-
 
 int init_zycap()
 {
     int data;
-    int memfd;
+    int memfd,uio;
+    unsigned int buf_size;
+    char filename [100];
+    unsigned int* buf;
+    unsigned long  buf_addr;
+
+    int error_count;
+    unsigned char * uio_address;
+
     FILE *fd;
     void *mapped_base, *mapped_dev_base;
-    off_t dev_base = DevCfg_BASE_ADDRESS;
-    glbs.memfd = -1;
-    glbs.fd = NULL;
-    memfd = open(UDMABUF, O_RDWR | O_SYNC);
-        if (memfd == -1) {
-        printf("Can't open udmabuf.\n");
-        exit(0);
-    }
-    printf("udmabuf opened.\n");
-    mapped_base = mmap(0, MAP_SIZE,PROT_READ|PROT_WRITE,MAP_SHARED,memfd,dev_base&~MAP_MASK);
-    if (mapped_base == (void *) -1) {
-        printf("Can't map the memory to user space.\n");
-        return -1;
-    }
-    mapped_dev_base = mapped_base + (dev_base & MAP_MASK);
-    *((volatile unsigned long *) (mapped_dev_base))=0x4200E07F;
-    data = *((volatile unsigned long *) (mapped_dev_base));
-    printf("DevCfg Control Reg: %0x\n",data);
-  	bs_list = init_bs_list(MAX_BS_NUM);
-  // print_schedule(bs_list);  
+    ubuf.sync_direction = 1;
 
-	printf(" Zycap Initialised \n");
- 
-     fd = fopen("/dev/zycap-vivado", "w+");
-    if(fd < 0)
-    {
-       printf("\n cannot get the file descriptor \n");
-       return -1;
+	size_t filesize = fsize("/home/root/mode.bin");
+
+
+    // calculate buffer required for bitstreams
+    if(calculate_buf_size("/home/root/") != 0){
+    	printf("Failed to read dir.\n");
+    	exit(0);
+    };
+
+    // configure udmabuf for sync
+    if ((fd  = open("/sys/class/udmabuf/udmabuf0/sync_direction", O_WRONLY)) != -1) {
+        sprintf(ubuf.attr, "%d", ubuf.sync_direction);
+        write(fd, ubuf.attr, strlen(ubuf.attr));
+        printf("configured udmabuf.\n");
+        close(fd);
     }
-    else 
-    {
-      printf("\n Zycap Opened \n");
+
+    if ((fd  = open("/sys/class/udmabuf/udmabuf0/size", O_RDONLY)) != -1) {
+      read(fd, ubuf.attr, 1024);
+      sscanf(ubuf.attr, "%d", &buf_size);
+      close(fd);
     }
-    glbs.memfd = memfd;
-    glbs.fd = fd;
-     
-	return memfd;	
+
+    if ((fd  = open("/sys/class/udmabuf/udmabuf0/phys_addr", O_RDONLY)) != -1) {
+        read(fd, ubuf.attr, 1024);
+        sscanf(ubuf.attr, "%x", &buf_addr);
+        close(fd);
+    }
+
+    if(ubuf.buf_size > buf_size){
+    	printf("udmabuf (%d) not large enough for bitstreams (%d)...", buf_size, ubuf.buf_size);
+    	exit(0);
+    }
+
+    if ((fd  = open("/dev/udmabuf0", O_RDWR | 0)) != -1) {
+          buf = mmap(NULL, buf_size, PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
+          // Write into bitstream
+          if (buf == (void *) -1) {
+                 printf("Can't map the memory to user space.\n");
+                 exit(0);
+          }
+          error_count = check_buf(buf, buf_size);
+          buf[0] = 0x23;
+
+          printf("errors: %d\n",error_count);
+    } else {
+    	printf("failed");
+    	exit(0);
+    }
+
+    config_csu();
+    // Check for ZyCAP mapped under UIO driver and available
+
+    unsigned int size = get_uio_size();
+
+
+    if ((uio = open("/dev/uio2", O_RDWR | O_SYNC)) != -1) {
+        if (uio == -1) {
+			printf("Can't open UIO.\n");
+			exit(0);
+        } else {
+            printf("preparing UIO\n");
+            printf("%08x\n",size);
+
+            uio_address = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED, uio, 0);
+        	if (!uio_address) {
+        		printf("err");
+        		exit(0);
+        	}
+        }
+    }
+
+//    int dh = open("/dev/mem", O_RDWR | O_SYNC); // Open /dev/mem which represents the whole physical memory
+    unsigned int* zycap = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED, uio, 0x00A0000000); // Memory map AXI Lite register block
+//    unsigned int* virtual_source_address  = mmap(NULL, 65535, PROT_READ | PROT_WRITE, MAP_SHARED, uio, 0x0e000000); // Memory map source address
+    unsigned int* zycap_address = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED, uio, 0x0000000000); // Memory map destination address
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	// Legacy code (?)
+//	*((volatile unsigned long *) (uio_address))=0x4200E07F;
+//	int value = *((volatile unsigned long *) (uio_address));
+//			printf("input: %08x\n", value);
+
+	int bitstream = open("/home/root/mode.bin", O_RDONLY);
+	        if (bitstream == -1) {
+	        printf("Can't open bitsream.\n");
+	        exit(0);
+	    }
+
+
+	printf("Seeking %d...\n", bitstream);
+    char *src = mmap(NULL, filesize, PROT_READ, MAP_PRIVATE, bitstream, 0);
+	printf("Writing %d...\n",filesize);
+	memcpy(buf,src,filesize);
+
+
+	 printf("Source memory block:      "); memdump(buf, 32);
+	 printf("Destination memory block: "); memdump(zycap_address, 32);
+
+
+	printf("Resetting DMA\n");
+	zycap_set(zycap_address, MM2S_CONTROL_REGISTER, 4);
+	zycap_status(zycap_address);
+
+	printf("Halting DMA\n");
+	zycap_set(zycap_address, MM2S_CONTROL_REGISTER, 0);
+	zycap_status(zycap_address);
+
+	printf("Writing source address...\n");
+	zycap_set(zycap_address, MM2S_START_ADDRESS, buf_addr); // Write source address
+	zycap_status(zycap_address);
+
+	printf("Starting MM2S channel with all interrupts masked...\n");
+	zycap_set(zycap_address, MM2S_CONTROL_REGISTER, 0xf001);
+	zycap_status(zycap_address);
+
+	printf("Writing MM2S transfer length...\n");
+	zycap_set(zycap_address, MM2S_LENGTH, 32);
+	zycap_status(zycap_address);
+
+	printf("Waiting for MM2S synchronization...\n");
+	zycap_sync(zycap_address);
+
+
+
+
+
+
+
+
+
+
+
+
+
+//    FILE* zycap = fopen("/dev/uio2", "w+");
+//    unsigned long timestart = gettime();
+//
+//
+//	memCpy_DMA(zycap, buf, size);
+//
+//    unsigned long timestop = gettime();
+//    unsigned long time = timestop - timestart;
+//    printf("Time: %d\n", time);
+////	memcpy(uio_address,0x01,8);
+//	printf("finished.\n");
+//    close(fd);
+
+
+//	mapped_dev_base = mapped_base + (dev_base & MAP_MASK);
+//	*((volatile unsigned long *) (mapped_dev_base))=0x4200E07F;
+//	data = *((volatile unsigned long *) (mapped_dev_base));
+//
+
+
+
+
+
+
+//    printf("DevCfg Control Reg: %0x\n",data);
+////    mapped_dev_base = mapped_base + (dev_base & MAP_MASK);
+////    *((volatile unsigned long *) (mapped_dev_base))=0x4200E07F;
+////    data = *((volatile unsigned long *) (mapped_dev_base));
+//    printf("DevCfg Control Reg: %0x\n",data);
+//  	bs_list = init_bs_list(MAX_BS_NUM);
+//  // print_schedule(bs_list);
+//
+//	printf(" Zycap Initialised \n");
+//
+//     fd = fopen("/dev/zycap-vivado", "w+");
+//    if(fd < 0)
+//    {
+//       printf("\n cannot get the file descriptor \n");
+//       return -1;
+//    }
+//    else
+//    {
+//      printf("\n Zycap Opened \n");
+//    }
+//    glbs.memuio = memfd;
+//    glbs.fuio = fd;
+    printf("\nEND\n");
+
+	return memfd;
 }
-	
-void cmpr (char *buffer1, char *buffer2) 
+
+void cmpr (char *buffer1, char *buffer2)
 {
     int ret;
     ret = strcmp (buffer1, buffer2);
-    if (ret == 0) 
+    if (ret == 0)
        printf("Both reads are identical\r\n");
-    else 
+    else
        printf("Failed!\r\n");
 }
-   
-    
+
+
 int Config_PR_Bitstream(char *bs_name)
 {
     int bs_pres;
@@ -227,13 +580,13 @@ int Config_PR_Bitstream(char *bs_name)
 		fseek(fp,0,SEEK_END);
 		size=ftell(fp);
 		fseek(fp,0,SEEK_SET);
-		
+
 
 		fread(bufferIn[pres_last].bitbuffer,1,size,fp);
     //fseek(fp,0,SEEK_SET);
-    //buffersaved = (char *) malloc(size+1);    
+    //buffersaved = (char *) malloc(size+1);
 	  //fread(buffersaved,1,size,fp);
-    close(fp); 
+    close(fp);
 		//printf("Successfully transferred PR files from flash to DDR\n\r");
     //cmpr(buffersaved, bufferIn[pres_last].bitbuffer);
 		pres_first = find_first_bs(bs_list);
@@ -247,24 +600,24 @@ int Config_PR_Bitstream(char *bs_name)
 //   print_schedule(bs_list);
     pres_first = find_first_bs(bs_list);
     //printf("Current bs %s , Size %d, Address %x \r\n",bs_list[pres_first].name,bs_list[pres_first].size,bs_list[pres_first].addr);
-	fd = glbs.fd;
-  unsigned long timestart = gettime();
-	bytesMoved = memCpy_DMA(fd,bufferIn[pres_first].bitbuffer,bs_list[pres_first].size);
+	fd = glbs.fuio;
+//  unsigned long timestart = gettime();
+//	bytesMoved = memCpy_DMA(fd,bufferIn[pres_first].bitbuffer,bs_list[pres_first].size);
 //	unsigned long timeend = gettime();
 //  unsigned long time = timeend - timestart;
 //  printf("%s\t%ld\t%ld\t%f\t\n", "DMA:Op", bs_list[pres_first].size, time, bs_list[pres_first].size * 1.0 / time);
 	return bytesMoved;
-}	
+}
 
 int conf_bit (char *bs_name)
 {
-    
+
     int size;
 	int bytesMoved;
 	char fname[100];
 	FILE *fd,*fp;
-	char *buffersaved;    
-    
+	char *buffersaved;
+
 		strcpy (fname,bs_name);
 		strcat (fname,".bin");
 		fp = fopen(fname,"rb");
@@ -277,7 +630,7 @@ int conf_bit (char *bs_name)
 		size=ftell(fp);
 		fseek(fp,0,SEEK_SET);
 		//bufferIn = (char *) malloc(size+1);
-	
+
 		/*if(!bufferIn){
 			printf("Unable to allocate buffer for data\n");
 			fclose(fp);
@@ -285,18 +638,17 @@ int conf_bit (char *bs_name)
 		}*/
 
 		fread(buffersaved,1,size,fp);
-    close(fp); 
+    close(fp);
 
 		printf("Successfully transferred PR files from flash to DDR\n\r");
-   
+
    	fd = fopen("/dev/zycap-vivado", "w+");
     if(fd < 0)
     {
        printf("\n cannot get the file descriptor \n");
        return -1;
-    }	
-   
-  	bytesMoved = memCpy_DMA(fd,buffersaved,size);
+    }
+//  	bytesMoved = memCpy_DMA(fd,buffersaved,size);
     return bytesMoved;
 }
 
@@ -315,8 +667,8 @@ int Prefetch_PR_Bitstream(char *bs_name)
     int pres_first;
     int pres_last;
     int size;
-	  FILE *fd,*fp;   
-	  char fname[100];     
+	  FILE *fd,*fp;
+	  char fname[100];
     bs_pres = check_bs_present(bs_list,bs_name);
     if (bs_pres != -1 && bs_list[bs_pres].prev != NULL)            //The bitstream is already in the list and is not the most recently used
     {
@@ -346,7 +698,7 @@ int Prefetch_PR_Bitstream(char *bs_name)
 		  fseek(fp,0,SEEK_SET);
 
 		  fread(bufferIn[pres_last].bitbuffer,1,size,fp);
-      close(fp); 
+      close(fp);
 	  	//printf("Successfully transferred PR files from flash to DDR\n\r");
       //cmpr(buffersaved, bufferIn[pres_last].bitbuffer);
 	  	pres_first = find_first_bs(bs_list);
@@ -360,8 +712,30 @@ int Prefetch_PR_Bitstream(char *bs_name)
 	return 1;
 }
 
+int Check_Available_Bitstreams(char *path){
+	int file_count = 0;
+	DIR * dirp;
+	struct dirent * entry;
+
+	dirp = opendir(path); /* There should be error handling after this */
+	while ((entry = readdir(dirp)) != NULL) {
+	    if (entry->d_type == DT_REG) { /* If the entry is a regular file */
+	    	printf("Name: %s\n", entry->d_name);
+	         file_count++;
+	    }
+	}
+	closedir(dirp);
+	return file_count;
+}
+
+
 int main(int argc, char *argv[])
 {
-    printf("Hello Version 2!\n");
+    printf("ZyCAP v0.0.2\n");
+
+    init_zycap();
+
+    printf("%d",argc);
 	return 0;
 }
+
