@@ -618,7 +618,7 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>viewChecksum</spirit:name>
-            <spirit:value>f71cf52e</spirit:value>
+            <spirit:value>e90181c7</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -643,7 +643,7 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>viewChecksum</spirit:name>
-            <spirit:value>f71cf52e</spirit:value>
+            <spirit:value>e90181c7</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -1313,12 +1313,12 @@
         <xilinx:xpmLibrary>XPM_FIFO</xilinx:xpmLibrary>
         <xilinx:xpmLibrary>XPM_MEMORY</xilinx:xpmLibrary>
       </xilinx:xpmLibraries>
-      <xilinx:coreRevision>1</xilinx:coreRevision>
+      <xilinx:coreRevision>2</xilinx:coreRevision>
       <xilinx:upgrades>
         <xilinx:canUpgradeFrom>user.shs:user:zycap:1.0</xilinx:canUpgradeFrom>
         <xilinx:canUpgradeFrom>user.shs:user:zycap:2.0</xilinx:canUpgradeFrom>
       </xilinx:upgrades>
-      <xilinx:coreCreationDateTime>2020-01-06T14:18:42Z</xilinx:coreCreationDateTime>
+      <xilinx:coreCreationDateTime>2020-01-06T18:59:25Z</xilinx:coreCreationDateTime>
       <xilinx:tags>
         <xilinx:tag xilinx:name="user.shs:user:zycap:1.0_ARCHIVE_LOCATION">/home/alex/GitHub/zycap2/example/ip</xilinx:tag>
         <xilinx:tag xilinx:name="ui.data.coregen.dd@3a521e97_ARCHIVE_LOCATION">/home/alex/GitHub/zycap2/example/ip/zycap</xilinx:tag>
@@ -1410,6 +1410,25 @@
         <xilinx:tag xilinx:name="ui.data.coregen.dd@8881b96_ARCHIVE_LOCATION">/home/alex/GitHub/zycap2/example/ip/zycap</xilinx:tag>
         <xilinx:tag xilinx:name="ui.data.coregen.dd@57368e02_ARCHIVE_LOCATION">/home/alex/GitHub/zycap2/example/ip/zycap</xilinx:tag>
         <xilinx:tag xilinx:name="ui.data.coregen.dd@5775e66f_ARCHIVE_LOCATION">/home/alex/GitHub/zycap2/example/ip/zycap</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@6cc12a92_ARCHIVE_LOCATION">/home/alex/GitHub/zycap2/example/ip/zycap</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@13afb399_ARCHIVE_LOCATION">/home/alex/GitHub/zycap2/example/ip/zycap</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@68b70db6_ARCHIVE_LOCATION">/home/alex/GitHub/zycap2/example/ip/zycap</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@3cab60d1_ARCHIVE_LOCATION">/home/alex/GitHub/zycap2/example/ip/zycap</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@45cab363_ARCHIVE_LOCATION">/home/alex/GitHub/zycap2/example/ip/zycap</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@625ec93d_ARCHIVE_LOCATION">/home/alex/GitHub/zycap2/example/ip/zycap</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@5c99be0b_ARCHIVE_LOCATION">/home/alex/GitHub/zycap2/example/ip/zycap</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@a8365ee_ARCHIVE_LOCATION">/home/alex/GitHub/zycap2/example/ip/zycap</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@5a5b317e_ARCHIVE_LOCATION">/home/alex/GitHub/zycap2/example/ip/zycap</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@f26331f_ARCHIVE_LOCATION">/home/alex/GitHub/zycap2/example/ip/zycap</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@35e53cb6_ARCHIVE_LOCATION">/home/alex/GitHub/zycap2/example/ip/zycap</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@386af09c_ARCHIVE_LOCATION">/home/alex/GitHub/zycap2/example/ip/zycap</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@70be4b6a_ARCHIVE_LOCATION">/home/alex/GitHub/zycap2/example/ip/zycap</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@451e76d8_ARCHIVE_LOCATION">/home/alex/GitHub/zycap2/example/ip/zycap</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@21adc5e6_ARCHIVE_LOCATION">/home/alex/GitHub/zycap2/example/ip/zycap</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@10132314_ARCHIVE_LOCATION">/home/alex/GitHub/zycap2/example/ip/zycap</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@2dc9b367_ARCHIVE_LOCATION">/home/alex/GitHub/zycap2/example/ip/zycap</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@4bbd99d1_ARCHIVE_LOCATION">/home/alex/GitHub/zycap2/example/ip/zycap</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@8b80165_ARCHIVE_LOCATION">/home/alex/GitHub/zycap2/example/ip/zycap</xilinx:tag>
       </xilinx:tags>
     </xilinx:coreExtensions>
     <xilinx:packagingInfo>
@@ -1417,9 +1436,9 @@
       <xilinx:checksum xilinx:scope="busInterfaces" xilinx:value="fdb0f9a8"/>
       <xilinx:checksum xilinx:scope="addressSpaces" xilinx:value="7b928c64"/>
       <xilinx:checksum xilinx:scope="memoryMaps" xilinx:value="f789cef3"/>
-      <xilinx:checksum xilinx:scope="fileGroups" xilinx:value="7e910793"/>
+      <xilinx:checksum xilinx:scope="fileGroups" xilinx:value="a3c41847"/>
       <xilinx:checksum xilinx:scope="ports" xilinx:value="57408382"/>
-      <xilinx:checksum xilinx:scope="parameters" xilinx:value="78c2b3b1"/>
+      <xilinx:checksum xilinx:scope="parameters" xilinx:value="3fd1454a"/>
     </xilinx:packagingInfo>
   </spirit:vendorExtensions>
 </spirit:component>
