@@ -1,6 +1,6 @@
 label: dos
 label-id: 0xfbf5894e
-device: /dev/sda
+device: /dev/sdb
 unit: sectors
 
 /dev/sda1 : start=        2048, size=     2097152, type=c

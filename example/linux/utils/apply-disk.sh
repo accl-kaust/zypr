@@ -1,7 +1,8 @@
-
 # WARNING THIS WILL ERASE YOUR DISK, CHOOSE CAREFULLY!
 DRIVE=${1}
-sudo sfdisk -d /dev/${DRIVE} > ${DRIVE}.sfdisk
+USER=$(whoami)
+
+# sudo sfdisk -d /dev/${DRIVE} > ${DRIVE}.sfdisk
 
 if ! cmp ${DRIVE}.sfdisk SD.sfdisk > /dev/null 2>&1
 then
@@ -13,19 +14,27 @@ else
     echo "Disk already formatted correctly."
 fi
 
-sudo mount /dev/${DRIVE}1 /media/$(whoami)/boot
-sudo mount /dev/${DRIVE}2 /media/$(whoami)/root
+# sudo mkdir /media/$(whoami)/boot
+# sudo mkdir /media/$(whoami)/root
+if mount | grep /media/${USER}/boot > /dev/null; then
+    echo "Already mounted."
+else
+    sudo mount /dev/${DRIVE}1 /media/${USER}/boot
+fi
+# sudo mount /dev/${DRIVE}p2 /media/${USER}/root
 
-cd /media/$(whoami)/boot/
-sudo cp /home/alex/GitHub/zycap2/example/linux/base_design/images/linux/BOOT.BIN .
-sudo cp /home/alex/GitHub/zycap2/example/linux/base_design/images/linux/image.ub .
+echo "Copying BOOT.BIN and image.ub into boot partition..."
+sudo cp /home/alex/GitHub/zycap2/example/linux/base_design/images/linux/BOOT.BIN /media/${USER}/boot/BOOT.BIN
+sudo cp /home/alex/GitHub/zycap2/example/linux/base_design/images/linux/image.ub /media/${USER}/boot/image.ub 
 
-cd /media/$(whoami)/root/
-sudo cp /home/alex/GitHub/zycap2/example/linux/base_design/images/linux/rootfs.tar.gz .
-sudo tar xvf rootfs.tar.gz -C .
-sudo rm rootfs.tar.gz
+echo "Unzipping rootfs into root partition..."
+sudo dd if=/home/alex/GitHub/zycap2/example/linux/base_design/images/linux/rootfs.ext4 of=/dev/${DRIVE}2
+
+# sudo cp /home/alex/GitHub/zycap2/example/linux/base_design/images/linux/rootfs.tar.gz .
+# sudo tar xvf rootfs.tar.gz -C /media/${USER}/root/
+# sudo rm rootfs.tar.gz
 
 sync
 
-sudo umount /media/$(whoami)/boot/
-sudo umount /media/$(whoami)/root/
+sudo umount /media/${USER}/boot/
+# sudo umount /media/${USER}/root/

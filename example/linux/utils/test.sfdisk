@@ -1,7 +1,0 @@
-label: dos
-label-id: 0xf37c3113
-device: /dev/sda
-unit: sectors
-
-/dev/sda1 : start=        2048, size=     1953792, type=c
-/dev/sda2 : start=     1955840, size=    29337600, type=83
