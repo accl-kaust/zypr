@@ -2,6 +2,8 @@
 #      cascaded representation with line breaks are not valid in this file.
 IMAGE_INSTALL_append = " peekpoke"
 IMAGE_INSTALL_append = " gpio-demo"
+IMAGE_INSTALL_append = " udmabuf"
+IMAGE_INSTALL_append = " zycap"
 IMAGE_INSTALL_append = " packagegroup-base-extended"
 IMAGE_INSTALL_append = " cmake"
 IMAGE_INSTALL_append = " lmsensors-sensorsdetect"

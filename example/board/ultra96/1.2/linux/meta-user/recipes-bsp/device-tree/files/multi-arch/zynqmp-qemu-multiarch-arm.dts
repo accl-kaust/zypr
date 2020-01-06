@@ -3,8 +3,8 @@
 / {
 	#address-cells = <0x2>;
 	#size-cells = <0x1>;
-	model = "ZynqMP ZCU100 RevA";
-	compatible = "xlnx,zynqmp-zcu100", "xlnx,zynqmp";
+	model = "ZynqMP ZCU102 RevA";
+	compatible = "xlnx,zynqmp-zcu102", "xlnx,zynqmp";
 
 	ddr_bank1_1: ddr_bank1_1@0x0 {
 		compatible = "qemu:memory-region";
@@ -63,8 +63,8 @@
 		remote-ports = <0x2 0x1>;
 		interrupt-controller;
 		num-gpios = <0x1>;
-		linux,phandle = <0x5f>;
-		phandle = <0x5f>;
+		linux,phandle = <0x5e>;
+		phandle = <0x5e>;
 	};
 
 	rp_gpio_pmu: rp_gpio_pmu@0 {
@@ -98,8 +98,8 @@
 			cpu2 = <0xb>;
 			cpu3 = <0xc>;
 			gpios = <0xd 0x1 0x0 0xd 0x2 0x0 0xd 0x3 0x0 0xd 0x4 0x0>;
-			linux,phandle = <0x65>;
-			phandle = <0x65>;
+			linux,phandle = <0x64>;
+			phandle = <0x64>;
 		};
 
 		rpu_ctrl: rpu_control@0xFF9A0000 {
@@ -114,8 +114,8 @@
 			gic-for-rpu = <0x7>;
 			gpios = <0x4 0x6 0x4 0x7 0xd 0x5 0xd 0x6>;
 			ddr-mem-for-rpu = <0x12>;
-			linux,phandle = <0x6f>;
-			phandle = <0x6f>;
+			linux,phandle = <0x6e>;
+			phandle = <0x6e>;
 		};
 
 		pmu_global: pmu_global@0xFFD80000 {
@@ -445,13 +445,6 @@
 			mr-0 = <0x2f>;
 		};
 
-		downstream_amba_priority_bus {
-			compatible = "qemu:memory-region";
-			alias = <0x35>;
-			reg = <0x0 0x0 0xffffffff>;
-			priority = <0xffffffff>;
-		};
-
 		ps7_afi_0: ps7-afi@0xFD360000 {
 			compatible = "xlnx,ps7-afi-1.00.a";
 			reg = <0x0 0xfd360000 0x1000>;
@@ -493,8 +486,8 @@
 			compatible = "qemu:memory-transaction-attr";
 			secure = <0x0>;
 			master-id = <0x14e8>;
-			linux,phandle = <0x36>;
-			phandle = <0x36>;
+			linux,phandle = <0x35>;
+			phandle = <0x35>;
 		};
 
 		gdma0: gdma0@0xFD500000 {
@@ -504,7 +497,7 @@
 			interrupts = <0x7c>;
 			#stream-id-cells = <0x1>;
 			dma = <0x2a>;
-			memattr = <0x36>;
+			memattr = <0x35>;
 		};
 
 		gdma1_mr: gdma1mr {
@@ -518,8 +511,8 @@
 			compatible = "qemu:memory-transaction-attr";
 			secure = <0x0>;
 			master-id = <0x14e9>;
-			linux,phandle = <0x37>;
-			phandle = <0x37>;
+			linux,phandle = <0x36>;
+			phandle = <0x36>;
 		};
 
 		gdma1: gdma1@0xFD510000 {
@@ -529,7 +522,7 @@
 			interrupts = <0x7d>;
 			#stream-id-cells = <0x1>;
 			dma = <0x2a>;
-			memattr = <0x37>;
+			memattr = <0x36>;
 		};
 
 		gdma2_mr: gdma2mr {
@@ -543,8 +536,8 @@
 			compatible = "qemu:memory-transaction-attr";
 			secure = <0x0>;
 			master-id = <0x14ea>;
-			linux,phandle = <0x38>;
-			phandle = <0x38>;
+			linux,phandle = <0x37>;
+			phandle = <0x37>;
 		};
 
 		gdma2: gdma2@0xFD520000 {
@@ -554,7 +547,7 @@
 			interrupts = <0x7e>;
 			#stream-id-cells = <0x1>;
 			dma = <0x2a>;
-			memattr = <0x38>;
+			memattr = <0x37>;
 		};
 
 		gdma3_mr: gdma3mr {
@@ -568,8 +561,8 @@
 			compatible = "qemu:memory-transaction-attr";
 			secure = <0x0>;
 			master-id = <0x14eb>;
-			linux,phandle = <0x39>;
-			phandle = <0x39>;
+			linux,phandle = <0x38>;
+			phandle = <0x38>;
 		};
 
 		gdma3: gdma3@0xFD530000 {
@@ -579,7 +572,7 @@
 			interrupts = <0x7f>;
 			#stream-id-cells = <0x1>;
 			dma = <0x2a>;
-			memattr = <0x39>;
+			memattr = <0x38>;
 		};
 
 		gdma4_mr: gdma4mr {
@@ -593,8 +586,8 @@
 			compatible = "qemu:memory-transaction-attr";
 			secure = <0x0>;
 			master-id = <0x14ec>;
-			linux,phandle = <0x3a>;
-			phandle = <0x3a>;
+			linux,phandle = <0x39>;
+			phandle = <0x39>;
 		};
 
 		gdma4: gdma4@0xFD540000 {
@@ -604,7 +597,7 @@
 			interrupts = <0x80>;
 			#stream-id-cells = <0x1>;
 			dma = <0x2a>;
-			memattr = <0x3a>;
+			memattr = <0x39>;
 		};
 
 		gdma5_mr: gdma5mr {
@@ -618,8 +611,8 @@
 			compatible = "qemu:memory-transaction-attr";
 			secure = <0x0>;
 			master-id = <0x14ed>;
-			linux,phandle = <0x3b>;
-			phandle = <0x3b>;
+			linux,phandle = <0x3a>;
+			phandle = <0x3a>;
 		};
 
 		gdma5: gdma5@0xFD550000 {
@@ -629,7 +622,7 @@
 			interrupts = <0x81>;
 			#stream-id-cells = <0x1>;
 			dma = <0x2a>;
-			memattr = <0x3b>;
+			memattr = <0x3a>;
 		};
 
 		gdma6_mr: gdma6mr {
@@ -643,8 +636,8 @@
 			compatible = "qemu:memory-transaction-attr";
 			secure = <0x0>;
 			master-id = <0x14ee>;
-			linux,phandle = <0x3c>;
-			phandle = <0x3c>;
+			linux,phandle = <0x3b>;
+			phandle = <0x3b>;
 		};
 
 		gdma6: gdma6@0xFD560000 {
@@ -654,7 +647,7 @@
 			interrupts = <0x82>;
 			#stream-id-cells = <0x1>;
 			dma = <0x2a>;
-			memattr = <0x3c>;
+			memattr = <0x3b>;
 		};
 
 		gdma7_mr: gdma7mr {
@@ -668,8 +661,8 @@
 			compatible = "qemu:memory-transaction-attr";
 			secure = <0x0>;
 			master-id = <0x14ef>;
-			linux,phandle = <0x3d>;
-			phandle = <0x3d>;
+			linux,phandle = <0x3c>;
+			phandle = <0x3c>;
 		};
 
 		gdma7: gdma7@0xFD570000 {
@@ -679,7 +672,7 @@
 			interrupts = <0x83>;
 			#stream-id-cells = <0x1>;
 			dma = <0x2a>;
-			memattr = <0x3d>;
+			memattr = <0x3c>;
 		};
 
 		crf: crf@0xFD1A0000 {
@@ -687,22 +680,22 @@
 			reg = <0x0 0xfd1a0000 0x110>;
 			gpio-controller;
 			#gpio-cells = <0x1>;
-			linux,phandle = <0x64>;
-			phandle = <0x64>;
+			linux,phandle = <0x63>;
+			phandle = <0x63>;
 		};
 
 		xlnx_dpdma: axidpdma@0xFD4C0000 {
 			compatible = "xlnx,axi-dpdma-1.0";
 			reg = <0x0 0xfd4c0000 0x1000>;
-			clocks = <0x3e>;
+			clocks = <0x3d>;
 			clock-names = "axi_clk";
 			xlnx,axi-clock-freq = <0xbebc200>;
 			interrupts = <0x7a>;
 			dma = <0x24>;
 			dma-channels = <0x6>;
 			#dma-cells = <0x1>;
-			linux,phandle = <0x40>;
-			phandle = <0x40>;
+			linux,phandle = <0x3f>;
+			phandle = <0x3f>;
 
 			dma-video0channel@fe4c0000 {
 				compatible = "xlnx,video0";
@@ -734,24 +727,24 @@
 			#clock-cells = <0x0>;
 			clock-frequency = <0x2faf080>;
 			clock-accuracy = <0x64>;
-			linux,phandle = <0x3f>;
-			phandle = <0x3f>;
+			linux,phandle = <0x3e>;
+			phandle = <0x3e>;
 		};
 
 		dummy_clk: clock1 {
 			compatible = "dummy-clk";
 			#clock-cells = <0x0>;
 			clock-frequency = <0x2faf080>;
-			linux,phandle = <0x3e>;
-			phandle = <0x3e>;
+			linux,phandle = <0x3d>;
+			phandle = <0x3d>;
 		};
 
 		xlnx_dp_sub: dp_sub@fd4aa000 {
 			compatible = "xlnx,v-dp-sub-1.6";
 			reg = <0x0 0xfd4aa000 0x4000>;
 			xlnx,output-fmt = "rgb";
-			linux,phandle = <0x41>;
-			phandle = <0x41>;
+			linux,phandle = <0x40>;
+			phandle = <0x40>;
 		};
 
 		xlnx_dp: dp@0xFD4A0000 {
@@ -759,8 +752,8 @@
 			reg = <0x0 0xfd4a0000 0x1000>;
 			interrupts = <0x77>;
 			clock-names = "aclk";
-			clocks = <0x3f>;
-			dpdma = <0x40>;
+			clocks = <0x3e>;
+			dpdma = <0x3f>;
 			xlnx,dp-version = "v1.2";
 			xlnx,max-lanes = <0x2>;
 			xlnx,max-link-rate = <0x278d0>;
@@ -769,28 +762,28 @@
 			xlnx,enable-ycrcb;
 			xlnx,colormetry = "rgb";
 			xlnx,bpc = <0x8>;
-			xlnx,dp-sub = <0x41>;
-			linux,phandle = <0x42>;
-			phandle = <0x42>;
+			xlnx,dp-sub = <0x40>;
+			linux,phandle = <0x41>;
+			phandle = <0x41>;
 		};
 
 		xilinx_drm {
 			compatible = "xlnx,drm";
-			xlnx,encoder-slave = <0x42>;
-			clocks = <0x3e 0x0>;
+			xlnx,encoder-slave = <0x41>;
+			clocks = <0x3d 0x0>;
 			xlnx,connector-type = "DisplayPort";
-			xlnx,dp-sub = <0x41>;
+			xlnx,dp-sub = <0x40>;
 
 			planes {
 				xlnx,pixel-format = "rgb565";
 
 				plane0 {
-					dmas = <0x40 0x3>;
+					dmas = <0x3f 0x3>;
 					dma-names = "dma";
 				};
 
 				plane1 {
-					dmas = <0x40 0x0>;
+					dmas = <0x3f 0x0>;
 					dma-names = "dma";
 				};
 			};
@@ -838,7 +831,7 @@
 
 		ps7_can_0: ps7-can@0xFF060000 {
 			clock-names = "ref_clk", "aper_clk";
-			clocks = <0x43 0x43>;
+			clocks = <0x42 0x42>;
 			compatible = "xlnx,ps7-can-1.00.a";
 			interrupts = <0x17>;
 			reg = <0x0 0xff060000 0x1000>;
@@ -847,7 +840,7 @@
 
 		ps7_can_1: ps7-can@0xFF070000 {
 			clock-names = "ref_clk", "aper_clk";
-			clocks = <0x43 0x43>;
+			clocks = <0x42 0x42>;
 			compatible = "xlnx,ps7-can-1.00.a";
 			interrupts = <0x18>;
 			reg = <0x0 0xff070000 0x1000>;
@@ -864,11 +857,11 @@
 			#address-cells = <0x1>;
 			#size-cells = <0x0>;
 			clock-names = "hclk", "pclk";
-			clocks = <0x43 0x43>;
-			compatible = "invalid";
+			clocks = <0x42 0x42>;
+			compatible = "xlnx,ps7-ethernet-1.00.a", "cdns,gem";
 			interrupts = <0x39 0x39>;
 			dma = <0x27>;
-			memattr = <0x44>;
+			memattr = <0x43>;
 			local-mac-address = [00 0a 35 00 02 90];
 			reg = <0x0 0xff0b0000 0x1000>;
 			num-priority-queues = <0x2>;
@@ -880,11 +873,11 @@
 			#address-cells = <0x1>;
 			#size-cells = <0x0>;
 			clock-names = "hclk", "pclk";
-			clocks = <0x43 0x43>;
-			compatible = "invalid";
+			clocks = <0x42 0x42>;
+			compatible = "xlnx,ps7-ethernet-1.00.a", "cdns,gem";
 			interrupts = <0x3b 0x3b>;
 			dma = <0x27>;
-			memattr = <0x45>;
+			memattr = <0x44>;
 			local-mac-address = [00 0a 35 00 02 90];
 			reg = <0x0 0xff0c0000 0x1000>;
 			num-priority-queues = <0x2>;
@@ -895,11 +888,11 @@
 			#address-cells = <0x1>;
 			#size-cells = <0x0>;
 			clock-names = "hclk", "pclk";
-			clocks = <0x43 0x43>;
-			compatible = "invalid";
+			clocks = <0x42 0x42>;
+			compatible = "xlnx,ps7-ethernet-1.00.a", "cdns,gem";
 			interrupts = <0x3d 0x3d>;
 			dma = <0x27>;
-			memattr = <0x46>;
+			memattr = <0x45>;
 			local-mac-address = [00 0a 35 00 02 90];
 			reg = <0x0 0xff0d0000 0x1000>;
 			num-priority-queues = <0x2>;
@@ -910,15 +903,16 @@
 			#address-cells = <0x1>;
 			#size-cells = <0x0>;
 			clock-names = "hclk", "pclk";
-			clocks = <0x43 0x43>;
-			compatible = "invalid";
+			clocks = <0x42 0x42>;
+			compatible = "xlnx,ps7-ethernet-1.00.a", "cdns,gem";
 			interrupts = <0x3f 0x3f>;
 			dma = <0x27>;
-			memattr = <0x47>;
+			memattr = <0x46>;
 			local-mac-address = [00 0a 35 00 02 90];
 			reg = <0x0 0xff0e0000 0x1000>;
 			num-priority-queues = <0x2>;
 			revision = <0x40070106>;
+			mdio = <0x47>;
 		};
 
 		sata: ahci@0xFD0C0000 {
@@ -995,7 +989,7 @@
 			clock-names = "ref_clk", "pclk";
 			compatible = "xlnx,usmp-gqspi", "cdns,spi-r1p6";
 			stream-connected-dma = <0x49>;
-			clocks = <0x43 0x43>;
+			clocks = <0x42 0x42>;
 			dma = <0x24>;
 			interrupts = <0xf>;
 			num-ss-bits = <0x2>;
@@ -1005,14 +999,31 @@
 			xlnx,qspi-clk-freq-hz = <0xbebc200>;
 			xlnx,qspi-mode = <0x2>;
 
-			qspi-flash@0 {
-				compatible = "n25q128a13";
-				spi-max-frequency = <0x66ff300>;
-				reg = <0x0>;
+			qspi_flash_lcs_lb: qspi_flash_lcs_lb@0 {
+				#address-cells = <0x1>;
+				#size-cells = <0x1>;
+				#bus-cells = <0x1>;
+				compatible = "n25q512a11", "st,m25p80";
+				spi-max-frequency = <0x2faf080>;
+				reg = <0x0 0x0>;
 
-				partition@0 {
-					label = "qspi-fsbl-uboot";
-					reg = <0x0 0x1000000>;
+				qspi_flash_lcs_lb@0x00000000 {
+					label = "qspi_flash_lcs_lb";
+					reg = <0x0 0x2000000>;
+				};
+			};
+
+			qspi_flash_ucs_ub: qspi_flash_ucs_ub@0 {
+				#address-cells = <0x1>;
+				#size-cells = <0x1>;
+				#bus-cells = <0x1>;
+				compatible = "n25q512a11", "st,m25p80";
+				spi-max-frequency = <0x2faf080>;
+				reg = <0x1 0x1>;
+
+				qspi_flash_ucs_ub@0x00000000 {
+					label = "qspi_flash_ucs_ub";
+					reg = <0x0 0x2000000>;
 				};
 			};
 		};
@@ -1046,7 +1057,7 @@
 		ps7_sd_1: ps7-sdio@0xFF170000 {
 			clock-names = "ref_clk", "aper_clk";
 			compatible = "xilinx,zynqmp-sdhci", "generic-sdhci";
-			clocks = <0x43 0x43>;
+			clocks = <0x42 0x42>;
 			drive-index = <0x1>;
 			interrupts = <0x31>;
 			reg = <0x0 0xff170000 0x1000>;
@@ -1064,7 +1075,7 @@
 			#address-cells = <0x1>;
 			#size-cells = <0x0>;
 			clock-names = "ref_clk", "pclk";
-			clocks = <0x43 0x43>;
+			clocks = <0x42 0x42>;
 			compatible = "cdns,spi-r1p6";
 			interrupts = <0x13>;
 			num-ss-bits = <0x4>;
@@ -1083,13 +1094,55 @@
 					reg = <0x0 0x100000>;
 				};
 			};
+
+			spi0_flash1: spi0_flash1@0 {
+				#address-cells = <0x1>;
+				#size-cells = <0x1>;
+				#bus-cells = <0x1>;
+				compatible = "sst25wf080", "st,m25p80";
+				spi-max-frequency = <0x2faf080>;
+				reg = <0x1 0x0>;
+
+				spi0_flash1@0x00000000 {
+					label = "spi0_flash1";
+					reg = <0x0 0x100000>;
+				};
+			};
+
+			spi0_flash2: spi0_flash2@0 {
+				#address-cells = <0x1>;
+				#size-cells = <0x1>;
+				#bus-cells = <0x1>;
+				compatible = "sst25wf080", "st,m25p80";
+				spi-max-frequency = <0x2faf080>;
+				reg = <0x2 0x0>;
+
+				spi0_flash2@0x00000000 {
+					label = "spi0_flash2";
+					reg = <0x0 0x100000>;
+				};
+			};
+
+			spi0_flash3: spi0_flash3@0 {
+				#address-cells = <0x1>;
+				#size-cells = <0x1>;
+				#bus-cells = <0x1>;
+				compatible = "sst25wf080", "st,m25p80";
+				spi-max-frequency = <0x2faf080>;
+				reg = <0x3 0x0>;
+
+				spi0_flash3@0x00000000 {
+					label = "spi0_flash3";
+					reg = <0x0 0x100000>;
+				};
+			};
 		};
 
 		ps7_spi_1: ps7-spi@0xFF050000 {
 			#address-cells = <0x1>;
 			#size-cells = <0x0>;
 			clock-names = "ref_clk", "pclk";
-			clocks = <0x43 0x43>;
+			clocks = <0x42 0x42>;
 			compatible = "cdns,spi-r1p6";
 			interrupts = <0x14>;
 			num-ss-bits = <0x4>;
@@ -1153,7 +1206,7 @@
 		};
 
 		ps7_ttc_0: ps7-ttc@0xFF110000 {
-			clocks = <0x43>;
+			clocks = <0x42>;
 			compatible = "xlnx,ps7-ttc-1.00.a";
 			interrupts = <0x24 0x25 0x26>;
 			reg = <0x0 0xff110000 0x1000>;
@@ -1161,7 +1214,7 @@
 		};
 
 		ps7_ttc_1: ps7-ttc@0xFF120000 {
-			clocks = <0x43>;
+			clocks = <0x42>;
 			compatible = "xlnx,ps7-ttc-1.00.a";
 			interrupts = <0x27 0x28 0x29>;
 			reg = <0x0 0xff120000 0x1000>;
@@ -1169,7 +1222,7 @@
 		};
 
 		ps7_ttc_2: ps7-ttc@0xFF130000 {
-			clocks = <0x43>;
+			clocks = <0x42>;
 			compatible = "xlnx,ps7-ttc-1.00.a";
 			interrupts = <0x2a 0x2b 0x2c>;
 			reg = <0x0 0xff130000 0x1000>;
@@ -1177,7 +1230,7 @@
 		};
 
 		ps7_ttc_3: ps7-ttc@0xFF140000 {
-			clocks = <0x43>;
+			clocks = <0x42>;
 			compatible = "xlnx,ps7-ttc-1.00.a";
 			interrupts = <0x2d 0x2e 0x2f>;
 			reg = <0x0 0xff140000 0x1000>;
@@ -1495,11 +1548,6 @@
 			#gpio-cells = <0x2>;
 		};
 
-		zynqmp_rtc: zynqmp_rtc@0xFFA60000 {
-			compatible = "xlnx-zynmp.rtc";
-			reg = <0x0 0xffa60000 0x100>;
-		};
-
 		dummy_gpio: dummy_gpio@0 {
 			gpio-controller;
 			#gpio-cells = <0x1>;
@@ -1538,40 +1586,22 @@
 			gpios-names = "reset";
 		};
 
-		zynqmp_csu_dma_dst: csu_dma_dst@0xFFC80800 {
-			compatible = "zynqmp,csu-dma";
-			interrupts = <0x56>;
-			reg = <0x0 0xffc80800 0x800>;
-			dma = <0x23>;
-			is-dst = <0x1>;
-			linux,phandle = <0x81>;
-			phandle = <0x81>;
-		};
-
-		xlnx_csu_dma_src: csu_dma_src@0xFFC80000 {
-			compatible = "zynqmp,csu-dma";
-			interrupts = <0x56>;
-			stream-connected-dma = <0x5c>;
-			reg = <0x0 0xffc80000 0x800>;
-			dma = <0x23>;
-		};
-
 		rpu0_for_main_bus {
 			compatible = "qemu:memory-region";
-			alias = <0x5d>;
+			alias = <0x5c>;
 			reg = <0x0 0xffe00000 0x60000>;
 		};
 
 		rpu1_for_main_bus {
 			compatible = "qemu:memory-region";
-			alias = <0x5e>;
+			alias = <0x5d>;
 			reg = <0x0 0xffe90000 0x50000>;
 		};
 
 		i2c1: i2c1@0xFF030000 {
 			#address-cells = <0x1>;
 			#size-cells = <0x0>;
-			clocks = <0x43>;
+			clocks = <0x42>;
 			compatible = "xlnx,ps7-i2c-1.00.a", "cdns,i2c-r1p10";
 			interrupts = <0x12>;
 			reg = <0x0 0xff030000 0x1000>;
@@ -1582,12 +1612,50 @@
 				compatible = "nxp,pca9548";
 				reg = <0x74>;
 
+				i2c@0 {
+					#address-cells = <0x1>;
+					#size-cells = <0x0>;
+					reg = <0x0>;
+
+					eeprom@54 {
+						compatible = "at,24c08";
+						reg = <0x54>;
+					};
+
+					eeprom@55 {
+						compatible = "at,24c08";
+						reg = <0x55>;
+					};
+
+					eeprom@56 {
+						compatible = "at,24c08";
+						reg = <0x56>;
+					};
+
+					eeprom@57 {
+						compatible = "at,24c08";
+						reg = <0x57>;
+					};
+				};
+
 				i2c@2 {
 					#address-cells = <0x1>;
 					#size-cells = <0x0>;
 					reg = <0x2>;
 
 					si570_1: clock-generator@5d {
+						compatible = "silabs,si57x";
+						reg = <0x5d>;
+						temperature-stability = <0x32>;
+					};
+				};
+
+				i2c@3 {
+					#address-cells = <0x1>;
+					#size-cells = <0x0>;
+					reg = <0x3>;
+
+					si570_2: clock-generator@5e {
 						compatible = "silabs,si57x";
 						reg = <0x5d>;
 						temperature-stability = <0x32>;
@@ -1631,7 +1699,7 @@
 				#interrupt-cells = <0x2>;
 				compatible = "xlnx,io-intc-1.02.a", "xlnx,io_intc";
 				interrupt-controller;
-				interrupts-extended = <0x5f 0x0>;
+				interrupts-extended = <0x5e 0x0>;
 				reg = <0x0 0xffd4000c 0x4 0x0 0xffd40030 0x10 0x0 0xffd40080 0x7c>;
 				xlnx,intc-addr-width = <0x20>;
 				xlnx,intc-base-vectors = <0x0>;
@@ -1706,8 +1774,8 @@
 				xlnx,gpo-init = <0x0>;
 				xlnx,gpo-size = <0x9>;
 				xlnx,use-gpo = <0x1>;
-				linux,phandle = <0x60>;
-				phandle = <0x60>;
+				linux,phandle = <0x5f>;
+				phandle = <0x5f>;
 			};
 
 			pmu_io_gpo2: pmu_gpo@14 {
@@ -1750,7 +1818,7 @@
 				xlnx,pit-readable = <0x1>;
 				xlnx,pit-size = <0x20>;
 				xlnx,use-pit = <0x1>;
-				gpios = <0x60 0x2 0x0 0x61 0x0>;
+				gpios = <0x5f 0x2 0x0 0x60 0x0>;
 				gpio-names = "ps_config", "ps_hit_in";
 				gpio-controller;
 				#gpio-cells = <0x1>;
@@ -1768,8 +1836,8 @@
 				xlnx,use-pit = <0x1>;
 				gpio-controller;
 				#gpio-cells = <0x1>;
-				linux,phandle = <0x61>;
-				phandle = <0x61>;
+				linux,phandle = <0x60>;
+				phandle = <0x60>;
 			};
 
 			pmu_io_pit3: pmu_pit@60 {
@@ -1782,7 +1850,7 @@
 				xlnx,pit-readable = <0x1>;
 				xlnx,pit-size = <0x20>;
 				xlnx,use-pit = <0x1>;
-				gpios = <0x60 0x6 0x0 0x62 0x0>;
+				gpios = <0x5f 0x6 0x0 0x61 0x0>;
 				gpio-names = "ps_config", "ps_hit_in";
 				gpio-controller;
 				#gpio-cells = <0x1>;
@@ -1800,8 +1868,8 @@
 				xlnx,use-pit = <0x1>;
 				gpio-controller;
 				#gpio-cells = <0x1>;
-				linux,phandle = <0x62>;
-				phandle = <0x62>;
+				linux,phandle = <0x61>;
+				phandle = <0x61>;
 			};
 
 			pmu_io_uart: pmu_uart@00 {
@@ -1853,18 +1921,17 @@
 			arm,mp-affinity = <0x0>;
 			enable-method = "psci";
 			reg = <0x0>;
-			core-count = <0x4>;
 			arm,reset-hivecs = <0x1>;
 			arm,rvbar = <0xffff0000>;
 			#interrupt-cells = <0x1>;
 			arm,reset-cbar = <0xfd3fe000>;
-			mr = <0x63>;
-			memory = <0x63>;
-			gpios = <0x64 0x0 0x65 0x0 0x16 0x80000001 0x16 0x8000001c 0x4 0x2>;
+			mr = <0x62>;
+			memory = <0x62>;
+			gpios = <0x63 0x0 0x64 0x0 0x16 0x80000001 0x16 0x8000001c 0x4 0x2>;
 			gpio-names = "rst_cntrl", "wfi", "pwr_cntrl", "pwr_cntrl", "rst_cntrl";
 			gdb-id = "Cortex-A53 #0";
-			memattr_s = <0x66>;
-			memattr_ns = <0x67>;
+			memattr_s = <0x65>;
+			memattr_ns = <0x66>;
 			linux,phandle = <0x9>;
 			phandle = <0x9>;
 		};
@@ -1885,18 +1952,17 @@
 			arm,mp-affinity = <0x1>;
 			enable-method = "psci";
 			reg = <0x1>;
-			core-count = <0x4>;
 			arm,reset-hivecs = <0x1>;
 			arm,rvbar = <0xffff0000>;
 			#interrupt-cells = <0x1>;
 			arm,reset-cbar = <0xfd3fe000>;
-			mr = <0x63>;
-			memory = <0x63>;
-			gpios = <0x64 0x1 0x65 0x1 0x16 0x80000002 0x16 0x8000001c 0x4 0x2>;
+			mr = <0x62>;
+			memory = <0x62>;
+			gpios = <0x63 0x1 0x64 0x1 0x16 0x80000002 0x16 0x8000001c 0x4 0x2>;
 			gpio-names = "rst_cntrl", "wfi", "pwr_cntrl", "pwr_cntrl", "rst_cntrl";
 			gdb-id = "Cortex-A53 #1";
-			memattr_s = <0x68>;
-			memattr_ns = <0x69>;
+			memattr_s = <0x67>;
+			memattr_ns = <0x68>;
 			linux,phandle = <0xa>;
 			phandle = <0xa>;
 		};
@@ -1917,18 +1983,17 @@
 			arm,mp-affinity = <0x2>;
 			enable-method = "psci";
 			reg = <0x2>;
-			core-count = <0x4>;
 			arm,reset-hivecs = <0x1>;
 			arm,rvbar = <0xffff0000>;
 			#interrupt-cells = <0x1>;
 			arm,reset-cbar = <0xfd3fe000>;
-			mr = <0x63>;
-			memory = <0x63>;
-			gpios = <0x64 0x2 0x65 0x2 0x16 0x80000003 0x16 0x8000001c 0x4 0x2>;
+			mr = <0x62>;
+			memory = <0x62>;
+			gpios = <0x63 0x2 0x64 0x2 0x16 0x80000003 0x16 0x8000001c 0x4 0x2>;
 			gpio-names = "rst_cntrl", "wfi", "pwr_cntrl", "pwr_cntrl", "rst_cntrl";
 			gdb-id = "Cortex-A53 #2";
-			memattr_s = <0x6a>;
-			memattr_ns = <0x6b>;
+			memattr_s = <0x69>;
+			memattr_ns = <0x6a>;
 			linux,phandle = <0xb>;
 			phandle = <0xb>;
 		};
@@ -1949,18 +2014,17 @@
 			arm,mp-affinity = <0x3>;
 			enable-method = "psci";
 			reg = <0x3>;
-			core-count = <0x4>;
 			arm,reset-hivecs = <0x1>;
 			arm,rvbar = <0xffff0000>;
 			#interrupt-cells = <0x1>;
 			arm,reset-cbar = <0xfd3fe000>;
-			mr = <0x63>;
-			memory = <0x63>;
-			gpios = <0x64 0x3 0x65 0x3 0x16 0x80000004 0x16 0x8000001c 0x4 0x2>;
+			mr = <0x62>;
+			memory = <0x62>;
+			gpios = <0x63 0x3 0x64 0x3 0x16 0x80000004 0x16 0x8000001c 0x4 0x2>;
 			gpio-names = "rst_cntrl", "wfi", "pwr_cntrl", "pwr_cntrl", "rst_cntrl";
 			gdb-id = "Cortex-A53 #3";
-			memattr_s = <0x6c>;
-			memattr_ns = <0x6d>;
+			memattr_s = <0x6b>;
+			memattr_ns = <0x6c>;
 			linux,phandle = <0xc>;
 			phandle = <0xc>;
 		};
@@ -1983,12 +2047,12 @@
 			arm,reset-hivecs = <0x1>;
 			#interrupt-cells = <0x1>;
 			reg = <0x0>;
-			mr = <0x6e>;
-			memory = <0x6e>;
-			gpios = <0x5 0x0 0x6f 0x0 0x6f 0x5 0x6f 0x7 0x16 0x9>;
+			mr = <0x6d>;
+			memory = <0x6d>;
+			gpios = <0x5 0x0 0x6e 0x0 0x6e 0x7 0x6e 0x5 0x16 0x9>;
 			gpio-names = "reset", "ncpuhalt", "vinithi", "wfi", "pwr_cntrl";
 			gdb-id = "Cortex-R5 #0";
-			memattr_ns = <0x70>;
+			memattr_ns = <0x6f>;
 			linux,phandle = <0x78>;
 			phandle = <0x78>;
 		};
@@ -2011,12 +2075,12 @@
 			arm,reset-hivecs = <0x1>;
 			#interrupt-cells = <0x1>;
 			reg = <0x1>;
-			mr = <0x71>;
-			memory = <0x71>;
-			gpios = <0x5 0x1 0x6f 0x2 0x6f 0x1 0x6f 0x6 0x6f 0x8 0x16 0x9>;
+			mr = <0x70>;
+			memory = <0x70>;
+			gpios = <0x5 0x1 0x6e 0x2 0x6e 0x1 0x6e 0x8 0x6e 0x6 0x16 0x9>;
 			gpio-names = "reset", "halt", "ncpuhalt", "vinithi", "wfi", "pwr_cntrl";
 			gdb-id = "Cortex-R5 #1";
-			memattr_ns = <0x72>;
+			memattr_ns = <0x71>;
 			linux,phandle = <0x79>;
 			phandle = <0x79>;
 		};
@@ -2025,11 +2089,19 @@
 	aliases {
 		serial0 = "/amba@0/serial@0xFF000000";
 		serial1 = "/amba@0/serial@0xFF010000";
+		ethernet0 = "/amba@0/ethernet@0xFF0E0000";
 
 		main_bus_for_apu {
 			compatible = "qemu:memory-region";
-			container = <0x63>;
+			container = <0x62>;
 			alias = <0x2c>;
+			priority = <0xffffffff>;
+		};
+
+		main_bus_for_pl {
+			compatible = "qemu:memory-region";
+			container = <0x23>;
+			alias = <0x72>;
 			priority = <0xffffffff>;
 		};
 	};
@@ -2039,8 +2111,8 @@
 		#size-cells = <0x1>;
 		compatible = "xlnx,ps7-axi-interconnect-1.00.a", "simple-bus";
 		ranges;
-		linux,phandle = <0x63>;
-		phandle = <0x63>;
+		linux,phandle = <0x62>;
+		phandle = <0x62>;
 
 		timer {
 			compatible = "arm,armv8-timer";
@@ -2061,7 +2133,7 @@
 			compatible = "xlnx,zynqmp-intc-redirect";
 			interrupt-controller;
 			interrupts-extended = <0x9 0x0 0x9 0x1 0x9 0x2 0x9 0x3>;
-			gpios = <0x15 0x1 0x0 0x65 0x4>;
+			gpios = <0x15 0x1 0x0 0x64 0x4>;
 			linux,phandle = <0x73>;
 			phandle = <0x73>;
 		};
@@ -2071,7 +2143,7 @@
 			compatible = "xlnx,zynqmp-intc-redirect";
 			interrupt-controller;
 			interrupts-extended = <0xa 0x0 0xa 0x1 0xa 0x2 0xa 0x3>;
-			gpios = <0x15 0x2 0x0 0x65 0x5>;
+			gpios = <0x15 0x2 0x0 0x64 0x5>;
 			linux,phandle = <0x74>;
 			phandle = <0x74>;
 		};
@@ -2081,7 +2153,7 @@
 			compatible = "xlnx,zynqmp-intc-redirect";
 			interrupt-controller;
 			interrupts-extended = <0xb 0x0 0xb 0x1 0xb 0x2 0xb 0x3>;
-			gpios = <0x15 0x3 0x0 0x65 0x6>;
+			gpios = <0x15 0x3 0x0 0x64 0x6>;
 			linux,phandle = <0x75>;
 			phandle = <0x75>;
 		};
@@ -2091,7 +2163,7 @@
 			compatible = "xlnx,zynqmp-intc-redirect";
 			interrupt-controller;
 			interrupts-extended = <0xc 0x0 0xc 0x1 0xc 0x2 0xc 0x3>;
-			gpios = <0x15 0x4 0x0 0x65 0x7>;
+			gpios = <0x15 0x4 0x0 0x64 0x7>;
 			linux,phandle = <0x76>;
 			phandle = <0x76>;
 		};
@@ -2321,7 +2393,7 @@
 			compatible = "xlnx,zynqmp-intc-redirect";
 			interrupt-controller;
 			interrupts-extended = <0x78 0x0>;
-			gpios = <0x15 0x5 0x0 0x6f 0x3>;
+			gpios = <0x15 0x5 0x0 0x6e 0x3>;
 			linux,phandle = <0x7e>;
 			phandle = <0x7e>;
 		};
@@ -2331,7 +2403,7 @@
 			compatible = "xlnx,zynqmp-intc-redirect";
 			interrupt-controller;
 			interrupts-extended = <0x79 0x0>;
-			gpios = <0x15 0x6 0x0 0x6f 0x4>;
+			gpios = <0x15 0x6 0x0 0x6e 0x4>;
 			linux,phandle = <0x7f>;
 			phandle = <0x7f>;
 		};
@@ -2512,38 +2584,12 @@
 		};
 	};
 
-	amba_prio: amba_prio@0 {
-		#address-cells = <0x2>;
-		#size-cells = <0x2>;
-		#priority-cells = <0x1>;
-		compatible = "qemu:memory-region";
-		linux,phandle = <0x35>;
-		phandle = <0x35>;
-
-		zynqmp_csu_stream_switch: csu_stream_switch@ffcc0200 {
-			compatible = "zynqmp,csu-sss";
-			reg = <0x0 0xffca0008 0x0 0x4 0x0>;
-			stream-connected-dma = <0x81>;
-			stream-connected-pcap = <0x82>;
-			linux,phandle = <0x5c>;
-			phandle = <0x5c>;
-		};
-
-		zynqmp_csu_pcap: csu_pcap@nowhere {
-			compatible = "zynqmp,csu-pcap";
-			reg = <0x0 0xffca3000 0x0 0x10000 0x0>;
-			stream-connected-pcap = <0x5c>;
-			linux,phandle = <0x82>;
-			phandle = <0x82>;
-		};
-	};
-
 	misc_clk: misc_clk {
 		#clock-cells = <0x0>;
 		clock-frequency = <0x2faf080>;
 		compatible = "fixed-clock";
-		linux,phandle = <0x43>;
-		phandle = <0x43>;
+		linux,phandle = <0x42>;
+		phandle = <0x42>;
 	};
 
 	pcie_ingress: pcie_ingress@0 {
@@ -2574,7 +2620,7 @@
 
 	ddr_alias: ddr_alias@0 {
 		compatible = "qemu:memory-region";
-		container = <0x83>;
+		container = <0x81>;
 		alias = <0x1>;
 		reg = <0x0 0x0 0xffffffff 0xffffffff 0x0>;
 	};
@@ -2584,8 +2630,8 @@
 		#size-cells = <0x2>;
 		#priority-cells = <0x1>;
 		compatible = "qemu:system-memory";
-		linux,phandle = <0x83>;
-		phandle = <0x83>;
+		linux,phandle = <0x81>;
+		phandle = <0x81>;
 	};
 
 	pmu_memattr: pmu_ma {
@@ -2598,112 +2644,112 @@
 		compatible = "qemu:memory-transaction-attr";
 		secure = <0x1>;
 		master-id = <0x80>;
-		linux,phandle = <0x66>;
-		phandle = <0x66>;
+		linux,phandle = <0x65>;
+		phandle = <0x65>;
 	};
 
 	apu0_ns_memattr: apu0_ns_ma {
 		compatible = "qemu:memory-transaction-attr";
 		secure = <0x0>;
 		master-id = <0x80>;
-		linux,phandle = <0x67>;
-		phandle = <0x67>;
+		linux,phandle = <0x66>;
+		phandle = <0x66>;
 	};
 
 	apu1_s_memattr: apu1_s_ma {
 		compatible = "qemu:memory-transaction-attr";
 		secure = <0x1>;
 		master-id = <0x8d>;
-		linux,phandle = <0x68>;
-		phandle = <0x68>;
+		linux,phandle = <0x67>;
+		phandle = <0x67>;
 	};
 
 	apu1_ns_memattr: apu1_ns_ma {
 		compatible = "qemu:memory-transaction-attr";
 		secure = <0x0>;
 		master-id = <0x8d>;
-		linux,phandle = <0x69>;
-		phandle = <0x69>;
+		linux,phandle = <0x68>;
+		phandle = <0x68>;
 	};
 
 	apu2_s_memattr: apu2_s_ma {
 		compatible = "qemu:memory-transaction-attr";
 		secure = <0x1>;
 		master-id = <0x8e>;
-		linux,phandle = <0x6a>;
-		phandle = <0x6a>;
+		linux,phandle = <0x69>;
+		phandle = <0x69>;
 	};
 
 	apu2_ns_memattr: apu2_ns_ma {
 		compatible = "qemu:memory-transaction-attr";
 		secure = <0x0>;
 		master-id = <0x8e>;
-		linux,phandle = <0x6b>;
-		phandle = <0x6b>;
+		linux,phandle = <0x6a>;
+		phandle = <0x6a>;
 	};
 
 	apu3_s_memattr: apu3_s_ma {
 		compatible = "qemu:memory-transaction-attr";
 		secure = <0x1>;
 		master-id = <0x8f>;
-		linux,phandle = <0x6c>;
-		phandle = <0x6c>;
+		linux,phandle = <0x6b>;
+		phandle = <0x6b>;
 	};
 
 	apu3_ns_memattr: apu3_ns_ma {
 		compatible = "qemu:memory-transaction-attr";
 		secure = <0x0>;
 		master-id = <0x8f>;
-		linux,phandle = <0x6d>;
-		phandle = <0x6d>;
+		linux,phandle = <0x6c>;
+		phandle = <0x6c>;
 	};
 
 	rpu0_memattr: rpu0_ma {
 		compatible = "qemu:memory-transaction-attr";
 		secure = <0x1>;
 		master-id = <0x2e>;
-		linux,phandle = <0x70>;
-		phandle = <0x70>;
+		linux,phandle = <0x6f>;
+		phandle = <0x6f>;
 	};
 
 	rpu1_memattr: rpu1_ma {
 		compatible = "qemu:memory-transaction-attr";
 		secure = <0x1>;
 		master-id = <0x2f>;
-		linux,phandle = <0x72>;
-		phandle = <0x72>;
+		linux,phandle = <0x71>;
+		phandle = <0x71>;
 	};
 
 	gem0_memattr: gem0_ma {
 		compatible = "qemu:memory-transaction-attr";
 		secure = <0x0>;
 		master-id = <0x874>;
-		linux,phandle = <0x44>;
-		phandle = <0x44>;
+		linux,phandle = <0x43>;
+		phandle = <0x43>;
 	};
 
 	gem1_memattr: gem1_ma {
 		compatible = "qemu:memory-transaction-attr";
 		secure = <0x0>;
 		master-id = <0x875>;
-		linux,phandle = <0x45>;
-		phandle = <0x45>;
+		linux,phandle = <0x44>;
+		phandle = <0x44>;
 	};
 
 	gem2_memattr: gem2_ma {
 		compatible = "qemu:memory-transaction-attr";
 		secure = <0x0>;
 		master-id = <0x876>;
-		linux,phandle = <0x46>;
-		phandle = <0x46>;
+		linux,phandle = <0x45>;
+		phandle = <0x45>;
 	};
 
 	gem3_memattr: gem3_ma {
 		compatible = "qemu:memory-transaction-attr";
 		secure = <0x0>;
 		master-id = <0x877>;
-		linux,phandle = <0x47>;
-		phandle = <0x47>;
+		linux,phandle = <0x46>;
+		phandle = <0x46>;
 	};
 
 	qspi_dma_memattr: qspi_dma_ma {
@@ -2755,7 +2801,7 @@
 
 	tcm_ram_r5_0_A: tcm_ram_r5_0_A@0x00000 {
 		compatible = "qemu:memory-region";
-		container = <0x5d>;
+		container = <0x5c>;
 		qemu,ram = <0x2>;
 		reg = <0x0 0x0 0x10000>;
 		linux,phandle = <0x7a>;
@@ -2764,7 +2810,7 @@
 
 	tcm_ram_r5_0_B: tcm_ram_r5_0_B@0x20000 {
 		compatible = "qemu:memory-region";
-		container = <0x5d>;
+		container = <0x5c>;
 		qemu,ram = <0x2>;
 		reg = <0x0 0x20000 0x10000>;
 		linux,phandle = <0x7b>;
@@ -2773,7 +2819,7 @@
 
 	tcm_ram_r5_1_A: tcm_ram_r5_1_A@0x00000 {
 		compatible = "qemu:memory-region";
-		container = <0x5e>;
+		container = <0x5d>;
 		qemu,ram = <0x2>;
 		reg = <0x0 0x0 0x10000>;
 		linux,phandle = <0x7c>;
@@ -2782,7 +2828,7 @@
 
 	tcm_ram_r5_1_B: tcm_ram_r5_1_B@0x20000 {
 		compatible = "qemu:memory-region";
-		container = <0x5e>;
+		container = <0x5d>;
 		qemu,ram = <0x2>;
 		reg = <0x0 0x20000 0x10000>;
 		linux,phandle = <0x7d>;
@@ -2791,21 +2837,21 @@
 
 	icache_rpu0: icache_rpu0@0x40000 {
 		compatible = "qemu:memory-region";
-		container = <0x5d>;
+		container = <0x5c>;
 		qemu,ram = <0x2>;
 		reg = <0x0 0x40000 0x8000>;
 	};
 
 	dcache_rpu0: dcache_rpu0@0x50000 {
 		compatible = "qemu:memory-region";
-		container = <0x5d>;
+		container = <0x5c>;
 		qemu,ram = <0x2>;
 		reg = <0x0 0x50000 0x8000>;
 	};
 
 	icache_rpu1: icache_rpu1@0x30000 {
 		compatible = "qemu:memory-region";
-		container = <0x5e>;
+		container = <0x5d>;
 		qemu,ram = <0x2>;
 		reg = <0x0 0x30000 0x8000>;
 		linux,phandle = <0x10>;
@@ -2814,7 +2860,7 @@
 
 	dcache_rpu1: dcache_rpu1@0x40000 {
 		compatible = "qemu:memory-region";
-		container = <0x5e>;
+		container = <0x5d>;
 		qemu,ram = <0x2>;
 		reg = <0x0 0x40000 0x8000>;
 		linux,phandle = <0x11>;
@@ -2875,8 +2921,8 @@
 		#size-cells = <0x2>;
 		#priority-cells = <0x1>;
 		compatible = "qemu:memory-region";
-		linux,phandle = <0x5d>;
-		phandle = <0x5d>;
+		linux,phandle = <0x5c>;
+		phandle = <0x5c>;
 
 		atcm1_for_rpu0: atcm1_for_rpu0 {
 			compatible = "qemu:memory-region";
@@ -2901,12 +2947,12 @@
 		#priority-cells = <0x1>;
 		compatible = "xlnx,ps7-axi-interconnect-1.00.a", "simple-bus";
 		ranges;
-		linux,phandle = <0x6e>;
-		phandle = <0x6e>;
+		linux,phandle = <0x6d>;
+		phandle = <0x6d>;
 
 		tcm_cache_rpu0 {
 			compatible = "qemu:memory-region";
-			alias = <0x5d>;
+			alias = <0x5c>;
 			reg = <0x0 0x0 0xffffffff 0xffffffff 0x0>;
 		};
 
@@ -2922,8 +2968,8 @@
 		#size-cells = <0x2>;
 		#priority-cells = <0x1>;
 		compatible = "qemu:memory-region";
-		linux,phandle = <0x5e>;
-		phandle = <0x5e>;
+		linux,phandle = <0x5d>;
+		phandle = <0x5d>;
 	};
 
 	amba_rpu1: amba_rpu1@0 {
@@ -2932,12 +2978,12 @@
 		#priority-cells = <0x1>;
 		compatible = "xlnx,ps7-axi-interconnect-1.00.a", "simple-bus";
 		ranges;
-		linux,phandle = <0x71>;
-		phandle = <0x71>;
+		linux,phandle = <0x70>;
+		phandle = <0x70>;
 
 		tcm_cache_rpu1 {
 			compatible = "qemu:memory-region";
-			alias = <0x5e>;
+			alias = <0x5d>;
 			reg = <0x0 0x0 0xffffffff 0xffffffff 0x1>;
 		};
 
@@ -2945,6 +2991,35 @@
 			compatible = "qemu:memory-region";
 			alias = <0x33>;
 			reg = <0x0 0x0 0xffffffff 0xffffffff 0xffffffff>;
+		};
+	};
+
+	amba_pl: amba_pl {
+		#address-cells = <0x2>;
+		#size-cells = <0x2>;
+		compatible = "simple-bus";
+		ranges;
+		linux,phandle = <0x72>;
+		phandle = <0x72>;
+	};
+
+	mdio0: mdio {
+		#address-cells = <0x1>;
+		#size-cells = <0x0>;
+		compatible = "mdio";
+		linux,phandle = <0x47>;
+		phandle = <0x47>;
+
+		phy0: phy@7 {
+			compatible = "88e1118r";
+			device_type = "ethernet-phy";
+			reg = <0x7>;
+		};
+
+		phy1: phy@12 {
+			compatible = "88e1118r";
+			device_type = "ethernet-phy";
+			reg = <0xc>;
 		};
 	};
 };

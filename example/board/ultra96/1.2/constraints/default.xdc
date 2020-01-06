@@ -104,10 +104,10 @@ set_property PACKAGE_PIN D7 [get_ports {leds[0]}]
 set_property PACKAGE_PIN F8 [get_ports {leds[1]}]
 set_property PACKAGE_PIN F7 [get_ports {leds[2]}]
 set_property PACKAGE_PIN G7 [get_ports {leds[3]}]
-set_property PACKAGE_PIN F6 [get_ports {leds[4]}]
-set_property PACKAGE_PIN G5 [get_ports {leds[5]}]
-set_property PACKAGE_PIN A6 [get_ports {leds[6]}]
-set_property PACKAGE_PIN A7 [get_ports {leds[7]}]
+#set_property PACKAGE_PIN F6 [get_ports {leds[4]}]
+#set_property PACKAGE_PIN G5 [get_ports {leds[5]}]
+#set_property PACKAGE_PIN A6 [get_ports {leds[6]}]
+#set_property PACKAGE_PIN A7 [get_ports {leds[7]}]
 #set_property PACKAGE_PIN G6   [get_ports {HD_GPIO_8               }];  # "G6.HD_GPIO_8"
 #set_property PACKAGE_PIN E6   [get_ports {HD_GPIO_9               }];  # "E6.HD_GPIO_9"
 #set_property PACKAGE_PIN E5   [get_ports {HD_GPIO_10              }];  # "E5.HD_GPIO_10"
