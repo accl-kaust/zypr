@@ -33,7 +33,7 @@ webtalk_pa.xml
 *.zip
 
 # base design
-base_design
+base
 hd_visual
 example/linux/example
 .logs
