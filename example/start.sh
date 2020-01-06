@@ -87,7 +87,8 @@ bootgen_bitstreams()
                 ARCH="zynqmp"
                 ;;
         esac
-        for i in ${1}/*_partial.bit; do
+        for i in ${1}/*_partial.bit
+        do
             echo -e "${INFO}Generating ${i: 0 : ${#i}-21 }.bin...${NONE}" 
             echo -e "the_ROM_image:\r{\r${i}\r}" >> "${i}.bif"
             bootgen -arch ${ARCH} -image ${i}.bif -w -process_bitstream bin >/dev/null
@@ -170,23 +171,23 @@ echo "Synthesize Design..."
     # exec $VIVADO_PATH $VIVADO_PARAMS -mode batch -source $ZYCAP_ROOT_PATH/scripts/tcl/boards/$BOARD/synth.tcl -tclargs $ZYCAP_ROOT_PATH > "$ZYCAP_ROOT_PATH/rtl/.logs/vivado_bd_design.log" &
     exec $VIVADO_PROXY $VIVADO_PATH $VIVADO_PARAMS -mode batch -source $ZYCAP_ROOT_PATH/scripts/tcl/boards/$BOARD/synth.tcl -tclargs $ZYCAP_ROOT_PATH || true
     # show_spinner $!
-    check_error "$ZYCAP_ROOT_PATH/rtl/.logs/vivado_bd_design.log"
+    # check_error "$ZYCAP_ROOT_PATH/rtl/.logs/vivado_bd_design.log"
 # fi
 echo -e "${SUCCESS}Finished \u2713${NONE}"
 
 echo "Generate Bitstreams..."
-if [ ! -d "$ZYCAP_ROOT_PATH/rtl/${DESIGN_NAME}.bitstreams" ]; then
+# if [ ! -d "$ZYCAP_ROOT_PATH/rtl/${DESIGN_NAME}.bitstreams" ]; then
     echo -e "${WARNING}Not found, generating...${NONE}"
-    bootgen_bitstreams "$ZYCAP_ROOT_PATH/rtl/${DESIGN_NAME}.bitstreams"
-fi
+    bootgen_bitstreams "${ZYCAP_ROOT_PATH}/rtl/${DESIGN_NAME}/${DESIGN_NAME}.bitstreams"
+# fi
 echo -e "${SUCCESS}Finished \u2713${NONE}"
 
-echo "Build Petalinux..."
-if [ ! -d "$ZYCAP_ROOT_PATH/rtl/${DESIGN_NAME}.bitstreams" ]; then
-    log_warn "Not found, generating..."
-    bootgen_bitstreams "$ZYCAP_ROOT_PATH/rtl/${DESIGN_NAME}.bitstreams"
-fi
-echo -e "${SUCCESS}Finished \u2713${NONE}"
+# echo "Build Petalinux..."
+# if [ ! -d "$ZYCAP_ROOT_PATH/rtl/${DESIGN_NAME}.bitstreams" ]; then
+#     log_warn "Not found, generating..."
+#     bootgen_bitstreams "$ZYCAP_ROOT_PATH/rtl/${DESIGN_NAME}.bitstreams"
+# fi
+# echo -e "${SUCCESS}Finished \u2713${NONE}"
 
 echo "Deploying Petalinux..."
 echo -e "${SUCCESS}Finished \u2713${NONE}"

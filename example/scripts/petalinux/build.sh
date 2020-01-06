@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Pass root dir into script
 # ROOT_DIR=$1
@@ -17,6 +17,7 @@ PETALINUX_PATH=$(jq .config.config_petalinux.petalinux_path global_config.json |
 source "$(pwd)/scripts/bash/logger.sh"
 source "$(pwd)/scripts/bash/spinner.sh"
 source "$(pwd)/scripts/petalinux/sd.sh"
+source "$(pwd)/scripts/petalinux/functions.sh"
 
 ZYCAP_ROOT_PATH=$(pwd)
 
@@ -94,7 +95,9 @@ if [ -d "${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}" ]; then
   log_success "- PetaLinux project already exists \u2713"
 else
   log_info "- Creating PetaLinux project..."
+  # echo -e "${INFO}$(petalinux-create --type project -s /home/alex/Downloads/xilinx-ultra96-reva-v2018.3-final.bsp --template $ARCH --name "linux/${DESIGN_NAME}")${NONE}"
   echo -e "${INFO}$(petalinux-create --type project --template $ARCH --name "linux/${DESIGN_NAME}")${NONE}"
+
   log_success "- PetaLinux project created \u2713"
 fi
 
@@ -108,6 +111,8 @@ if [ -d "${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/components" ]; then
 else
   log_info "- Configuring PetaLinux project with hardware description..."
   petalinux-config --get-hw-description ${hardware_dir}
+  # Disable MIPI interface
+  echo 'MACHINE_FEATURES_remove_ultra96-zynqmp = "mipi"' >> ${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/project-spec/meta-user/conf/petalinuxbsp.conf
   # echo -e "${INFO}$(petalinux-config --get-hw-description ${hardware_dir} --oldconfig)${NONE}" > "$ZYCAP_ROOT_PATH/rtl/.logs/petalinux_hdf.log" &
   # show_spinner $!
   log_success "- PetaLinux project configured with hardware description \u2713"
@@ -150,27 +155,38 @@ fi
 ############################ UDMABUF Module ############################
 
 # Generate UDMABUF module
-# if ! [ -d "${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/project-spec/meta-user/recipes-modules/udmabuf" ]; then
+if ! [ -d "${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/project-spec/meta-user/recipes-modules/udmabuf" ]; then
   log_info "- Generating udmabuf module..."
   petalinux-create -t modules -n udmabuf --enable --force
   cp ${ZYCAP_ROOT_PATH}/linux/udmabuf/udmabuf.c ${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/project-spec/meta-user/recipes-modules/udmabuf/files/udmabuf.c
   cp ${ZYCAP_ROOT_PATH}/linux/udmabuf/udmabuf.dtsi ${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/project-spec/meta-user/recipes-bsp/device-tree/files/udmabuf.dtsi
+  insert_dtsi "\/include\/ \"udmabuf.dtsi\"" "${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/project-spec/meta-user/recipes-bsp/device-tree"
   # cp ${ZYCAP_ROOT_PATH}/linux/udmabuf/Makefile ${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/project-spec/meta-user/recipes-modules/udmabuf/files/Makefile
-# fi
+fi
 
 ############################ ZYCAP Application ############################
 
-# if ! [ -d "${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/project-spec/meta-user/recipes-apps/zycap" ]; then
+if ! [ -d "${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/project-spec/meta-user/recipes-apps/zycap" ]; then
   log_info "- Generating zycap application..."
   petalinux-create -t apps -n zycap --enable --force
-  log_info "- Copying application files across"
+  log_info "- Copying across zycap source"
   cp ${ZYCAP_ROOT_PATH}/linux/zycap/zycap.c ${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/project-spec/meta-user/recipes-apps/zycap/files/zycap.c
   cp ${ZYCAP_ROOT_PATH}/linux/zycap/zycap.h ${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/project-spec/meta-user/recipes-apps/zycap/files/zycap.h
   cp ${ZYCAP_ROOT_PATH}/linux/zycap/Makefile ${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/project-spec/meta-user/recipes-apps/zycap/files/Makefile
   cp ${ZYCAP_ROOT_PATH}/linux/zycap/zycap.bb ${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/project-spec/meta-user/recipes-apps/zycap/zycap.bb
-  cp ${ZYCAP_ROOT_PATH}/linux/zycap/bitstreams.tar.gz ${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/project-spec/meta-user/recipes-apps/zycap/files/bitstreams.tar.gz
-  # cp ${ZYCAP_ROOT_PATH}/linux/udmabuf/Makefile ${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/project-spec/meta-user/recipes-modules/udmabuf/files/Makefile
-# fi
+  compress_bitstreams
+  cp ${ZYCAP_ROOT_PATH}/linux/zycap/bitstreams.tar.gz ${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/project-spec/meta-user/recipes-apps/zycap/bitstreams.tar.gz
+  # cp ${ZYCAP_ROOT_PATH}/linux/zycap/bitstreams.tar.gz ${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/project-spec/meta-user/recipes-apps/zycap/files/bitstreams.tar.gz
+fi
+
+if ! [ -d "${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/project-spec/meta-user/recipes-kernel/linux" ]; then
+  mkdir -p ${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/project-spec/meta-user/recipes-kernel/linux
+fi
+
+log_info "- Copying across kernel configs"
+cp -r ${ZYCAP_ROOT_PATH}/board/ultra96/1.2/linux/meta-user/recipes-kernel/linux ${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/project-spec/meta-user/recipes-kernel
+log_info "- Copying across network configs"
+cp -r ${ZYCAP_ROOT_PATH}/board/ultra96/1.2/linux/init-ifupdown ${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/project-spec/meta-user/recipes-core
 
 ############################ Build Project ############################
 
@@ -208,7 +224,8 @@ read option
 case $option in
 1 )
         log_info "Booting via JTAG..."
-        petalinux-boot --jtag --fpga
+        cd ${ZYCAP_ROOT_PATH}
+        petalinux-boot --jtag --fpga --bitstream /home/alex/GitHub/zycap2/example/rtl/${DESIGN_NAME}/${DESIGN_NAME}.bitstreams/mode_a-config_a.bit
         petalinux-boot --jtag --kernel
         ;;
 

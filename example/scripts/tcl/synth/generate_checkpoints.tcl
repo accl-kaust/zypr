@@ -24,7 +24,7 @@ set board_version [dict get $global_config project project_device version]
 set board_constraint [dict get $global_config project project_device constraint]
 
 set fpga_part $board_device$board_package$board_speed$board_option
-set design_name "base_design"
+set design_name [dict get $global_config design design_name]
 
 create_project system_top "./.checkpoint_prj" -part $fpga_part -force
 set_property BOARD_PART $board_part [current_project]

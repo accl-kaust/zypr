@@ -36,7 +36,7 @@ set board_version [dict get $global_config project project_device version]
 set board_constraint [dict get $global_config project project_device constraint]
 
 set fpga_part $board_device$board_package$board_speed$board_option
-set design_name "base_design"
+set design_name [dict get $global_config design design_name]
 
 # Set the reference directory for source file relative paths (by default the value is script directory path)
 set origin_dir $ROOT_PATH
@@ -154,7 +154,7 @@ source $origin_dir/scripts/tcl/boards/$board_family/pr_module_bd.tcl -notrace
 
 # Generate the wrapper
 make_wrapper -files [get_files *${design_name}.bd] -top
-set_property top base_design_wrapper [current_fileset]
+set_property top ${design_name}_wrapper [current_fileset]
 
 add_files -norecurse ${design_name}/${design_name}.srcs/sources_1/bd/${design_name}/hdl/${design_name}_wrapper.v
 
