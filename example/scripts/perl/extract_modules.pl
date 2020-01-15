@@ -25,7 +25,7 @@ $opt->parameter( "+incdir+verilog",
 my @rtlfiles =glob("$working_dir/*.v");
 foreach my $rtlfiles (@rtlfiles)
 {
-  print("$rtlfiles\n");
+  print("RLT File: $rtlfiles\n");
 }
 # print(@things);
 $opt->library(@rtlfiles);
@@ -37,10 +37,12 @@ while (my $pwd = shift @dirs) {
         opendir(DIR,"$pwd") or die "Cannot open $pwd\n";
         my @files = readdir(DIR);
         closedir(DIR);
-        print "$pwd";
-        foreach my $file (@files) {
+        print "Working DIR: $pwd\n";
+        $nl = new Verilog::Netlist(options => $opt,link_read => 1);
+        my $path;
+        foreach my $file (@rtlfiles) {
                 next if $file =~ /^\.\.?$/;
-                my $path = "$pwd/$file";
+                $path = "$file";
                 if (-d $path) {
                         next if $seen{$path};
                         $seen{$path} = 1;
@@ -48,45 +50,182 @@ while (my $pwd = shift @dirs) {
                 }
                 next if ($path !~ /\.v$/i);
                 undef %json_data;
-                undef $nl;
                 my $mtime = (stat($path))[9];
                 print "File found: $path | $pwd\n";
-                $nl = new Verilog::Netlist(options => $opt,);
                 $nl->read_file(filename=>$path);
+        }
+        # foreach my $file (@rtlfiles) {
+        #         next if $file =~ /^\.\.?$/;
+        #         my $path = "$file";
+        #         if (-d $path) {
+        #                 next if $seen{$path};
+        #                 $seen{$path} = 1;
+        #                 push @dirs, $path;
+        #         }
+        #         next if ($path !~ /\.v$/i);
+        #         undef %json_data;
+        #         my $mtime = (stat($path))[9];
+        #         print "File found: $path | $pwd\n";
+
                 $json_data{"FILE_NAME"} = basename($path);
                 # Read in any sub-modules
                 $nl->link();
                 # $nl->lint();  # Optional, see docs; probably not wanted
+                                print "Extracting...\n";
                 $nl->exit_if_error();
 
-                foreach my $mod ($nl->top_modules_sorted) {
-                    show_hier($mod, "  ", "", "");
-                }
+                my $count = 0;
+                my %depth;
+                # print $nl->modules_sorted_level;
+                foreach my $number ($nl->top_modules_sorted)
+                    {
+                        print $number->name;
+                        print "\n";                  
+                        # my $fileref = $nl->read_file(filename=>$number->basename . '.v');
+                        # print $fileref->dump;
+                        # foreach my $file ($number->)
+                        my @data = undef;
+                        walk_modules($number, 1, \@data, \%json_data);      
+                        # foreach my $mod ($number->cells_sorted){
+                        #     print " - ";
+                        #     print $mod->submod->name;
+                        #     print "\n";      
+                        #     foreach my $mod ($mod->submod->cells_sorted){
+                        #         print " -- ";
+                        #         print $mod->submod->name;
+                        #         print "\n"; 
+                        #     }
+                        # }
+                    }
 
-                my $myHashEncoded = JSON->new->pretty->encode(\%json_data);
-                my $name_file = substr(basename($path), 0, -2);
-                my $existingdir = "$pwd/.json";
-                mkdir $existingdir unless -d $existingdir; # Check if dir exists. If not create it.
-                open my $fh, ">", "$existingdir/$name_file.json" or die "Can't open '$existingdir/$name_file.json'\n";
-                print $fh $myHashEncoded;
-                close $fh;
-        }
+                    
+                # foreach my $mod ($nl->top_modules_sorted) {
+                #     $count += 1;
+                #     print "INITIAL: $count\n";
+                #     &show_hier($mod, "", "", "", \%depth);
+                # }
+
+                # print "Encoding...\n";
+                # my $myHashEncoded = JSON->new->pretty->encode(\%json_data);
+                # my $name_file = substr(basename($path), 0, -2);
+                # my $existingdir = "$pwd/.json";
+                # mkdir $existingdir unless -d $existingdir; # Check if dir exists. If not create it.
+                # open my $fh, ">", "$existingdir/$name_file.json" or die "Can't open '$existingdir/$name_file.json'\n";
+                # print $fh $myHashEncoded;
+                # close $fh;
 }
+
+sub walk_modules {
+    my $module = shift;
+    my $count = shift;
+    my @array = @{$_[0]};
+    my ($json) = @_;
+
+    # print @array;
+    print '-' x $count;
+    print ' MOD NAME: ';
+    print $module->name;
+    print "\n";
+
+    foreach my $cont ($module->nets){
+        if($cont->decl_type eq "parameter"){
+            print '-' x $count;
+            print "> PARAM: ";
+            print $cont->name; 
+            print "\n";
+        }
+        if($cont->decl_type eq "localparam"){
+            print '-' x $count;
+            print "> LOCAL PARAM: ";
+            print $cont->name;
+            print "\n";
+        }
+    }  
+    foreach my $mod ($module->cells_sorted){
+        # print ' ' x $count;
+        # print '-> CELL NAME: ';
+        # print $mod->submod->name;
+        # print "\n";
+
+        if(!$mod->submod->cells_sorted){
+            # print "REC";
+            print "\n";
+            push(@array, $module->name);
+            print "ARRAY: ";
+            print "@array";
+            print "\n";
+            walk_modules($mod->submod, $count + 1, \@array);
+        }
+        else {
+            to_nested_hash($json,\@array);
+        }
+    }
+}
+
+sub to_nested_hash {
+    my $ref   = \shift;  
+    my $h     = $$ref;
+    my $value = pop;
+    $ref      = \$$ref->{ $_ } foreach @_;
+    $$ref     = $value;
+    return $h;
+}
+
+# sub show_hier {
+#     my $mod = shift;
+#     my $indent = shift;
+#     my $hier = shift;
+#     my $cellname = shift;
+#     if (!$cellname) {$hier = $mod->name;} #top modules get the design name
+#     else {$hier .= ".$cellname";} #append the cellname
+
+#     printf("%-45s %s\n", $indent."Module ".$mod->name,$hier);
+#     foreach my $sig ($mod->ports_sorted) {
+#         printf($indent."      %sput %s\n", $sig->direction, $sig->name);
+#     }
+#     foreach my $cell ($mod->cells_sorted) {
+#         printf($indent. "    Cell %s\n", $cell->name);
+#         foreach my $pin ($cell->pins_sorted) {
+#             printf($indent."     .%s(%s)\n", $pin->name, $pin->netname);
+#         }
+#         show_hier($cell->submod, $indent."   ", $hier, $cell->name) if $cell->submod;
+#     }
+# }
  
 sub show_hier {
     my $mod = shift;
     my $indent = shift;
     my $hier = shift;
     my $cellname = shift;
+    my ($modname) = @_;
+    my $modthing = $mod->name;
+    # print $modname;
+    if($modname){
+        print "HASH\n";
+        foreach my $key (keys %$modname) {
+            print $modname->{$key};
+        }
+        print "END\n";
+    }
+
+    # print "{MODULE - $modname | CELL - {$modthing}\n";
     if (!$cellname) {
         $json_data{'TOP_MODULE'} = $mod->name;
         } #top modules get the design name
     else {
         $hier .= ".$cellname";
         } #append the cellname
+        # print "{HIER - $hier}\n";
+    # if (!$modname) {
+    #     print "MISSING!\n";
+    # }
+    # else {
+    #     $place{'HOLDER'} = $json_data{'MODULE'}{$mod->name}
+    # }
+
     foreach my $cont ($mod->nets){
         if($cont->decl_type eq "parameter"){
-            $json_data{'MODULE'}{$mod->name}{'PARAMETER'}{$cont->name} = $cont->value;
+            $json_data{'MODULE'}{$mod->name}{'PARAMETER'}{$cont->name} = $cont->value; 
         }
         if($cont->decl_type eq "localparam"){
             $json_data{'MODULE'}{$mod->name}{'LOCALPARAM'}{$cont->name} = $cont->value;
@@ -130,9 +269,16 @@ sub show_hier {
             }            
     }
     foreach my $cell ($mod->cells_sorted) {
+        foreach my $submod ($cell->submod->name) {
+            print $cell->submodname;
+            print "SUBMOD! $submod";
+            $modname->{$cell->name} = $cell->submodname;
+        }
         foreach my $pin ($cell->pins_sorted) {
         }
-        show_hier($cell->submod, $indent."   ", $hier, $cell->name) if $cell->submod;
+        show_hier($cell->submod, $indent."   ", $hier, $cell->name,$modname) if $cell->submod;
+        # GENERATE LINKED LIST FOR MOD->NAME->MOD->NAME etc.
+        # Dynamically expand list to include modules
     }
 }
 
