@@ -10,7 +10,8 @@ use utf8;
 use Try::Tiny;
 # use Data::Dumper qw(Dumper);
 use Data::Dumper;
-use JSON;
+# use JSON;
+use JSON::XS;
 # Setup options so files can be found
 use Verilog::Getopt;
 use File::Find;
@@ -104,9 +105,11 @@ while (my $pwd = shift @dirs) {
             
             # $json_data{$mod->submod->name}= \%mod_hash;
             print "*********************\n";
-            # print Dumper($json_data);
-            my $json_nest = JSON->new->pretty->encode($json_data);
-            print $json_nest;
+            print Dumper($json_data);
+            # $json = JSON->new->utf8->max_depth(2048); 
+            # my $json_nest = JSON::XS->new->utf8->pretty->max_depth(2048);
+            # $json_nest->encode($json_data);
+            # print $json_nest;
 
                     
                 # foreach my $mod ($nl->top_modules_sorted) {
@@ -115,14 +118,14 @@ while (my $pwd = shift @dirs) {
                 #     &show_hier($mod, "", "", "", \%depth);
                 # }
 
-                # print "Encoding...\n";
-                # my $myHashEncoded = JSON->new->pretty->encode(\%json_data);
-                # my $name_file = substr(basename($path), 0, -2);
-                # my $existingdir = "$pwd/.json";
-                # mkdir $existingdir unless -d $existingdir; # Check if dir exists. If not create it.
-                # open my $fh, ">", "$existingdir/$name_file.json" or die "Can't open '$existingdir/$name_file.json'\n";
-                # print $fh $myHashEncoded;
-                # close $fh;
+                print "Encoding...\n";
+                my $myHashEncoded = JSON::XS->new->pretty->encode($json_data);
+                my $name_file = substr(basename($path), 0, -2);
+                my $existingdir = "$pwd/.json";
+                mkdir $existingdir unless -d $existingdir; # Check if dir exists. If not create it.
+                open my $fh, ">", "$existingdir/$name_file.json" or die "Can't open '$existingdir/$name_file.json'\n";
+                print $fh $myHashEncoded;
+                close $fh;
 }
 
 sub walk_modules {
@@ -146,20 +149,29 @@ sub walk_modules {
     print "\n";
     }
 
+    if(!defined($prev_mod)){
+        push(@$array, 'MODULE');
+        push(@$array, $module->name);
+        print "\nNOT DEF ARRAY: ";
+        print @$array;
+        print "\n";
+        # $$json_data{$module->name} = \%mod_hash;
+    }
+
     foreach my $cont ($module->nets){
         if($cont->decl_type eq "parameter"){
-            # print '-' x $count;
-            # print "> PARAM: ";
-            # print $cont->name; 
+            print '-' x $count;
+            print "> PARAM: ";
+            print $cont->name; 
             $mod_hash{'PARAM'}{$cont->name} = $cont->value;
-            # print "\n";
+            print "\n";
         }
         if($cont->decl_type eq "localparam"){
-            # print '-' x $count;
-            # print "> LOCAL PARAM: ";
-            # print $cont->name;
+            print '-' x $count;
+            print "> LOCAL PARAM: ";
+            print $cont->name;
             $mod_hash{'LOCALPARAM'}{$cont->name} = $cont->value;
-            # print "\n";
+            print "\n";
         }
     }  
     foreach my $sig ($module->ports_sorted) {
@@ -199,55 +211,76 @@ sub walk_modules {
                 }
             }            
     }
-    foreach my $mod ($module->cells_sorted){
-        print '-' x $count;
-        print ' CELL-MOD NAME: ';
-        print $mod->submodname;
-        print " | ";
+    if(!$module->cells){
+        # pop(@$array, $module->name);
+        # pop(@$array, 'MODULE');
 
-        # $mod_hash{'MODULE'}= $mod->name;
+        print "\n Array: "; 
+        print @$array;
+        print "\n";
 
-        if($mod->submod){
-
-            # push(@$array, $module->name);
-            # print "\nARRAY: ";
-            # print @$array;
-            # print "\n";
-            my $myHashEncoded = JSON->new->pretty->encode(\%mod_hash);
-            print $myHashEncoded;
+        # my @last_3_elements = splice @$array, -2;    
+        }
+    else {
+        foreach my $mod ($module->cells_sorted){
+            print '-' x $count;
+            print ' CELL-MOD NAME: ';
+            print $mod->submodname;
             print "\n";
+            $mod_hash{'MODULE'}{$mod->submodname} = undef;
 
-            if(!defined($prev_mod)){
-                push(@$array, $module->name);
-                print "\nNOT DEF ARRAY: ";
-                print @$array;
-                print "\n";
-                $$json_data{$module->name} = \%mod_hash;
-            }
-            else {
-                            push(@$array, 'MODULE');
-                push(@$array, $module->name);
+            # # $mod_hash{'MODULE'}= $mod->name;
+
+            # if($mod->submod){
+
+            #     # push(@$array, $module->name);
+            #     # print "\nARRAY: ";
+            #     # print @$array;
+            #     # print "\n";
+            #     my $myHashEncoded = JSON::XS->new->pretty->encode(\%mod_hash);
+            #     print $myHashEncoded;
+            #     print "\n";
+
+
+            #     # else {
+                # push(@$array, 'MODULE');
+                # push(@$array, $mod->submodname);
                 print "\nARRAY: ";
                 print @$array;
                 print "\n";
-                my $last = pop @$array;
-                print "\nPOP! ";
-                print $last;
-                print "\n";
-                # push @{ DiveVal( $json_data, \( @$array ) ) ||= []}, { $last, \%mod_hash };
-                DiveVal( $json_data, \( @$array ) ) = \%mod_hash;
-                # print Dumper(DiveVal( $json_data, \( @$array ) ));
-                # push @{ DiveVal( $json_data, \( @$array ) ) ||= []}, [ $last, \%mod_hash ];
+            #     # my $last = pop @$array;
+            #     print "\nPOP! ";
+            #     # print $last;
+            #     print "\n";
+            #     # push @{ DiveVal( $json_data, \( @$array ) ) ||= []}, { $last, \%mod_hash };
+            #     DiveVal( $json_data, \( @$array ) ) = \%mod_hash;
+            #     # print Dumper(DiveVal( $json_data, \( @$array ) ));
+            #     # push @{ DiveVal( $json_data, \( @$array ) ) ||= []}, [ $last, \%mod_hash ];
+            #     DiveVal( $json_data, \( @$array ) ) = \%mod_hash;
 
-            }
-            # my $json_nest = JSON->new->pretty->encode(\%json_data);
-            walk_modules($mod->submod, $count + 1, \@$array, $module->name);
+            #     # }
+            #     # my $json_nest = JSON->new->pretty->encode(\%json_data);
+            #     walk_modules($mod->submod, $count + 1, \@$array, $module->name);
+            # }
+            # else {
+            #     # to_nested_hash(%json_data,\@$array);
+            #     # my $json_nest = JSON->new->pretty->encode(\%json_data);
+            #     print "!!!!!!!!!!!!!!!!\n";
+            # }
         }
-        else {
-            # to_nested_hash(%json_data,\@$array);
-            # my $json_nest = JSON->new->pretty->encode(\%json_data);
-            print "!!!!!!!!!!!!!!!!\n";
-        }
+    }
+        print "ARRAY: ";
+    print @$array;
+        print "\n";
+    print Dumper(%mod_hash);
+    DiveVal( $json_data, \( @$array ) ) = \%mod_hash;
+    if(!$module->cells){
+        my @last_3_elements = splice @$array, -2;    
+    }
+    foreach my $mod ($module->cells_sorted){
+        push(@$array, 'MODULE');
+        push(@$array, $mod->submodname);
+        walk_modules($mod->submod, $count + 1, \@$array, $module->name);
     }
 }
 
