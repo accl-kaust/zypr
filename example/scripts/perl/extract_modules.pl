@@ -36,6 +36,7 @@ $opt->library(@rtlfiles);
 
 my @dirs = (".");
 my %seen;
+print "########################################################################################\n";
 while (my $pwd = shift @dirs) {
         opendir(DIR,"$pwd") or die "Cannot open $pwd\n";
         my @files = readdir(DIR);
@@ -105,7 +106,7 @@ while (my $pwd = shift @dirs) {
             
             # $json_data{$mod->submod->name}= \%mod_hash;
             print "*********************\n";
-            print Dumper($json_data);
+            # print Dumper($json_data);
             # $json = JSON->new->utf8->max_depth(2048); 
             # my $json_nest = JSON::XS->new->utf8->pretty->max_depth(2048);
             # $json_nest->encode($json_data);
@@ -135,28 +136,42 @@ sub walk_modules {
     my $prev_mod = shift;
     my %mod_hash;
     # print $prev_mod;
-
-    if(!defined($prev_mod)){
-    print "UNDEFINED!!!\n";
-    print ' MOD NAME: ';
-    print $module->name;
-    print "\n";
-    }
-    else{
-    print '-' x $count;
-    print ' MOD NAME: ';
-    print $module->name;
-    print "\n";
-    }
-
-    if(!defined($prev_mod)){
-        push(@$array, 'MODULE');
-        push(@$array, $module->name);
+    if($module->is_top){
+        $mod_hash{'MODULE'} = $module->name;
+        push(@$array, 'CELL');
+        push(@$array, 'top');
         print "\nNOT DEF ARRAY: ";
         print @$array;
         print "\n";
-        # $$json_data{$module->name} = \%mod_hash;
     }
+    else{    
+        if(!defined($prev_mod)){
+            print "UNDEFINED!!!\n";
+            print ' MOD NAME: ';
+            print $module->name;
+            print "\n";
+        }
+        else{
+            print '-' x $count;
+            print ' MOD NAME: ';
+            print $module->name;
+            print "\n";
+        }
+        $mod_hash{'MODULE'} = $module->name;
+        if(!defined($prev_mod)){
+            push(@$array, 'CELL');
+            push(@$array, $module->name);
+            print "\nNOT DEF ARRAY: ";
+            print @$array;
+            print "\n";
+            # $$json_data{$module->name} = \%mod_hash;
+        }
+    }
+
+
+
+
+
 
     foreach my $cont ($module->nets){
         if($cont->decl_type eq "parameter"){
@@ -225,9 +240,10 @@ sub walk_modules {
         foreach my $mod ($module->cells_sorted){
             print '-' x $count;
             print ' CELL-MOD NAME: ';
-            print $mod->submodname;
+            print $mod->name;
             print "\n";
-            $mod_hash{'MODULE'}{$mod->submodname} = undef;
+            
+            $mod_hash{'CELL'}{$mod->name} = undef;
 
             # # $mod_hash{'MODULE'}= $mod->name;
 
@@ -275,11 +291,15 @@ sub walk_modules {
     print Dumper(%mod_hash);
     DiveVal( $json_data, \( @$array ) ) = \%mod_hash;
     if(!$module->cells){
-        my @last_3_elements = splice @$array, -2;    
+        my @last_3_elements = splice @$array, -($count + 2); 
+        $count = $count - 1;
     }
     foreach my $mod ($module->cells_sorted){
-        push(@$array, 'MODULE');
-        push(@$array, $mod->submodname);
+        push(@$array, 'CELL');
+        push(@$array, $mod->name);
+        print "                                                        DEPTH: ";
+        print $count;
+        print "\n";
         walk_modules($mod->submod, $count + 1, \@$array, $module->name);
     }
 }
