@@ -291,12 +291,16 @@ sub walk_modules {
     print Dumper(%mod_hash);
     DiveVal( $json_data, \( @$array ) ) = \%mod_hash;
     if(!$module->cells){
-        my @last_3_elements = splice @$array, -($count+1); 
+        my @last_3_elements = splice @$array, -(2); 
         $count = $count - 1;
+        print "END!\n";
     }
     foreach my $mod ($module->cells_sorted){
         push(@$array, 'CELL');
         push(@$array, $mod->name);
+        print "                                                        Next Cell: ";
+        print $mod->name;
+        print "\n";
         print "                                                        DEPTH: ";
         print $count;
         print "\n";
