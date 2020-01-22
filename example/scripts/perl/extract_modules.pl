@@ -291,7 +291,7 @@ sub walk_modules {
     print Dumper(%mod_hash);
     DiveVal( $json_data, \( @$array ) ) = \%mod_hash;
     if(!$module->cells){
-        my @last_3_elements = splice @$array, -($count + 2); 
+        my @last_3_elements = splice @$array, -($count+1); 
         $count = $count - 1;
     }
     foreach my $mod ($module->cells_sorted){
