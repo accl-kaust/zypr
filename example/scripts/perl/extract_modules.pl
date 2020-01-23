@@ -20,6 +20,7 @@ use File::Basename;
 my $working_dir = $ARGV[0];
 my $json_data = {}; 
 my $nl;
+my $prev_cut = 0;
 my $opt = new Verilog::Getopt;
 $opt->parameter( "+incdir+verilog",
                  "-y","verilog",
@@ -135,28 +136,22 @@ sub walk_modules {
     my $array = shift;
     my $prev_mod = shift;
     my %mod_hash;
-    # print $prev_mod;
+
     if($module->is_top){
         $mod_hash{'MODULE'} = $module->name;
         push(@$array, 'CELL');
         push(@$array, 'top');
-        print "\nNOT DEF ARRAY: ";
-        print @$array;
-        print "\n";
     }
     else{    
-        if(!defined($prev_mod)){
-            print "UNDEFINED!!!\n";
-            print ' MOD NAME: ';
-            print $module->name;
-            print "\n";
-        }
-        else{
-            print '-' x $count;
-            print ' MOD NAME: ';
-            print $module->name;
-            print "\n";
-        }
+        # if(!defined($prev_mod)){
+
+        # }
+        # else{
+        #     print '-' x $count;
+        #     print ' MOD NAME: ';
+        #     print $module->name;
+        #     print "\n";
+        # }
         $mod_hash{'MODULE'} = $module->name;
         if(!defined($prev_mod)){
             push(@$array, 'CELL');
@@ -164,31 +159,26 @@ sub walk_modules {
             print "\nNOT DEF ARRAY: ";
             print @$array;
             print "\n";
-            # $$json_data{$module->name} = \%mod_hash;
         }
     }
 
-
-
-
-
-
     foreach my $cont ($module->nets){
         if($cont->decl_type eq "parameter"){
-            print '-' x $count;
-            print "> PARAM: ";
-            print $cont->name; 
+            # print '-' x $count;
+            # print "> PARAM: ";
+            # print $cont->name; 
             $mod_hash{'PARAM'}{$cont->name} = $cont->value;
-            print "\n";
+            # print "\n";
         }
         if($cont->decl_type eq "localparam"){
-            print '-' x $count;
-            print "> LOCAL PARAM: ";
-            print $cont->name;
+            # print '-' x $count;
+            # print "> LOCAL PARAM: ";
+            # print $cont->name;
             $mod_hash{'LOCALPARAM'}{$cont->name} = $cont->value;
-            print "\n";
+            # print "\n";
         }
     }  
+
     foreach my $sig ($module->ports_sorted) {
             # $mod_hash{$module->name}{'LOCALPARAM'}{$cont->name} = $cont->value;
             $mod_hash{'PORT'}{$sig->name}{'DIRECTION'} = $sig->direction."put";
@@ -203,17 +193,20 @@ sub walk_modules {
                 }
 
                 my $width = $module->find_net($sig->name)->data_type;
-                # my $result_a; 
-                # my $result_b;
-                # if ( $width =~ /\[(.*?)\:/ )
-                # {
-                #     $result_a = replace_param($1,$module->name);
-                # }
-                # if ( $width =~ /\:(.*?)\]/ )
-                # {
-                #     $result_b = replace_param($1,$module->name);
-                # }
-                # $mod_hash{$module->name}{'PORT'}{$sig->name}{'WIDTH'} = (($result_a+1)-$result_b);
+                my $result_a; 
+                my $result_b;
+                if ( $width =~ /\[(.*?)\:/ )
+                {
+                    $result_a = replace_param($1,$module->name,\%mod_hash);
+                    # print "                                     RESULT A $result_a \n";
+                }
+                if ( $width =~ /\:(.*?)\]/ )
+                {
+                    $result_b = replace_param($1,$module->name,\%mod_hash);
+                    # print "                                     RESULT B $result_b \n";
+                }
+                
+                $mod_hash{'PORT'}{$sig->name}{'WIDTH'} = (($result_a+1)-$result_b);
             }
             else{
                 if (defined $module->find_net($sig->name)->width)
@@ -227,83 +220,52 @@ sub walk_modules {
             }            
     }
     if(!$module->cells){
-        # pop(@$array, $module->name);
-        # pop(@$array, 'MODULE');
-
-        print "\n Array: "; 
-        print @$array;
-        print "\n";
-
-        # my @last_3_elements = splice @$array, -2;    
+        $count = $count - 1;
         }
     else {
         foreach my $mod ($module->cells_sorted){
-            print '-' x $count;
-            print ' CELL-MOD NAME: ';
-            print $mod->name;
-            print "\n";
+            # print '-' x $count;
+            # print ' CELL-MOD NAME: ';
+            # print $mod->name;
+            # print "\n";
             
             $mod_hash{'CELL'}{$mod->name} = undef;
-
-            # # $mod_hash{'MODULE'}= $mod->name;
-
-            # if($mod->submod){
-
-            #     # push(@$array, $module->name);
-            #     # print "\nARRAY: ";
-            #     # print @$array;
-            #     # print "\n";
-            #     my $myHashEncoded = JSON::XS->new->pretty->encode(\%mod_hash);
-            #     print $myHashEncoded;
-            #     print "\n";
-
-
-            #     # else {
-                # push(@$array, 'MODULE');
-                # push(@$array, $mod->submodname);
-                print "\nARRAY: ";
-                print @$array;
-                print "\n";
-            #     # my $last = pop @$array;
-            #     print "\nPOP! ";
-            #     # print $last;
-            #     print "\n";
-            #     # push @{ DiveVal( $json_data, \( @$array ) ) ||= []}, { $last, \%mod_hash };
-            #     DiveVal( $json_data, \( @$array ) ) = \%mod_hash;
-            #     # print Dumper(DiveVal( $json_data, \( @$array ) ));
-            #     # push @{ DiveVal( $json_data, \( @$array ) ) ||= []}, [ $last, \%mod_hash ];
-            #     DiveVal( $json_data, \( @$array ) ) = \%mod_hash;
-
-            #     # }
-            #     # my $json_nest = JSON->new->pretty->encode(\%json_data);
-            #     walk_modules($mod->submod, $count + 1, \@$array, $module->name);
-            # }
-            # else {
-            #     # to_nested_hash(%json_data,\@$array);
-            #     # my $json_nest = JSON->new->pretty->encode(\%json_data);
-            #     print "!!!!!!!!!!!!!!!!\n";
-            # }
+                # print "\nARRAY: ";
+                # print @$array;
+                # print "\n";
         }
     }
-        print "ARRAY: ";
-    print @$array;
-        print "\n";
-    print Dumper(%mod_hash);
+    #     print "ARRAY: ";
+    # print @$array;
+    #     print "\n";
+    # print Dumper(%mod_hash);
     DiveVal( $json_data, \( @$array ) ) = \%mod_hash;
-    if(!$module->cells){
-        my @last_3_elements = splice @$array, -(2); 
-        $count = $count - 1;
-        print "END!\n";
-    }
+    # if(!$module->cells){
+    #     print "                                                         CUTTING: ";
+    #     print $count;
+    #     print "\n";
+    #     # my @last_3_elements = splice @$array, ($count); 
+    #     $count = $count - 1;
+    #     print "END!\n";
+    # }
     foreach my $mod ($module->cells_sorted){
+
+        # print "                                                        Next Cell: ";
+        # print $mod->name;
+        # print "\n";
+        # print "                                                        DEPTH: ";
+        # print $count;
+        # print "\n";
+        # print "                                                        PREV: ";
+        # print $prev_cut;
+        # print "\n";
+        if($prev_cut > $count){
+            # print "                                                         SPLICE!\n";
+            my @last_3_elements = splice @$array, (($count*2)); 
+        }
         push(@$array, 'CELL');
         push(@$array, $mod->name);
-        print "                                                        Next Cell: ";
-        print $mod->name;
-        print "\n";
-        print "                                                        DEPTH: ";
-        print $count;
-        print "\n";
+        $prev_cut = $count;
         walk_modules($mod->submod, $count + 1, \@$array, $module->name);
     }
 }
@@ -315,16 +277,6 @@ sub walk_modules {
 
 # }
 
-
-
-sub to_nested_hash {
-    my $ref   = \shift;  
-    my $h     = $$ref;
-    my $value = pop;
-    $ref      = \$$ref->{ $_ } foreach @_;
-    $$ref     = $value;
-    return $h;
-}
 
 # sub show_hier {
 #     my $mod = shift;
@@ -404,10 +356,7 @@ sub to_nested_hash {
 #                 my $result_b;
 #                 if ( $width =~ /\[(.*?)\:/ )
 #                 {
-#                     $result_a = replace_param($1,$mod->name);
-#                 }
-#                 if ( $width =~ /\:(.*?)\]/ )
-#                 {
+#                     $result_a = replace_param($1,$mod->name{$mod}
 #                     $result_b = replace_param($1,$mod->name);
 #                 }
 #                 $json_data{'MODULE'}{$mod->name}{'PORT'}{$sig->name}{'WIDTH'} = (($result_a+1)-$result_b);
@@ -437,21 +386,52 @@ sub to_nested_hash {
 #     }
 # }
 
+sub replace_param {
+    my $arg = shift;
+    my $mod = shift;
+    my ($hash) = @_;
+
+    # print "ARG $arg";
+    # print "\n";
+    try {
+        my $result = calc $arg;
+        # print "CALULATED : $result !\n";
+        return $result;
+    } 
+    catch {
+        my $inside = $arg;
+        my $compareparam = %$hash{'PARAM'};
+
+        for(keys %$compareparam){
+            $inside =~ s/$_/%$compareparam{$_}/eig;
+            # print("PARAM $_ is %compareparam{$_}\n");
+        }
+
+        my $comparelocalparam = %$hash{'LOCALPARAM'};
+
+        for(keys %$comparelocalparam){
+            $inside =~ s/$_/%$comparelocalparam{$_}/eig;
+            # print("LOCALPARAM $_ is %comparelocalparam{$_}\n");
+        }
+
+        replace_param($inside,$mod); 
+    };
+}
+
 # sub replace_param {
 #     my $arg = shift;
 #     my $mod = shift;
-#     my $hash = shift;
 #     try {
 #         my $result = calc $arg;
 #         return $result;
 #     } 
 #     catch {
 #         my $inside = $arg;
-#         my %compare_param = %{%$hash{"$mod"}{'PARAM'}};
+#         my %compare_param = %{$json_data{'MODULE'}{"$mod"}{'PARAMETER'}};
 #         for (sort keys %compare_param) {
 #             $inside =~ s/$_/$compare_param{$_}/eig;
 #         } 
-#         my %compare_localparam = %{$hash{"$mod"}{'LOCALPARAM'}};
+#         my %compare_localparam = %{$json_data{'MODULE'}{"$mod"}{'LOCALPARAM'}};
 #         for (sort keys %compare_localparam) {
 #             $inside =~ s/$_/$compare_localparam{$_}/eig;
 #         } 

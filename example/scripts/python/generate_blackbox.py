@@ -12,16 +12,16 @@ def main():
         # print((len(path) - 1) * '---', os.path.basename(root))
         for file in files:
             if file.endswith('.json'):           
-                print(root) 
-                print(len(path) * '---', file)
+                # print(root) 
+                # print(len(path) * '---', file)
                 with open(root+os.sep+file) as json_file:
                     data = json.load(json_file)
-                    top_module = data['TOP_MODULE']
+                    top_module = data['CELL']['top']
                     print(top_module)
                     port_list = []
-                    for module_port in data['MODULE'][top_module]['PORT']:
-                        width = data['MODULE'][top_module]['PORT'][module_port]['WIDTH']
-                        direction = data['MODULE'][top_module]['PORT'][module_port]['DIRECTION']
+                    for module_port in data['CELL']['top']['PORT']:
+                        width = data['CELL']['top']['PORT'][module_port]['WIDTH']
+                        direction = data['CELL']['top']['PORT'][module_port]['DIRECTION']
                         # print(module_port + " : " + data['MODULE'][top_module]['PORT'][module_port]['DIRECTION'] + " : " + str(data['MODULE'][top_module]['PORT'][module_port]['WIDTH']))
                         print(module_port)
                         if width != 1:
@@ -42,6 +42,8 @@ def main():
                 ast = vast.ModuleDef(top_module, params, ports, [])
                 codegen = ASTCodeGenerator()
                 rslt = codegen.visit(ast)
+                print("File Name: {}".format(file))
+                print("---")
                 print(rslt)
                 if not os.path.exists('.blackbox'):
                     os.makedirs('.blackbox')
