@@ -30,12 +30,12 @@ def main():
         f = open('.modes/{}/{}'.format(mode,'interface.v'), "w+")
         f.close()
         for mode_configs in config['design']['design_mode'][mode]['configs']:
-            # print(mode_configs)
+            print(mode_configs)
             top_module = config['design']['design_mode'][mode]['configs'][mode_configs]['top_module']
             shutil.copyfile(top_module, '.blackbox/{}'.format(top_module))
             f = open('.blackbox/{}'.format(top_module),"a+")
             for config_variations in config['design']['design_mode'][mode]['configs'][mode_configs]['rtl']:
-                # print(config_variations)
+                # logger.debug("File - {}".format(config_variations))
                 if config_variations != top_module:
                     logger.debug("MODE - {}".format(mode))
                     logger.debug("CONFIG - {}".format(config_variations))
@@ -43,6 +43,9 @@ def main():
                         os.makedirs('.modes/{}/{}'.format(mode,mode_configs))
                         os.makedirs('.modes/{}/{}/.checkpoints'.format(mode,mode_configs))
                     shutil.copyfile(config_variations,'.modes/{}/{}/{}'.format(mode,mode_configs,config_variations))
+            for config_variations in config['design']['design_mode'][mode]['configs'][mode_configs]['rtl']:
+                # logger.debug("File - {}".format(config_variations))
+                if config_variations != top_module:
                     os.system('vhier -y .modes/{1}/{2}/. --top-module {0} --module-files .modes/{1}/{2}/*.v --xml -o .modes/{1}/{2}/hier.json'.format(config['design']['design_mode'][mode]["pr_module"],mode,mode_configs))
                     with open('.modes/{0}/{1}/hier.json'.format(mode,mode_configs),'r+') as f_xml:
                         data = f_xml.read()
