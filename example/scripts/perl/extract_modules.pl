@@ -43,7 +43,7 @@ while (my $pwd = shift @dirs) {
         my @files = readdir(DIR);
         closedir(DIR);
         print "Working DIR: $pwd\n";
-        $nl = new Verilog::Netlist(options => $opt,link_read => 1);
+        $nl = new Verilog::Netlist(options => $opt,link_read => 1, link_read_nonfatal => 1);
         my $path;
         foreach my $file (@rtlfiles) {
                 next if $file =~ /^\.\.?$/;
@@ -81,6 +81,14 @@ while (my $pwd = shift @dirs) {
                 # $nl->lint();  # Optional, see docs; probably not wanted
                                 print "Extracting...\n";
                 $nl->exit_if_error();
+
+                # check if no cells, i.e. 
+                foreach my $name ($nl->modules_sorted_level){
+                    print $name->name;
+                    print "\n";
+                    print $name->cells;
+                    print "\n";
+                }
 
                 my $count = 0;
                 my %depth;
@@ -137,49 +145,50 @@ sub walk_modules {
     my $prev_mod = shift;
     my %mod_hash;
 
-    if($module->is_top){
-        $mod_hash{'MODULE'} = $module->name;
-        push(@$array, 'CELL');
-        push(@$array, 'top');
-    }
-    else{    
-        # if(!defined($prev_mod)){
-
-        # }
-        # else{
-        #     print '-' x $count;
-        #     print ' MOD NAME: ';
-        #     print $module->name;
-        #     print "\n";
-        # }
-        $mod_hash{'MODULE'} = $module->name;
-        if(!defined($prev_mod)){
-            push(@$array, 'CELL');
-            push(@$array, $module->name);
-            print "\nNOT DEF ARRAY: ";
-            print @$array;
-            print "\n";
+    if($module){
+        if($module->is_top){
+                $mod_hash{'MODULE'} = $module->name;
+                push(@$array, 'CELL');
+                push(@$array, 'top');
         }
-    }
+        else{    
+            # if(!defined($prev_mod)){
 
-    foreach my $cont ($module->nets){
-        if($cont->decl_type eq "parameter"){
-            # print '-' x $count;
-            # print "> PARAM: ";
-            # print $cont->name; 
-            $mod_hash{'PARAM'}{$cont->name} = $cont->value;
-            # print "\n";
+            # }
+            # else{
+            #     print '-' x $count;
+            #     print ' MOD NAME: ';
+            #     print $module->name;
+            #     print "\n";
+            # }
+            $mod_hash{'MODULE'} = $module->name;
+            if(!defined($prev_mod)){
+                push(@$array, 'CELL');
+                push(@$array, $module->name);
+                print "\nNOT DEF ARRAY: ";
+                print @$array;
+                print "\n";
+            }
         }
-        if($cont->decl_type eq "localparam"){
-            # print '-' x $count;
-            # print "> LOCAL PARAM: ";
-            # print $cont->name;
-            $mod_hash{'LOCALPARAM'}{$cont->name} = $cont->value;
-            # print "\n";
-        }
-    }  
 
-    foreach my $sig ($module->ports_sorted) {
+        foreach my $cont ($module->nets){
+            if($cont->decl_type eq "parameter"){
+                # print '-' x $count;
+                # print "> PARAM: ";
+                # print $cont->name; 
+                $mod_hash{'PARAM'}{$cont->name} = $cont->value;
+                # print "\n";
+            }
+            if($cont->decl_type eq "localparam"){
+                # print '-' x $count;
+                # print "> LOCAL PARAM: ";
+                # print $cont->name;
+                $mod_hash{'LOCALPARAM'}{$cont->name} = $cont->value;
+                # print "\n";
+            }
+        } 
+
+        foreach my $sig ($module->ports_sorted) {
             # $mod_hash{$module->name}{'LOCALPARAM'}{$cont->name} = $cont->value;
             $mod_hash{'PORT'}{$sig->name}{'DIRECTION'} = $sig->direction."put";
             if($module->find_net($sig->name)->data_type =~ /.[a-z]+/i){
@@ -218,56 +227,84 @@ sub walk_modules {
                     $mod_hash{'PORT'}{$sig->name}{'WIDTH'} = 1;
                 }
             }            
-    }
-    if(!$module->cells){
-        $count = $count - 1;
         }
-    else {
+
+        if(!$module->cells){
+            $count = $count - 1;
+            }
+        else {
+            foreach my $mod ($module->cells_sorted){
+                # print '-' x $count;
+                # print ' CELL-MOD NAME: ';
+                # print $mod->name;
+                # print "\n";
+                
+                $mod_hash{'CELL'}{$mod->name} = undef;
+                    # print "\nARRAY: ";
+                    # print @$array;
+                    # print "\n";
+            }
+        }
+        #     print "ARRAY: ";
+        # print @$array;
+        #     print "\n";
+        # print Dumper(%mod_hash);
+        DiveVal( $json_data, \( @$array ) ) = \%mod_hash;
+        # if(!$module->cells){
+        #     print "                                                         CUTTING: ";
+        #     print $count;
+        #     print "\n";
+        #     # my @last_3_elements = splice @$array, ($count); 
+        #     $count = $count - 1;
+        #     print "END!\n";
+        # }
         foreach my $mod ($module->cells_sorted){
-            # print '-' x $count;
-            # print ' CELL-MOD NAME: ';
+
+            # print "                                                        Next Cell: ";
             # print $mod->name;
             # print "\n";
-            
-            $mod_hash{'CELL'}{$mod->name} = undef;
-                # print "\nARRAY: ";
-                # print @$array;
-                # print "\n";
+            # print "                                                        DEPTH: ";
+            # print $count;
+            # print "\n";
+            # print "                                                        PREV: ";
+            # print $prev_cut;
+            # print "\n";
+            if($prev_cut > $count){
+                # print "                                                         SPLICE!\n";
+                my @last_3_elements = splice @$array, (($count*2)); 
+            }
+            push(@$array, 'CELL');
+            push(@$array, $mod->name);
+            $prev_cut = $count;
+            print $mod->submodname;
+            print "\n";
+            print $mod->pins;
+            print "\n";
+            if($mod->submod){
+                walk_modules($mod->submod, $count + 1, \@$array, $module->name);
+            }
+            else {
+                walk_modules($mod->submod, $count + 1, \@$array, $mod);
+            }
         }
     }
-    #     print "ARRAY: ";
-    # print @$array;
-    #     print "\n";
-    # print Dumper(%mod_hash);
-    DiveVal( $json_data, \( @$array ) ) = \%mod_hash;
-    # if(!$module->cells){
-    #     print "                                                         CUTTING: ";
-    #     print $count;
-    #     print "\n";
-    #     # my @last_3_elements = splice @$array, ($count); 
-    #     $count = $count - 1;
-    #     print "END!\n";
-    # }
-    foreach my $mod ($module->cells_sorted){
+    else {
+        $mod_hash{'IPCORE'} = $prev_mod->submodname;
+        foreach my $pin ($prev_mod->pins_sorted){
+            print $pin->name;
+            print " : ";
+            my @pins     = $pin->pinselects;
+            my $netname  = join(' ', map { $_->netname } @pins);
+            print "$netname \n";
+            $mod_hash{'PINS'}{$pin->name} = $netname;
 
-        # print "                                                        Next Cell: ";
-        # print $mod->name;
-        # print "\n";
-        # print "                                                        DEPTH: ";
-        # print $count;
-        # print "\n";
-        # print "                                                        PREV: ";
-        # print $prev_cut;
-        # print "\n";
-        if($prev_cut > $count){
-            # print "                                                         SPLICE!\n";
-            my @last_3_elements = splice @$array, (($count*2)); 
         }
-        push(@$array, 'CELL');
-        push(@$array, $mod->name);
-        $prev_cut = $count;
-        walk_modules($mod->submod, $count + 1, \@$array, $module->name);
+        $count = $count - 1;
+        DiveVal( $json_data, \( @$array ) ) = \%mod_hash;
+
     }
+  
+
 }
 
 # sub walk_hier {
@@ -404,14 +441,14 @@ sub replace_param {
 
         for(keys %$compareparam){
             $inside =~ s/$_/%$compareparam{$_}/eig;
-            # print("PARAM $_ is %compareparam{$_}\n");
+            print("PARAM $_ is %compareparam{$_} : $inside\n");
         }
 
         my $comparelocalparam = %$hash{'LOCALPARAM'};
 
         for(keys %$comparelocalparam){
             $inside =~ s/$_/%$comparelocalparam{$_}/eig;
-            # print("LOCALPARAM $_ is %comparelocalparam{$_}\n");
+            print("LOCALPARAM $_ is %comparelocalparam{$_} : $inside\n");
         }
 
         replace_param($inside,$mod); 

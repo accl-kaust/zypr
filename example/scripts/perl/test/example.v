@@ -1,8 +1,8 @@
 module led_sw
 #(
 	localparam example = 12,
-	localparam tester = 23
-
+	localparam tester = 23,
+    parameter toot = 123
     )
 (
 output [example:0] led,
@@ -19,7 +19,16 @@ test dut(
 
 endmodule
 
-module test (input x, output y);
+module test #(
+    parameter thing = 12
+)(
+    input x, output y);
+tesx dut2();
+
+tesx what_a_dut();
+
+tesx why_this_a_dut();
+
 
 assign x = y;
 endmodule
