@@ -1,0 +1,1 @@
+Export .xci from Vivado to unique directory and include location in `global_config.json`

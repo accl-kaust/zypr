@@ -124,7 +124,8 @@ fi
 echo "Extracting Modules..."
 if [ ! -d "$ZYCAP_ROOT_PATH/rtl/.json" ]; then
     echo -e "${WARNING}Not found, generating...${NONE}"
-    perl $ZYCAP_ROOT_PATH/scripts/perl/extract_modules.pl "$ZYCAP_ROOT_PATH/rtl" > "$ZYCAP_ROOT_PATH/rtl/.logs/perl_mod_extract.log"
+    perl $ZYCAP_ROOT_PATH/scripts/perl/extract_modules.pl "$ZYCAP_ROOT_PATH/rtl"
+    # perl $ZYCAP_ROOT_PATH/scripts/perl/extract_modules.pl "$ZYCAP_ROOT_PATH/rtl" > "$ZYCAP_ROOT_PATH/rtl/.logs/perl_mod_extract.log"
     check_error "$ZYCAP_ROOT_PATH/rtl/.logs/perl_mod_extract.log"
 fi
 echo -e "${SUCCESS}Finished \u2713 ${NONE}"
@@ -138,11 +139,11 @@ fi
 echo -e "${SUCCESS}Finished \u2713 ${NONE}"
 
 echo "Constructing Configs & Modes..."
-if [ ! -d "$ZYCAP_ROOT_PATH/rtl/.modes" ]; then
+# if [ ! -d "$ZYCAP_ROOT_PATH/rtl/.modes" ]; then
     echo -e "${WARNING}Not found, generating...${NONE}"
     python $ZYCAP_ROOT_PATH/scripts/python/generate_interface.py > "$ZYCAP_ROOT_PATH/rtl/.logs/python_pr_construct.log"
     check_error "$ZYCAP_ROOT_PATH/rtl/.logs/python_pr_construct.log"
-fi
+# fi
 echo -e "${SUCCESS}Finished \u2713${NONE}"
 
 echo "Synthesising PR Configs & Modes..."

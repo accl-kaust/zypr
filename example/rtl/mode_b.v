@@ -212,10 +212,10 @@
 	begin
 	  if ( S_AXI_ARESETN == 1'b0 )
 	    begin
-	      slv_reg0 <= 0;
-	      slv_reg1 <= 0;
-	      slv_reg2 <= 0;
-	      slv_reg3 <= 0;
+	      slv_reg0 <= 8;
+	      slv_reg1 <= 7;
+	      slv_reg2 <= 6;
+	      slv_reg3 <= 5;
 	    end 
 	  else begin
 	    if (slv_reg_wren)
@@ -410,5 +410,28 @@
         end 
     end     
 	// User logic ends
+
+		reg tieoff = 0;
+
+	xfft_0 demo (
+		.aclk(S_AXI_ACLK),                                                // input wire aclk
+		.s_axis_config_tdata(tieoff),                  // input wire [23 : 0] s_axis_config_tdata
+		.s_axis_config_tvalid(tieoff),                // input wire s_axis_config_tvalid
+		.s_axis_config_tready(tieoff),                // output wire s_axis_config_tready
+		.s_axis_data_tdata(tieoff),                      // input wire [31 : 0] s_axis_data_tdata
+		.s_axis_data_tvalid(tieoff),                    // input wire s_axis_data_tvalid
+		.s_axis_data_tready(tieoff),                    // output wire s_axis_data_tready
+		.s_axis_data_tlast(tieoff),                      // input wire s_axis_data_tlast
+		.m_axis_data_tdata(tieoff),                      // output wire [31 : 0] m_axis_data_tdata
+		.m_axis_data_tvalid(tieoff),                    // output wire m_axis_data_tvalid
+		.m_axis_data_tready(tieoff),                    // input wire m_axis_data_tready
+		.m_axis_data_tlast(tieoff),                      // output wire m_axis_data_tlast
+		.event_frame_started(tieoff),                  // output wire event_frame_started
+		.event_tlast_unexpected(tieoff),            // output wire event_tlast_unexpected
+		.event_tlast_missing(tieoff),                  // output wire event_tlast_missing
+		.event_status_channel_halt(tieoff),      // output wire event_status_channel_halt
+		.event_data_in_channel_halt(tieoff),    // output wire event_data_in_channel_halt
+		.event_data_out_channel_halt(tieoff)  // output wire event_data_out_channel_halt
+	);
 
 	endmodule

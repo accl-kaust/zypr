@@ -90,6 +90,10 @@ log_info "- SOC Type: [$ARCH]"
 
 log_info "- SKIP = ${SKIP}"
 
+# petalinux-config --get-hw-description ${hardware_dir}
+
+# exit 0
+
 # Create PetaLinux project if it does not exists
 if [ -d "${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}" ]; then
   log_success "- PetaLinux project already exists \u2713"
@@ -163,6 +167,22 @@ if ! [ -d "${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/project-spec/meta-user/recipe
   insert_dtsi "\/include\/ \"udmabuf.dtsi\"" "${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/project-spec/meta-user/recipes-bsp/device-tree"
   # cp ${ZYCAP_ROOT_PATH}/linux/udmabuf/Makefile ${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/project-spec/meta-user/recipes-modules/udmabuf/files/Makefile
 fi
+
+############################ AXIDMA Module ############################
+
+# Generate AXIDMA module
+if ! [ -d "${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/project-spec/meta-user/recipes-modules/xilinx-axidma" ]; then
+  log_info "- Generating AXI DMA module..."
+  petalinux-create -t modules -n xilinx-axidma --enable --force
+  cp -r ${ZYCAP_ROOT_PATH}/linux/xilinx-axidma/files ${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/project-spec/meta-user/recipes-modules/xilinx-axidma/files/
+  # cp ${ZYCAP_ROOT_PATH}/linux/xilinx-axidma/dma-proxy.c ${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/project-spec/meta-user/recipes-modules/dmaproxy/files/dmaproxy.c
+  cp ${ZYCAP_ROOT_PATH}/linux/xilinx-axidma/xilinx-axidma.bb ${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/project-spec/meta-user/recipes-modules/xilinx-axidma/xilinx-axidma.bb
+  # insert_dtsi "\/include\/ \"xilinx-axidma.dtsi\"" "${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/project-spec/meta-user/recipes-bsp/device-tree"
+  echo ${ZYCAP_ROOT_PATH}/linux/xilinx-axidma/xilinx-axidma.dtsi >> "${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/project-spec/meta-user/recipes-bsp/device-tree"
+  # cp ${ZYCAP_ROOT_PATH}/linux/udmabuf/Makefile ${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/project-spec/meta-user/recipes-modules/udmabuf/files/Makefile
+fi
+
+exit 0
 
 ############################ ZYCAP Application ############################
 

@@ -20,6 +20,7 @@ use File::Basename;
 my $working_dir = $ARGV[0];
 my $json_data = {}; 
 my $nl;
+my $top_file;
 my $prev_cut = 0;
 my $opt = new Verilog::Getopt;
 $opt->parameter( "+incdir+verilog",
@@ -130,10 +131,10 @@ while (my $pwd = shift @dirs) {
 
                 print "Encoding...\n";
                 my $myHashEncoded = JSON::XS->new->pretty->encode($json_data);
-                my $name_file = substr(basename($path), 0, -2);
+                my $name_file = substr(basename($top_file), 0, -2);
                 my $existingdir = "$pwd/.json";
                 mkdir $existingdir unless -d $existingdir; # Check if dir exists. If not create it.
-                open my $fh, ">", "$existingdir/$name_file.json" or die "Can't open '$existingdir/$name_file.json'\n";
+                open my $fh, ">", "$existingdir/$top_file.json" or die "Can't open '$existingdir/$top_file.json'\n";
                 print $fh $myHashEncoded;
                 close $fh;
 }
@@ -150,6 +151,7 @@ sub walk_modules {
                 $mod_hash{'MODULE'} = $module->name;
                 push(@$array, 'CELL');
                 push(@$array, 'top');
+                $top_file = $module->name;
         }
         else{    
             # if(!defined($prev_mod)){
@@ -276,7 +278,8 @@ sub walk_modules {
             push(@$array, 'CELL');
             push(@$array, $mod->name);
             $prev_cut = $count;
-            print $mod->submodname;
+            print "FILE: ";
+            print $mod->filename();
             print "\n";
             print $mod->pins;
             print "\n";
@@ -290,6 +293,7 @@ sub walk_modules {
     }
     else {
         $mod_hash{'IPCORE'} = $prev_mod->submodname;
+        $mod_hash{'FILE'} = $prev_mod->filename();
         foreach my $pin ($prev_mod->pins_sorted){
             print $pin->name;
             print " : ";

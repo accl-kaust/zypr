@@ -23,15 +23,16 @@ def main():
     else:
         pass
     for mode in config['design']['design_mode']:
-        # print(mode)
+        print(mode)
         if not os.path.exists('.modes/{}'.format(mode)):
             os.makedirs('.modes/{}'.format(mode))
-            # os.makedirs('.modes/{}/.checkpoints'.format(mode))
+        # Currently unused but will be used in future to break out software interfaces    
         f = open('.modes/{}/{}'.format(mode,'interface.v'), "w+")
         f.close()
         for mode_configs in config['design']['design_mode'][mode]['configs']:
             print(mode_configs)
             top_module = config['design']['design_mode'][mode]['configs'][mode_configs]['top_module']
+            print(top_module)
             shutil.copyfile(top_module, '.blackbox/{}'.format(top_module))
             f = open('.blackbox/{}'.format(top_module),"a+")
             for config_variations in config['design']['design_mode'][mode]['configs'][mode_configs]['rtl']:
@@ -43,10 +44,18 @@ def main():
                         os.makedirs('.modes/{}/{}'.format(mode,mode_configs))
                         os.makedirs('.modes/{}/{}/.checkpoints'.format(mode,mode_configs))
                     shutil.copyfile(config_variations,'.modes/{}/{}/{}'.format(mode,mode_configs,config_variations))
+            for config_ip in config['design']['design_mode'][mode]['configs'][mode_configs]['ip']:
+                json_blob = config['design']['design_mode'][mode]['configs'][mode_configs]['ip'][config_ip]
+                if not os.path.exists('.modes/{}/{}/.ip_cores/{}'.format(mode,mode_configs,json_blob['xci'])):
+                    os.makedirs('.modes/{}/{}/.ip_cores/{}'.format(mode,mode_configs,json_blob['xci']))
+                shutil.copyfile('../ip_cores/{}/{}.xci'.format(json_blob['xci'], json_blob['xci']), '.modes/{}/{}/.ip_cores/{}/{}.xci'.format(mode,mode_configs,json_blob['xci'],json_blob['xci']))
+
+                print(config['design']['design_mode'][mode]['configs'][mode_configs]['ip'][config_ip]['xci'])
+
             for config_variations in config['design']['design_mode'][mode]['configs'][mode_configs]['rtl']:
                 # logger.debug("File - {}".format(config_variations))
                 if config_variations != top_module:
-                    os.system('vhier -y .modes/{1}/{2}/. --top-module {0} --module-files .modes/{1}/{2}/*.v --xml -o .modes/{1}/{2}/hier.json'.format(config['design']['design_mode'][mode]["pr_module"],mode,mode_configs))
+                    os.system('vhier -y .modes/{1}/{2}/. --top-module {0} --missing-modules --no-missing --module-files .modes/{1}/{2}/*.v --xml -o .modes/{1}/{2}/hier.json'.format(config['design']['design_mode'][mode]["pr_module"],mode,mode_configs))
                     with open('.modes/{0}/{1}/hier.json'.format(mode,mode_configs),'r+') as f_xml:
                         data = f_xml.read()
                         o = xmltodict.parse(data)
@@ -55,9 +64,10 @@ def main():
                         f_xml.seek(0)
                         json.dump(o,f_xml, ensure_ascii=False, indent=4, sort_keys=True)
                         f_xml.close()
-                    with open('.blackbox/{}'.format(config_variations), "r") as f_rtl:
-                        for line in f_rtl:
-                            f.write(line) 
+                    for filename in os.listdir('.blackbox'):
+                        with open('.blackbox/{}'.format(filename), "r") as f_rtl:
+                            for line in f_rtl:
+                                f.write(line) 
                     f_rtl.close()
             f.close()
 

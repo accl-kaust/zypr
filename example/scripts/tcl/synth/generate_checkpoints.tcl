@@ -2,6 +2,7 @@
 package require json
 # Load config.json
 set ROOT_PATH [lindex $argv 0]
+source "$ROOT_PATH/scripts/tcl/utils/add_ip.tcl"
 # set ROOT_PATH [exec sh -c {cd ../../; pwd}]
 set cfg [read [open "$ROOT_PATH/global_config.json" r]]
 set global_config [json::json2dict $cfg] 
@@ -62,6 +63,8 @@ dict for {mode modes} [dict get $global_config design design_mode] {
         set top_module [dict get [json::json2dict [read [open "$ROOT_PATH/rtl/.json/[lindex [split [string trimright [dict get $top_file vhier module_files file] '.v'] '/'] end].json" r]]] TOP_MODULE]
         puts $top_module
         add_files $rtl_list_clean
+        # new add ip cores
+        generate_ip "$ROOT_PATH/rtl/.modes/$mode/$configuration/.ip_cores"
         synth_design -top $top_module -mode out_of_context -part $fpga_part
         write_checkpoint $ROOT_PATH/rtl/.modes/$mode/$configuration/.checkpoints/pr_module.dcp -force
     }
