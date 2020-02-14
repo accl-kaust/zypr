@@ -1,0 +1,11 @@
+&amba_pl {
+        dma@a0000000 {
+			compatible = "xlnx,axi-dma","xlnx,axi-dma-7.1", "xlnx,axi-dma-1.00.a";
+            dma-channel@a0000000 {
+				xlnx,device-id = <0x0>;
+			};
+			dma-channel@a0000030 {
+				xlnx,device-id = <0x1>;
+			};
+     }; 
+};

@@ -13,3 +13,7 @@ apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config { Clk_master {/zynq_ul
 create_bd_port -dir O -from 7 -to 0 leds
 
 connect_bd_net [get_bd_ports leds] [get_bd_pins partial_led_test_v1_0_0/leds]
+
+connect_bd_intf_net [get_bd_intf_pins axis_dmux_wrapper_0/m01_axis] [get_bd_intf_pins partial_led_test_v1_0_0/s_axis_data]
+
+connect_bd_intf_net [get_bd_intf_pins partial_led_test_v1_0_0/m_axis_data] [get_bd_intf_pins axis_mux_wrapper_0/s01_axis]

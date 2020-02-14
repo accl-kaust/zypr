@@ -37,16 +37,17 @@ set MODE_LIST [list]
 set work_directory "$ROOT_PATH/rtl/"
 dict for {mode modes} [dict get $global_config design design_mode] {
     # puts "Mode: $mode"
+    set pr_module_file [dict get $modes pr_module]
     dict for {configuration configurations} [dict get $global_config design design_mode $mode configs] {
         puts "Mode : $mode"
         puts "Config : $configuration"
-        set top_module_file [dict get $configurations top_module]
-        set top_module_file_trim [string trim $top_module_file ".v"]
-        set top_module_json [read [open "$ROOT_PATH/rtl/.json/$top_module_file_trim.json" r]]
+        set top_module_file [dict get $configurations top_cell]
+        # set top_module_file_trim [string trim $top_module_file ".v"]
+        set top_module_json [read [open "$ROOT_PATH/rtl/.json/$top_module_file.json" r]]
         set top_module_json [json::json2dict $top_module_json] 
         puts "Top Module File : $top_module_file"
         # puts $top_module_json
-        set top_module_name [dict get $top_module_json TOP_MODULE]
+        set top_module_name [dict get $top_module_json CELL top MODULE]
         puts "Top Module : $top_module_name"
         # Generate Static Regions
         set rtl_list [list]
@@ -60,12 +61,12 @@ dict for {mode modes} [dict get $global_config design design_mode] {
         # add_files $rtl_list_clean
         set top_file [json::json2dict [read [open "$ROOT_PATH/rtl/.modes/$mode/$configuration/hier.json" r]]]
         puts [lindex [split [string trimright [dict get $top_file vhier module_files file] '.v'] '/'] end]
-        set top_module [dict get [json::json2dict [read [open "$ROOT_PATH/rtl/.json/[lindex [split [string trimright [dict get $top_file vhier module_files file] '.v'] '/'] end].json" r]]] TOP_MODULE]
-        puts $top_module
+        # set top_module [dict get [json::json2dict [read [open "$ROOT_PATH/rtl/.json/[lindex [split [string trimright [dict get $top_file vhier module_files file] '.v'] '/'] end].json" r]]] TOP_MODULE]
+        # puts $top_module
         add_files $rtl_list_clean
         # new add ip cores
-        generate_ip "$ROOT_PATH/rtl/.modes/$mode/$configuration/.ip_cores"
-        synth_design -top $top_module -mode out_of_context -part $fpga_part
+        generate_ip "$ROOT_PATH/rtl/.modes/$mode/$configuration"
+        synth_design -top $pr_module_file -mode out_of_context -part $fpga_part
         write_checkpoint $ROOT_PATH/rtl/.modes/$mode/$configuration/.checkpoints/pr_module.dcp -force
     }
 }

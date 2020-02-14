@@ -65,10 +65,11 @@ def main():
                         json.dump(o,f_xml, ensure_ascii=False, indent=4, sort_keys=True)
                         f_xml.close()
                     for filename in os.listdir('.blackbox'):
-                        with open('.blackbox/{}'.format(filename), "r") as f_rtl:
-                            for line in f_rtl:
-                                f.write(line) 
-                    f_rtl.close()
+                        if filename != top_module:
+                            with open('.blackbox/{}'.format(filename), "r") as f_rtl:
+                                for line in f_rtl:
+                                    f.write(line) 
+                            f_rtl.close()
             f.close()
 
 if __name__ == '__main__':

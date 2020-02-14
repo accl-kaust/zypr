@@ -4,7 +4,7 @@
       "vivado_path": "/opt/Xilinx/Vivado/2018.3/bin/vivado",
       "vivado_version": "2018.3",
       "vivado_params": "-nojou -nolog",
-      "vivado_proxy": "proxychains4"
+      "vivado_proxy": ""
     },
     "config_petalinux": {
       "petalinux_path": "/home/alex/petalinux"
@@ -37,38 +37,63 @@
     }
   },
   "design": {
-    "design_name": "base_design",
+    "design_name": "base",
     "design_owner": "bucknalla",
     "design_mode": {
       "mode_a": {
         "name": "I2C",
         "pr_module": "partial_led_test_v1_0_S00_AXI",
+        "pr_cell": ["partial_led_test_v1_0_S00_AXI_inst","demo"],
         "configs": {
           "config_a": {
             "rtl": [
-              "top.v",
               "mode_a.v"
             ],
-            "top_module": "top.v"
+            "ip":{
+              "xfft_0":{
+                "vendor":"xilinx.com",
+                "library":"ip",
+                "version":9.1,
+                "name":"xfft",
+                "xci":"xfft_mode_a"
+              }
+            },
+            "top_module": "top.v",
+            "top_cell": "partial_led_test_v1_0"
           },
           "config_b": {
             "rtl": [
-              "top.v",
               "mode_b.v"
             ],
-            "top_module": "top.v"
+            "ip":{
+              "xfft_0":{
+                "vendor":"xilinx.com",
+                "library":"ip",
+                "version":9.1,
+                "name":"xfft",
+                "xci":"xfft_mode_b"
+              }
+            },
+            "top_module": "top.v",
+            "top_cell": "partial_led_test_v1_0"
           }
         },
         "interfaces": {
           "master": {
-            "axis": {
-              "axis_0": {
-                "TDATA": 32
-              }
+            "axi_stream": {
+              "width": 32,
+              "port": ["m0_axis"]
+            },
+            "axi_lite": {
+              "width": 32,
+              "port": []
             }
           },
           "slave": {
-            "axis": {}
+            "axi_stream": {
+              "width": 32,
+              "port": ["m0_axis"]
+            }
           }
         }
       },

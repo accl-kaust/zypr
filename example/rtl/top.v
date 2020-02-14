@@ -41,7 +41,34 @@
 		output wire [C_S00_AXI_DATA_WIDTH-1 : 0] s00_axi_rdata,
 		output wire [1 : 0] s00_axi_rresp,
 		output wire  s00_axi_rvalid,
-		input wire  s00_axi_rready
+		input wire  s00_axi_rready,
+
+		// Ports of AXIS Slave Bus Interface S00_AXIS
+		
+		input wire [23:0] s_axis_config_tdata,          // input wire [23 : 0] s_axis_config_tdata
+		input wire s_axis_config_tvalid,                // input wire s_axis_config_tvalid
+		output wire s_axis_config_tready,                // output wire s_axis_config_tready
+		input wire [C_S00_AXI_DATA_WIDTH-1:0] s_axis_data_tdata,                      // input wire [31 : 0] s_axis_data_tdata
+		input wire s_axis_data_tvalid,                 // input wire s_axis_data_tvalid
+		output wire s_axis_data_tready,                    // output wire s_axis_data_tready
+		input wire s_axis_data_tlast,                      // input wire s_axis_data_tlast
+
+		// Ports of AXIS Master Bus Interface M00_AXIS
+
+		output wire [C_S00_AXI_DATA_WIDTH-1:0] m_axis_data_tdata,                     // output wire [31 : 0] m_axis_data_tdata
+		output wire m_axis_data_tvalid,                    // output wire m_axis_data_tvalid
+		input wire m_axis_data_tready,                    // input wire m_axis_data_tready
+		output wire m_axis_data_tlast,                      // output wire m_axis_data_tlast
+
+		// Ports of FFT Debug
+
+		output wire event_frame_started,                  // output wire event_frame_started
+		output wire event_tlast_unexpected,            // output wire event_tlast_unexpected
+		output wire event_tlast_missing,                  // output wire event_tlast_missing
+		output wire event_status_channel_halt,      // output wire event_status_channel_halt
+		output wire event_data_in_channel_halt,    // output wire event_data_in_channel_halt
+		output wire event_data_out_channel_halt  // output wire event_data_out_channel_halt
+
 	);
 // Instantiation of Axi Bus Interface S00_AXI
 	partial_led_test_v1_0_S00_AXI partial_led_test_v1_0_S00_AXI_inst (
@@ -66,7 +93,27 @@
 		.S_AXI_RDATA(s00_axi_rdata),
 		.S_AXI_RRESP(s00_axi_rresp),
 		.S_AXI_RVALID(s00_axi_rvalid),
-		.S_AXI_RREADY(s00_axi_rready)
+		.S_AXI_RREADY(s00_axi_rready),
+		
+		.s_axis_config_tdata(s_axis_config_tdata),                  // input wire [23 : 0] s_axis_config_tdata
+		.s_axis_config_tvalid(s_axis_config_tvalid),                // input wire s_axis_config_tvalid
+		.s_axis_config_tready(s_axis_config_tready),                // output wire s_axis_config_tready
+		.s_axis_data_tdata(s_axis_data_tdata),                      // input wire [31 : 0] s_axis_data_tdata
+		.s_axis_data_tvalid(s_axis_data_tvalid),                    // input wire s_axis_data_tvalid
+		.s_axis_data_tready(s_axis_data_tready),                    // output wire s_axis_data_tready
+		.s_axis_data_tlast(s_axis_data_tlast),                      // input wire s_axis_data_tlast
+
+		.m_axis_data_tdata(m_axis_data_tdata),                      // output wire [31 : 0] m_axis_data_tdata
+		.m_axis_data_tvalid(m_axis_data_tvalid),                    // output wire m_axis_data_tvalid
+		.m_axis_data_tready(m_axis_data_tready),                    // input wire m_axis_data_tready
+		.m_axis_data_tlast(m_axis_data_tlast),                      // output wire m_axis_data_tlast
+
+		.event_frame_started(event_frame_started),                  // output wire event_frame_started
+		.event_tlast_unexpected(event_tlast_unexpected),            // output wire event_tlast_unexpected
+		.event_tlast_missing(event_tlast_missing),                  // output wire event_tlast_missing
+		.event_status_channel_halt(event_status_channel_halt),      // output wire event_status_channel_halt
+		.event_data_in_channel_halt(event_data_in_channel_halt),    // output wire event_data_in_channel_halt
+		.event_data_out_channel_halt(event_data_out_channel_halt)  // output wire event_data_out_channel_halt
 	);
 
 	// Add user logic here

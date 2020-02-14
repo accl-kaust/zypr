@@ -5,4 +5,9 @@
 		minor-number = <0>;
 		size = <0x00100000>;
 	};
+	
+	chosen {
+            bootargs = "earlycon console=ttyPS0,115200 clk_ignore_unused root=/dev/mmcblk0p2 rw rootwait uio_pdrv_genirq.of_id=generic-uio";
+    };
+
 };

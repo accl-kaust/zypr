@@ -78,7 +78,34 @@
 		output wire  S_AXI_RVALID,
 		// Read ready. This signal indicates that the master can
     		// accept the read data and response information.
-		input wire  S_AXI_RREADY
+		input wire  S_AXI_RREADY,
+
+		//FFT
+
+		input wire [23:0] s_axis_config_tdata,          // input wire [23 : 0] s_axis_config_tdata
+		input wire s_axis_config_tvalid,                // input wire s_axis_config_tvalid
+		output wire s_axis_config_tready,                // output wire s_axis_config_tready
+		input wire [C_S_AXI_DATA_WIDTH-1:0] s_axis_data_tdata,                      // input wire [31 : 0] s_axis_data_tdata
+		input wire s_axis_data_tvalid,                 // input wire s_axis_data_tvalid
+		output wire s_axis_data_tready,                    // output wire s_axis_data_tready
+		input wire s_axis_data_tlast,                      // input wire s_axis_data_tlast
+
+		// Ports of AXIS Master Bus Interface M00_AXIS
+
+		output wire [C_S_AXI_DATA_WIDTH-1:0] m_axis_data_tdata,                     // output wire [31 : 0] m_axis_data_tdata
+		output wire m_axis_data_tvalid,                    // output wire m_axis_data_tvalid
+		input wire m_axis_data_tready,                    // input wire m_axis_data_tready
+		output wire m_axis_data_tlast,                      // output wire m_axis_data_tlast
+
+		// Ports of FFT Debug
+
+		output wire event_frame_started,                  // output wire event_frame_started
+		output wire event_tlast_unexpected,            // output wire event_tlast_unexpected
+		output wire event_tlast_missing,                  // output wire event_tlast_missing
+		output wire event_status_channel_halt,      // output wire event_status_channel_halt
+		output wire event_data_in_channel_halt,    // output wire event_data_in_channel_halt
+		output wire event_data_out_channel_halt  // output wire event_data_out_channel_halt
+
 	);
 
 	// AXI4LITE signals
@@ -411,27 +438,43 @@
     end     
 	// User logic ends
 
-		reg tieoff = 0;
+		// reg [23:0] s_axis_config_tdata = 0;                  // input wire [23 : 0] s_axis_config_tdata
+		// reg s_axis_config_tvalid = 0;                // input wire s_axis_config_tvalid
+		// wire s_axis_config_tready;                // output wire s_axis_config_tready
+		// reg [31:0] s_axis_data_tdata = 0;                      // input wire [31 : 0] s_axis_data_tdata
+		// reg s_axis_data_tvalid = 0;                 // input wire s_axis_data_tvalid
+		// wire s_axis_data_tready;                    // output wire s_axis_data_tready
+		// reg s_axis_data_tlast = 0;                      // input wire s_axis_data_tlast
+		// wire [31:0] m_axis_data_tdata;                     // output wire [31 : 0] m_axis_data_tdata
+		// wire m_axis_data_tvalid;                    // output wire m_axis_data_tvalid
+		// reg m_axis_data_tready = 0;                    // input wire m_axis_data_tready
+		// wire m_axis_data_tlast;                      // output wire m_axis_data_tlast
+		// wire event_frame_started;                  // output wire event_frame_started
+		// wire event_tlast_unexpected;            // output wire event_tlast_unexpected
+		// wire event_tlast_missing;                  // output wire event_tlast_missing
+		// wire event_status_channel_halt;      // output wire event_status_channel_halt
+		// wire event_data_in_channel_halt;    // output wire event_data_in_channel_halt
+		// wire event_data_out_channel_halt;  // output wire event_data_out_channel_halt
 
-	xfft_0 demo (
+	xfft_mode_a demo (
 		.aclk(S_AXI_ACLK),                                                // input wire aclk
-		.s_axis_config_tdata(tieoff),                  // input wire [23 : 0] s_axis_config_tdata
-		.s_axis_config_tvalid(tieoff),                // input wire s_axis_config_tvalid
-		.s_axis_config_tready(tieoff),                // output wire s_axis_config_tready
-		.s_axis_data_tdata(tieoff),                      // input wire [31 : 0] s_axis_data_tdata
-		.s_axis_data_tvalid(tieoff),                    // input wire s_axis_data_tvalid
-		.s_axis_data_tready(tieoff),                    // output wire s_axis_data_tready
-		.s_axis_data_tlast(tieoff),                      // input wire s_axis_data_tlast
-		.m_axis_data_tdata(tieoff),                      // output wire [31 : 0] m_axis_data_tdata
-		.m_axis_data_tvalid(tieoff),                    // output wire m_axis_data_tvalid
-		.m_axis_data_tready(tieoff),                    // input wire m_axis_data_tready
-		.m_axis_data_tlast(tieoff),                      // output wire m_axis_data_tlast
-		.event_frame_started(tieoff),                  // output wire event_frame_started
-		.event_tlast_unexpected(tieoff),            // output wire event_tlast_unexpected
-		.event_tlast_missing(tieoff),                  // output wire event_tlast_missing
-		.event_status_channel_halt(tieoff),      // output wire event_status_channel_halt
-		.event_data_in_channel_halt(tieoff),    // output wire event_data_in_channel_halt
-		.event_data_out_channel_halt(tieoff)  // output wire event_data_out_channel_halt
+		.s_axis_config_tdata(s_axis_config_tdata),                  // input wire [23 : 0] s_axis_config_tdata
+		.s_axis_config_tvalid(s_axis_config_tvalid),                // input wire s_axis_config_tvalid
+		.s_axis_config_tready(s_axis_config_tready),                // output wire s_axis_config_tready
+		.s_axis_data_tdata(s_axis_data_tdata),                      // input wire [31 : 0] s_axis_data_tdata
+		.s_axis_data_tvalid(s_axis_data_tvalid),                    // input wire s_axis_data_tvalid
+		.s_axis_data_tready(s_axis_data_tready),                    // output wire s_axis_data_tready
+		.s_axis_data_tlast(s_axis_data_tlast),                      // input wire s_axis_data_tlast
+		.m_axis_data_tdata(m_axis_data_tdata),                      // output wire [31 : 0] m_axis_data_tdata
+		.m_axis_data_tvalid(m_axis_data_tvalid),                    // output wire m_axis_data_tvalid
+		.m_axis_data_tready(m_axis_data_tready),                    // input wire m_axis_data_tready
+		.m_axis_data_tlast(m_axis_data_tlast),                      // output wire m_axis_data_tlast
+		.event_frame_started(event_frame_started),                  // output wire event_frame_started
+		.event_tlast_unexpected(event_tlast_unexpected),            // output wire event_tlast_unexpected
+		.event_tlast_missing(event_tlast_missing),                  // output wire event_tlast_missing
+		.event_status_channel_halt(event_status_channel_halt),      // output wire event_status_channel_halt
+		.event_data_in_channel_halt(event_data_in_channel_halt),    // output wire event_data_in_channel_halt
+		.event_data_out_channel_halt(event_data_out_channel_halt)  // output wire event_data_out_channel_halt
 	);
 
 	endmodule

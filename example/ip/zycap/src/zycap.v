@@ -199,11 +199,11 @@ module zycap
         .S_AXIS_TVALID(M_AXIS_MM2S_TVALID));
 
 ila_0 ila_zycap (
-	.clk(clk), // input wire clk
+	.clk(s_axi_lite_aclk_1), // input wire clk
 	.probe0(M_AXIS_MM2S_TREADY), // input wire [0:0] probe0  
-	.probe1( M_AXIS_MM2S_TDATA), // input wire [31:0]  probe1 
-	.probe3( M_AXIS_MM2S_TVALID), // input wire [0:0]  probe3 
-	.probe4( M_AXIS_MM2S_TLAST) // input wire [0:0]  probe4 
+	.probe1(M_AXIS_MM2S_TDATA), // input wire [31:0]  probe1 
+	.probe3(M_AXIS_MM2S_TVALID), // input wire [0:0]  probe3 
+	.probe4(M_AXIS_MM2S_TLAST) // input wire [0:0]  probe4 
 );
 // mux for local buffered bit
 endmodule
