@@ -23,6 +23,7 @@ set axi_stream_ports 2
 
 exec python ${ROOT_PATH}/scripts/tcl/boards/generic/scripts/axis_demux_wrap.py -w ${axi_stream_width} -o ${ROOT_PATH}/scripts/tcl/boards/generic/axis_dmux_wrapper.v -n axis_dmux_wrapper -p ${axi_stream_ports}
 exec python ${ROOT_PATH}/scripts/tcl/boards/generic/scripts/axis_mux_wrap.py -w ${axi_stream_width} -o ${ROOT_PATH}/scripts/tcl/boards/generic/axis_mux_wrapper.v -n axis_mux_wrapper -p ${axi_stream_ports}
+exec python ${ROOT_PATH}/scripts/tcl/boards/generic/scripts/gpio_split.py -o ${ROOT_PATH}/scripts/tcl/boards/generic/gpio_split.v -n gpio_split -p ${axi_stream_ports}
 
 import_files -files ${ROOT_PATH}/scripts/tcl/boards/generic/
 update_compile_order -fileset sources_1
@@ -31,6 +32,7 @@ create_bd_cell -type module -reference axis_dmux_wrapper axis_dmux_wrapper_0
 create_bd_cell -type module -reference axis_mux_wrapper axis_mux_wrapper_0
 
 # Connect AXIS interfaces
+# Add loop for IP AXIS Cores
 # DMA -> MUX
 connect_bd_intf_net [get_bd_intf_pins axis_mux_wrapper_0/m_axis] [get_bd_intf_pins axi_dma_0/S_AXIS_S2MM]
 # DEMUX -> DMA
@@ -70,19 +72,29 @@ connect_bd_net [get_bd_pins xlconcat_0/dout] [get_bd_pins zynq_ultra_ps_e_0/pl_p
 
 create_bd_cell -type ip -vlnv xilinx.com:ip:axi_gpio:2.0 axi_gpio_0
 set_property -dict [list CONFIG.C_GPIO_WIDTH {3} CONFIG.C_ALL_OUTPUTS {1}] [get_bd_cells axi_gpio_0]
+set_property CONFIG.C_GPIO_WIDTH [expr $axi_stream_ports*3] [get_bd_cells axi_gpio_0]
+
 apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config { Clk_master {/zynq_ultra_ps_e_0/pl_clk0 (100 MHz)} Clk_slave {Auto} Clk_xbar {/zynq_ultra_ps_e_0/pl_clk0 (100 MHz)} Master {/zynq_ultra_ps_e_0/M_AXI_HPM0_FPD} Slave {/axi_gpio_0/S_AXI} intc_ip {/ps8_0_axi_periph} master_apm {0}}  [get_bd_intf_pins axi_gpio_0/S_AXI]
 
-connect_bd_net [get_bd_pins axi_gpio_0/gpio_io_o] [get_bd_pins axis_dmux_wrapper_0/select]
-connect_bd_net [get_bd_pins axis_mux_wrapper_0/select] [get_bd_pins axi_gpio_0/gpio_io_o]
+# connect_bd_net [get_bd_pins axi_gpio_0/gpio_io_o] [get_bd_pins axis_dmux_wrapper_0/sel]
+# connect_bd_net [get_bd_pins axis_mux_wrapper_0/sel] [get_bd_pins axi_gpio_0/gpio_io_o]
 
 # Add split module
 
 create_bd_cell -type module -reference split split_0
 
-# TODO: Add a loop to this to cycle through all AXIS IP
 connect_bd_net [get_bd_pins axi_gpio_0/gpio_io_o] [get_bd_pins split_0/gpio]
-connect_bd_net [get_bd_pins split_0/enable] [get_bd_pins axis_dmux_wrapper_0/enable]
-connect_bd_net [get_bd_pins axis_mux_wrapper_0/enable] [get_bd_pins split_0/enable]
-connect_bd_net [get_bd_pins split_0/select] [get_bd_pins axis_mux_wrapper_0/select]
-connect_bd_net [get_bd_pins axis_dmux_wrapper_0/select] [get_bd_pins split_0/select]
-connect_bd_net [get_bd_pins split_0/drop] [get_bd_pins axis_dmux_wrapper_0/drop]
+
+for { set a 0 }  { $a < [expr ${axi_stream_ports} - 1] } {incr a} {
+    # set num [format %02d $a]
+    # set s "s"
+    # set s_prefix $s$num
+    # set m "m"
+    # set m_prefix $m$num
+
+    connect_bd_net [get_bd_pins split_0/enable] [get_bd_pins axis_dmux_wrapper_${a}/enable]
+    connect_bd_net [get_bd_pins axis_mux_wrapper_${a}/enable] [get_bd_pins split_0/enable]
+    connect_bd_net [get_bd_pins split_0/sel] [get_bd_pins axis_mux_wrapper_${a}/sel]
+    connect_bd_net [get_bd_pins axis_dmux_wrapper_${a}/sel] [get_bd_pins split_0/sel]
+    connect_bd_net [get_bd_pins split_0/drop] [get_bd_pins axis_dmux_wrapper_${a}/drop]
+}

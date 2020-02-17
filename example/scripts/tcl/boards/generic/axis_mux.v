@@ -84,12 +84,12 @@ module axis_mux #
      * Control
      */
     input  wire                          enable,
-    input  wire [$clog2(S_COUNT)-1:0]    select
+    input  wire [$clog2(S_COUNT)-1:0]    sel
 );
 
 parameter CL_S_COUNT = $clog2(S_COUNT);
 
-reg [CL_S_COUNT-1:0] select_reg = 2'd0, select_next;
+reg [CL_S_COUNT-1:0] sel_reg = 2'd0, sel_next;
 reg frame_reg = 1'b0, frame_next;
 
 reg [S_COUNT-1:0] s_axis_tready_reg = 0, s_axis_tready_next;
@@ -108,17 +108,17 @@ wire                  m_axis_tready_int_early;
 assign s_axis_tready = s_axis_tready_reg;
 
 // mux for incoming packet
-wire [DATA_WIDTH-1:0] current_s_tdata  = s_axis_tdata[select_reg*DATA_WIDTH +: DATA_WIDTH];
-wire [KEEP_WIDTH-1:0] current_s_tkeep  = s_axis_tkeep[select_reg*KEEP_WIDTH +: KEEP_WIDTH];
-wire                  current_s_tvalid = s_axis_tvalid[select_reg];
-wire                  current_s_tready = s_axis_tready[select_reg];
-wire                  current_s_tlast  = s_axis_tlast[select_reg];
-wire [ID_WIDTH-1:0]   current_s_tid    = s_axis_tid[select_reg*ID_WIDTH +: ID_WIDTH];
-wire [DEST_WIDTH-1:0] current_s_tdest  = s_axis_tdest[select_reg*DEST_WIDTH +: DEST_WIDTH];
-wire [USER_WIDTH-1:0] current_s_tuser  = s_axis_tuser[select_reg*USER_WIDTH +: USER_WIDTH];
+wire [DATA_WIDTH-1:0] current_s_tdata  = s_axis_tdata[sel_reg*DATA_WIDTH +: DATA_WIDTH];
+wire [KEEP_WIDTH-1:0] current_s_tkeep  = s_axis_tkeep[sel_reg*KEEP_WIDTH +: KEEP_WIDTH];
+wire                  current_s_tvalid = s_axis_tvalid[sel_reg];
+wire                  current_s_tready = s_axis_tready[sel_reg];
+wire                  current_s_tlast  = s_axis_tlast[sel_reg];
+wire [ID_WIDTH-1:0]   current_s_tid    = s_axis_tid[sel_reg*ID_WIDTH +: ID_WIDTH];
+wire [DEST_WIDTH-1:0] current_s_tdest  = s_axis_tdest[sel_reg*DEST_WIDTH +: DEST_WIDTH];
+wire [USER_WIDTH-1:0] current_s_tuser  = s_axis_tuser[sel_reg*USER_WIDTH +: USER_WIDTH];
 
 always @* begin
-    select_next = select_reg;
+    sel_next = sel_reg;
     frame_next = frame_reg;
 
     s_axis_tready_next = 0;
@@ -130,16 +130,16 @@ always @* begin
         end
     end
 
-    if (!frame_reg && enable && (s_axis_tvalid & (1 << select))) begin
-        // start of frame, grab select value
+    if (!frame_reg && enable && (s_axis_tvalid & (1 << sel))) begin
+        // start of frame, grab sel value
         frame_next = 1'b1;
-        select_next = select;
+        sel_next = sel;
     end
 
-    // generate ready signal on selected port
-    s_axis_tready_next = (m_axis_tready_int_early && frame_next) << select_next;
+    // generate ready signal on seled port
+    s_axis_tready_next = (m_axis_tready_int_early && frame_next) << sel_next;
 
-    // pass through selected packet data
+    // pass through seled packet data
     m_axis_tdata_int  = current_s_tdata;
     m_axis_tkeep_int  = current_s_tkeep;
     m_axis_tvalid_int = current_s_tvalid && current_s_tready && frame_reg;
@@ -151,11 +151,11 @@ end
 
 always @(posedge clk) begin
     if (rst) begin
-        select_reg <= 0;
+        sel_reg <= 0;
         frame_reg <= 1'b0;
         s_axis_tready_reg <= 0;
     end else begin
-        select_reg <= select_next;
+        sel_reg <= sel_next;
         frame_reg <= frame_next;
         s_axis_tready_reg <= s_axis_tready_next;
     end

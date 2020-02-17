@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Generates an AXI Stream mux wrapper with the specified number of ports
+Generates a GPIO MUX for toggling AXIS MUX/DEMUX
 """
 
 from __future__ import print_function
@@ -14,7 +14,6 @@ def main():
     parser.add_argument('-p', '--ports',  type=int, default=4, help="number of ports")
     parser.add_argument('-n', '--name',   type=str, help="module name")
     parser.add_argument('-o', '--output', type=str, help="output file name")
-    parser.add_argument('-w', '--width', type=str, help="data width")
 
     args = parser.parse_args()
 
@@ -24,11 +23,11 @@ def main():
         print(ex)
         exit(1)
 
-def generate(ports=4, name=None, output=None, width=8):
+def generate(ports=4, name=None, output=None):
     n = ports
 
     if name is None:
-        name = "axis_mux_wrap_{0}".format(n)
+        name = "gpio_split_{0}".format(n)
 
     if output is None:
         output = name + ".v"
@@ -37,13 +36,13 @@ def generate(ports=4, name=None, output=None, width=8):
 
     output_file = open(output, 'w')
 
-    print("Generating {0} port AXI stream mux wrapper {1} with DATA_WIDTH {2}...".format(n, name, width))
+    print("Generating {0} port GPIO Split {1}...".format(n, name))
 
     cn = int(math.ceil(math.log(n, 2)))
 
     t = Template(u"""/*
 
-Copyright (c) 2018 Alex Forencich
+Copyright (c) 2020 Alex Bucknall
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -70,102 +69,20 @@ THE SOFTWARE.
 `timescale 1ns / 1ps
 
 /*
- * AXI4-Stream {{n}} port mux (wrapper)
+ * GPIO {{n}} mux (wrapper)
  */
-module {{name}} #
-(
-    // Width of AXI stream interfaces in bits
-    parameter DATA_WIDTH = {{width}},
-    // Propagate tkeep signal
-    parameter KEEP_ENABLE = (DATA_WIDTH>8),
-    // tkeep signal width (words per cycle)
-    parameter KEEP_WIDTH = (DATA_WIDTH/8),
-    // Propagate tid signal
-    parameter ID_ENABLE = 0,
-    // tid signal width
-    parameter ID_WIDTH = 8,
-    // Propagate tdest signal
-    parameter DEST_ENABLE = 0,
-    // tdest signal width
-    parameter DEST_WIDTH = 8,
-    // Propagate tuser signal
-    parameter USER_ENABLE = 1,
-    // tuser signal width
-    parameter USER_WIDTH = 1
-)
-(
-    input  wire                  clk,
-    input  wire                  rst,
 
-    /*
-     * AXI Stream inputs
-     */
-{%- for p in range(n) %}
-    input  wire [DATA_WIDTH-1:0] s{{'%02d'%p}}_axis_tdata,
-    input  wire [KEEP_WIDTH-1:0] s{{'%02d'%p}}_axis_tkeep,
-    input  wire                  s{{'%02d'%p}}_axis_tvalid,
-    output wire                  s{{'%02d'%p}}_axis_tready,
-    input  wire                  s{{'%02d'%p}}_axis_tlast,
-    input  wire [ID_WIDTH-1:0]   s{{'%02d'%p}}_axis_tid,
-    input  wire [DEST_WIDTH-1:0] s{{'%02d'%p}}_axis_tdest,
-    input  wire [USER_WIDTH-1:0] s{{'%02d'%p}}_axis_tuser,
-{% endfor %}
-    /*
-     * AXI Stream output
-     */
-    output wire [DATA_WIDTH-1:0] m_axis_tdata,
-    output wire [KEEP_WIDTH-1:0] m_axis_tkeep,
-    output wire                  m_axis_tvalid,
-    input  wire                  m_axis_tready,
-    output wire                  m_axis_tlast,
-    output wire [ID_WIDTH-1:0]   m_axis_tid,
-    output wire [DEST_WIDTH-1:0] m_axis_tdest,
-    output wire [USER_WIDTH-1:0] m_axis_tuser,
+module split(
 
-    /*
-     * Control
-     */
-    input  wire                  enable,
-    input  wire [{{cn-1}}:0]            select
-);
-
-axis_mux #(
-    .S_COUNT({{n}}),
-    .DATA_WIDTH(DATA_WIDTH),
-    .KEEP_ENABLE(KEEP_ENABLE),
-    .KEEP_WIDTH(KEEP_WIDTH),
-    .ID_ENABLE(ID_ENABLE),
-    .ID_WIDTH(ID_WIDTH),
-    .DEST_ENABLE(DEST_ENABLE),
-    .DEST_WIDTH(DEST_WIDTH),
-    .USER_ENABLE(USER_ENABLE),
-    .USER_WIDTH(USER_WIDTH)
-)
-axis_mux_inst (
-    .clk(clk),
-    .rst(rst),
-    // AXI inputs
-    .s_axis_tdata({ {% for p in range(n-1,-1,-1) %}s{{'%02d'%p}}_axis_tdata{% if not loop.last %}, {% endif %}{% endfor %} }),
-    .s_axis_tkeep({ {% for p in range(n-1,-1,-1) %}s{{'%02d'%p}}_axis_tkeep{% if not loop.last %}, {% endif %}{% endfor %} }),
-    .s_axis_tvalid({ {% for p in range(n-1,-1,-1) %}s{{'%02d'%p}}_axis_tvalid{% if not loop.last %}, {% endif %}{% endfor %} }),
-    .s_axis_tready({ {% for p in range(n-1,-1,-1) %}s{{'%02d'%p}}_axis_tready{% if not loop.last %}, {% endif %}{% endfor %} }),
-    .s_axis_tlast({ {% for p in range(n-1,-1,-1) %}s{{'%02d'%p}}_axis_tlast{% if not loop.last %}, {% endif %}{% endfor %} }),
-    .s_axis_tid({ {% for p in range(n-1,-1,-1) %}s{{'%02d'%p}}_axis_tid{% if not loop.last %}, {% endif %}{% endfor %} }),
-    .s_axis_tdest({ {% for p in range(n-1,-1,-1) %}s{{'%02d'%p}}_axis_tdest{% if not loop.last %}, {% endif %}{% endfor %} }),
-    .s_axis_tuser({ {% for p in range(n-1,-1,-1) %}s{{'%02d'%p}}_axis_tuser{% if not loop.last %}, {% endif %}{% endfor %} }),
-    // AXI output
-    .m_axis_tdata(m_axis_tdata),
-    .m_axis_tkeep(m_axis_tkeep),
-    .m_axis_tvalid(m_axis_tvalid),
-    .m_axis_tready(m_axis_tready),
-    .m_axis_tlast(m_axis_tlast),
-    .m_axis_tid(m_axis_tid),
-    .m_axis_tdest(m_axis_tdest),
-    .m_axis_tuser(m_axis_tuser),
-    // Control
-    .enable(enable),
-    .select(select)
-);
+    output enable,
+    output drop,
+    output [{{n-2}}:0] sel,
+    input [{{n}}:0] gpio
+    );
+    
+    assign enable = gpio[0];
+    assign drop = gpio[1];
+    assign sel [{{n-2}}:0] = gpio[{{n}}:2];
 
 endmodule
 
@@ -174,8 +91,7 @@ endmodule
     output_file.write(t.render(
         n=n,
         cn=cn,
-        name=name,
-        width=width
+        name=name
     ))
 
     print("Done")

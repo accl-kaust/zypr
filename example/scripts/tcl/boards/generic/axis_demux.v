@@ -85,12 +85,12 @@ module axis_demux #
      */
     input  wire                          enable,
     input  wire                          drop,
-    input  wire [$clog2(M_COUNT)-1:0]    select
+    input  wire [$clog2(M_COUNT)-1:0]    sel
 );
 
 parameter CL_M_COUNT = $clog2(M_COUNT);
 
-reg [CL_M_COUNT-1:0] select_reg = {CL_M_COUNT{1'b0}}, select_ctl, select_next;
+reg [CL_M_COUNT-1:0] sel_reg = {CL_M_COUNT{1'b0}}, sel_ctl, sel_next;
 reg drop_reg = 1'b0, drop_ctl, drop_next;
 reg frame_reg = 1'b0, frame_ctl, frame_next;
 
@@ -110,8 +110,8 @@ wire                  m_axis_tready_int_early;
 assign s_axis_tready = s_axis_tready_reg && enable;
 
 always @* begin
-    select_next = select_reg;
-    select_ctl = select_reg;
+    sel_next = sel_reg;
+    sel_ctl = sel_reg;
     drop_next = drop_reg;
     drop_ctl = drop_reg;
     frame_next = frame_reg;
@@ -128,12 +128,12 @@ always @* begin
     end
 
     if (!frame_reg && s_axis_tvalid && s_axis_tready) begin
-        // start of frame, grab select value
-        select_ctl = select;
+        // start of frame, grab sel value
+        sel_ctl = sel;
         drop_ctl = drop;
         frame_ctl = 1'b1;
         if (!(s_axis_tready && s_axis_tvalid && s_axis_tlast)) begin
-            select_next = select_ctl;
+            sel_next = sel_ctl;
             drop_next = drop_ctl;
             frame_next = 1'b1;
         end
@@ -143,7 +143,7 @@ always @* begin
 
     m_axis_tdata_int  = s_axis_tdata;
     m_axis_tkeep_int  = s_axis_tkeep;
-    m_axis_tvalid_int = (s_axis_tvalid && s_axis_tready && !drop_ctl) << select_ctl;
+    m_axis_tvalid_int = (s_axis_tvalid && s_axis_tready && !drop_ctl) << sel_ctl;
     m_axis_tlast_int  = s_axis_tlast;
     m_axis_tid_int    = s_axis_tid;
     m_axis_tdest_int  = s_axis_tdest;
@@ -152,12 +152,12 @@ end
 
 always @(posedge clk) begin
     if (rst) begin
-        select_reg <= 2'd0;
+        sel_reg <= 2'd0;
         drop_reg <= 1'b0;
         frame_reg <= 1'b0;
         s_axis_tready_reg <= 1'b0;
     end else begin
-        select_reg <= select_next;
+        sel_reg <= sel_next;
         drop_reg <= drop_next;
         frame_reg <= frame_next;
         s_axis_tready_reg <= s_axis_tready_next;
