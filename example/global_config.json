@@ -41,11 +41,12 @@
     "design_owner": "bucknalla",
     "design_mode": {
       "mode_a": {
-        "name": "I2C",
+        "name": "Demo PR Project 0",
         "pr_module": "partial_led_test_v1_0_S00_AXI",
         "pr_cell": ["partial_led_test_v1_0_S00_AXI_inst","demo"],
         "configs": {
           "config_a": {
+            "desc":"FFT Implementation using Xilinx FFT IP Core",
             "rtl": [
               "mode_a.v"
             ],
@@ -62,16 +63,34 @@
             "top_cell": "partial_led_test_v1_0"
           },
           "config_b": {
+            "desc":"Pure Verilog AES Implementation using AXI",
             "rtl": [
               "mode_b.v"
             ],
             "ip":{
-              "xfft_0":{
+              "xfft_1":{
                 "vendor":"xilinx.com",
                 "library":"ip",
                 "version":9.1,
                 "name":"xfft",
                 "xci":"xfft_mode_b"
+              }
+            },
+            "top_module": "top.v",
+            "top_cell": "partial_led_test_v1_0"
+          },
+          "config_c": { 
+            "desc":"HLS FIR Filter using AXIS",
+            "rtl": [
+              "mode_c.v"
+            ],
+            "ip":{
+              "xfft_2":{
+                "vendor":"xilinx.com",
+                "library":"ip",
+                "version":9.1,
+                "name":"xfft",
+                "xci":"xfft_mode_c"
               }
             },
             "top_module": "top.v",
@@ -98,12 +117,12 @@
         }
       },
       "mode_b": {
-        "name": "SPI",
+        "name": "Demo PR Project 1",
         "configs": {},
         "interfaces": {}
       },
       "mode_c": {
-        "name": "UART",
+        "name": "Demo PR Project 2",
         "configs": {},
         "interfaces": {}
       }
