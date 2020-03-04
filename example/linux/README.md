@@ -53,3 +53,6 @@ devmem 0xA0001000
 # Check reg for mode_a-config_b @ 0xA0001000
 devmem 0xA0001000
 ```
+
+
+Add Dynamic DTC overlays with https://github.com/ikwzm/dtbocfg

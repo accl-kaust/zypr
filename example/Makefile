@@ -17,7 +17,7 @@ SUCCESS := \033[0;32m
 NONE := \033[0m
 
 clean:
-	rm -rf rtl/.* rtl/*.log rtl/*.jou
+	rm -rf rtl/.* base hd_visual
 
 python:
 ifeq (${PYV_MAJOR}, 3)
