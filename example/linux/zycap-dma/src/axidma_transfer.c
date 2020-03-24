@@ -1,29 +1,33 @@
-/**
- * @file axidma_transfer.c
- * @date Sunday, November 29, 2015 at 12:23:43 PM EST
- * @author Brandon Perez (bmperez)
- * @author Jared Choi (jaewonch)
- *
- * This program performs a simple AXI DMA transfer. It takes the input file,
- * loads it into memory, and then sends it out over the PL fabric. It then
- * receives the data back, and places it into the given output file.
- *
- * By default it uses the lowest numbered channels for the transmit and receive,
- * unless overriden by the user. The amount of data transfered is automatically
- * determined from the file size. Unless specified, the output file size is
- * made to be 2 times the input size (to account for creating more data).
- *
- * This program also handles any additional channels that the pipeline
- * on the PL fabric might depend on. It starts up DMA transfers for these
- * pipeline stages, and discards their results.
- *
- * @bug No known bugs.
- **/
+///**
+// * @file axidma_transfer.c
+// * @date Sunday, November 29, 2015 at 12:23:43 PM EST
+// * @author Brandon Perez (bmperez)
+// * @author Jared Choi (jaewonch)
+// *
+// * This program performs a simple AXI DMA transfer. It takes the input file,
+// * loads it into memory, and then sends it out over the PL fabric. It then
+// * receives the data back, and places it into the given output file.
+// *
+// * By default it uses the lowest numbered channels for the transmit and receive,
+// * unless overriden by the user. The amount of data transfered is automatically
+// * determined from the file size. Unless specified, the output file size is
+// * made to be 2 times the input size (to account for creating more data).
+// *
+// * This program also handles any additional channels that the pipeline
+// * on the PL fabric might depend on. It starts up DMA transfers for these
+// * pipeline stages, and discards their results.
+// *
+// * @bug No known bugs.
+// **/
 
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
 #include <assert.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <termios.h>
+#include <sys/mman.h>
 
 #include <fcntl.h>              // Flags for open()
 #include <sys/stat.h>           // Open() system call
@@ -38,6 +42,7 @@
 #include "util.h"               // Miscellaneous utilities
 #include "conversion.h"         // Convert bytes to MiBs
 #include "libaxidma.h"          // Interface ot the AXI DMA library
+#include "fpga.h"
 
 /*----------------------------------------------------------------------------
  * Internal Definitions
@@ -54,6 +59,62 @@ struct dma_transfer {
     int output_size;        // The amount of data to receive
     void *output_buf;       // The buffer to hold the output
 };
+
+struct udmabuf {
+    char           name[128];
+    int            file;
+    unsigned char* buf;
+    unsigned int   buf_size;
+    unsigned long  phys_addr;
+    unsigned long  debug_vma;
+    unsigned long  sync_mode;
+    int            cache_on;
+};
+
+/*----------------------------------------------------------------------------
+ * udambuf Line Interface
+ *----------------------------------------------------------------------------*/
+
+int udmabuf_open(struct udmabuf* udmabuf, const char* name, int cache_on)
+{
+    char           file_name[1024];
+    int            fd;
+    unsigned char  attr[1024];
+
+    strcpy(udmabuf->name, name);
+    udmabuf->file = -1;
+    udmabuf->cache_on = cache_on;
+
+    sprintf(file_name, "/sys/class/udmabuf/%s/phys_addr", name);
+    if ((fd  = open(file_name, O_RDONLY)) == -1) {
+        printf("Can not open %s\n", file_name);
+        return (-1);
+    }
+    read(fd, (void*)attr, 1024);
+    sscanf(attr, "%lx", &udmabuf->phys_addr);
+    close(fd);
+
+    sprintf(file_name, "/sys/class/udmabuf/%s/size", name);
+    if ((fd  = open(file_name, O_RDONLY)) == -1) {
+        printf("Can not open %s\n", file_name);
+        return (-1);
+    }
+    read(fd, (void*)attr, 1024);
+    sscanf(attr, "%d", &udmabuf->buf_size);
+    close(fd);
+
+    sprintf(file_name, "/dev/%s", name);
+    if ((udmabuf->file = open(file_name, O_RDWR | ((cache_on == 0)? O_SYNC : 0))) == -1) {
+        printf("Can not open %s\n", file_name);
+        return (-1);
+    }
+
+    udmabuf->buf = mmap(NULL, udmabuf->buf_size, PROT_READ|PROT_WRITE, MAP_SHARED, udmabuf->file, 0);
+    udmabuf->debug_vma = 0;
+    udmabuf->sync_mode = 1;
+
+    return 0;
+}
 
 /*----------------------------------------------------------------------------
  * Command Line Interface
@@ -232,6 +293,12 @@ static int transfer_file(axidma_dev_t dev, struct dma_transfer *trans,
         goto free_input_buf;
     }
 
+	system("echo 0xFFCA3008 0xFFFFFFFF 0 > /sys/firmware/zynqmp/config_reg");
+	system("echo 0xFFCA3008 > /sys/firmware/zynqmp/config_reg");
+
+    printf("***********Running ZyCAP Test************\n");
+	system("devmem 0xA0001000");
+
     // Perform the transfer
     // Perform the main transaction
     struct timespec start, finish;
@@ -262,6 +329,7 @@ static int transfer_file(axidma_dev_t dev, struct dma_transfer *trans,
     printf("total seconds: %e\n", (double)seconds + (double)ns/(double)1000000000);
 
 
+	system("devmem 0xA0001000");
 
     if (rc < 0) {
         fprintf(stderr, "DMA read write transaction failed.\n");
@@ -269,7 +337,7 @@ static int transfer_file(axidma_dev_t dev, struct dma_transfer *trans,
     }
 
     // Write the data to the output file
-    printf("Writing output data to `%s`.\n", output_path);
+//    printf("Writing output data to `%s`.\n", output_path);
     rc = robust_write(trans->output_fd, trans->output_buf, trans->output_size);
 
 free_output_buf:
@@ -278,6 +346,29 @@ free_input_buf:
     axidma_free(dev, trans->input_buf, trans->input_size);
 ret:
     return rc;
+}
+
+int loadDMA (){
+    int fd,err;
+    size_t image_size;
+    struct stat st;
+    void *image;
+
+    if ((fd = open("/lib/modules/4.14.0-xilinx-v2018.3/extra/xilinx-axidma.ko", O_RDONLY)) == -1) {
+        printf("Can not load DMA Driver\n");
+        return EXIT_FAILURE;
+    }
+    fstat(fd, &st);
+    image_size = st.st_size;
+    image = malloc(image_size);
+    read(fd, image, image_size);
+    close(fd);
+    if (init_module(image, image_size, "") != 0) {
+        perror("init_module");
+        return EXIT_FAILURE;
+    }
+    free(image);
+    return 0;
 }
 
 /*----------------------------------------------------------------------------
@@ -293,12 +384,31 @@ int main(int argc, char **argv)
     struct dma_transfer trans;
     const array_t *tx_chans, *rx_chans;
 
+    struct FPGAManager fpga;
+
+    int            uio_fd;
+    unsigned int*  virtual_address;
+    struct udmabuf src_buf;
+    unsigned int*  virtual_source_address;
+    unsigned int   test_size = 32;
+    int            buf_cache_on = 1;
+
+
+
     // Parse the input arguments
     memset(&trans, 0, sizeof(trans));
     if (parse_args(argc, argv, &input_path, &output_path, &trans.input_channel,
                    &trans.output_channel, &trans.output_size) < 0) {
         rc = 1;
         goto ret;
+    }
+
+    loadDMA();
+    initFPGAManager(&fpga, "fpga0", 0);
+
+    if (udmabuf_open(&src_buf, "udmabuf0", buf_cache_on) == -1) {
+        printf("Can not open /dev/udmabuf0\n");
+        exit(1);
     }
 
     // Try opening the input and output images
@@ -351,21 +461,24 @@ int main(int argc, char **argv)
         goto destroy_axidma;
     }
 
+
     /* If the user didn't specify the channels, we assume that the transmit and
      * receive channels are the lowest numbered ones. */
     if (trans.input_channel == -1 && trans.output_channel == -1) {
         trans.input_channel = tx_chans->data[0];
         trans.output_channel = rx_chans->data[0];
     }
-    printf("AXI DMA File Transfer Info:\n");
-    printf("\tTransmit Channel: %d\n", trans.input_channel);
-    printf("\tReceive Channel: %d\n", trans.output_channel);
-    printf("\tInput File Size: %.2f MiB\n", BYTE_TO_MIB(trans.input_size));
-    printf("\tOutput File Size: %.2f MiB\n\n", BYTE_TO_MIB(trans.output_size));
+//    printf("AXI DMA File Transfer Info:\n");
+//    printf("\tTransmit Channel: %d\n", trans.input_channel);
+//    printf("\tReceive Channel: %d\n", trans.output_channel);
+//    printf("\tInput File Size: %.2f MiB\n", BYTE_TO_MIB(trans.input_size));
+//    printf("\tOutput File Size: %.2f MiB\n\n", BYTE_TO_MIB(trans.output_size));
 
     // Transfer the file over the AXI DMA
     rc = transfer_file(axidma_dev, &trans, output_path);
     rc = (rc < 0) ? -rc : 0;
+
+    rc = testFPGAManager(&fpga);
 
 destroy_axidma:
     axidma_destroy(axidma_dev);
