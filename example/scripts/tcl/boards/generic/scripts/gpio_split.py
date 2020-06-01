@@ -72,7 +72,7 @@ THE SOFTWARE.
  * GPIO {{n}} mux (wrapper)
  */
 
-module split(
+module {{name}}(
 
     output enable,
     output drop,

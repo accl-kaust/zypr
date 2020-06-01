@@ -91,10 +91,12 @@ bootgen_bitstreams()
         do
             echo -e "${INFO}Generating ${i: 0 : ${#i}-21 }.bin...${NONE}" 
             echo -e "the_ROM_image:\r{\r${i}\r}" >> "${i}.bif"
+            # bootgen -image Bitstream.bif -arch zynqmp -o ./Bitstream.bin -w
             bootgen -arch ${ARCH} -image ${i}.bif -w -process_bitstream bin >/dev/null
+            # bootgen -arch ${ARCH} -image ${i}.bif -w >/dev/null
             mv "${i}.bin" "${i: 0 : ${#i}-21 }.bin" 
         done
-        rm ${1}/*.bif
+        # rm ${1}/*.bif
         echo -e "${SUCCESS}Finished \u2713 ${NONE}"
     else
         echo -e "${ERROR}Error - Bootgen not in PATH.${NONE}"
@@ -139,11 +141,11 @@ fi
 echo -e "${SUCCESS}Finished \u2713 ${NONE}"
 
 echo "Constructing Configs & Modes..."
-# if [ ! -d "$ZYCAP_ROOT_PATH/rtl/.modes" ]; then
+if [ ! -d "$ZYCAP_ROOT_PATH/rtl/.modes" ]; then
     echo -e "${WARNING}Not found, generating...${NONE}"
     python $ZYCAP_ROOT_PATH/scripts/python/generate_interface.py > "$ZYCAP_ROOT_PATH/rtl/.logs/python_pr_construct.log"
     check_error "$ZYCAP_ROOT_PATH/rtl/.logs/python_pr_construct.log"
-# fi
+fi
 echo -e "${SUCCESS}Finished \u2713${NONE}"
 
 echo "Synthesising PR Configs & Modes..."
@@ -166,10 +168,11 @@ if [ ! -d "$ZYCAP_ROOT_PATH/rtl/${DESIGN_NAME}/${DESIGN_NAME}.srcs" ]; then
 fi
 echo -e "${SUCCESS}Finished \u2713${NONE}"
 
-echo "Synthesize Design..."
+echo "Implementing Design..."
 # if [ ! -d "$ZYCAP_ROOT_PATH/rtl/$DESIGN_NAME" ]; then
     echo -e "${WARNING}Not found, generating...${NONE}"
     # exec $VIVADO_PATH $VIVADO_PARAMS -mode batch -source $ZYCAP_ROOT_PATH/scripts/tcl/boards/$BOARD/synth.tcl -tclargs $ZYCAP_ROOT_PATH > "$ZYCAP_ROOT_PATH/rtl/.logs/vivado_bd_design.log" &
+    # exec $VIVADO_PROXY $VIVADO_PATH $VIVADO_PARAMS -mode batch -source $ZYCAP_ROOT_PATH/scripts/tcl/boards/$BOARD/synth.tcl -tclargs $ZYCAP_ROOT_PATH > "$ZYCAP_ROOT_PATH/rtl/.logs/vivado_bd_synth.log" &
     exec $VIVADO_PROXY $VIVADO_PATH $VIVADO_PARAMS -mode batch -source $ZYCAP_ROOT_PATH/scripts/tcl/boards/$BOARD/synth.tcl -tclargs $ZYCAP_ROOT_PATH || true
     # show_spinner $!
     # check_error "$ZYCAP_ROOT_PATH/rtl/.logs/vivado_bd_design.log"

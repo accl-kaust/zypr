@@ -85,17 +85,18 @@ int testFPGAManager(struct FPGAManager* fpga){
     struct timespec start, finish;
 
     printf("********Running FPGA Manager Test********\n");
-	//system("dmesg -n 1"); // Enable/Disable to add kernel logging
+	system("dmesg -n 1"); // Enable/Disable to add kernel logging
 	system("echo 0xFFCA3008 0xFFFFFFFF 1 > /sys/firmware/zynqmp/config_reg");
 	system("echo 0xFFCA3008 > /sys/firmware/zynqmp/config_reg");
 
     setFPGAManager_Mode(fpga,1);
 
-	system("echo mode_b.bin > /sys/class/fpga_manager/fpga0/firmware");
+	system("cp /mnt/mode_a-config_* /lib/firmware/");
+	system("echo mode_a-config_b.bin > /sys/class/fpga_manager/fpga0/firmware");
 	system("devmem 0xA0001000");
 
     clock_gettime(CLOCK_REALTIME, &start);
-	system("echo mode_a.bin > /sys/class/fpga_manager/fpga0/firmware");
+	system("echo mode_a-config_a.bin > /sys/class/fpga_manager/fpga0/firmware");
     clock_gettime(CLOCK_REALTIME, &finish);
 
     long seconds = finish.tv_sec - start.tv_sec;

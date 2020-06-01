@@ -238,10 +238,10 @@
 	begin
 	  if ( S_AXI_ARESETN == 1'b0 )
 	    begin
-	      slv_reg0 <= 8;
-	      slv_reg1 <= 7;
-	      slv_reg2 <= 6;
-	      slv_reg3 <= 5;
+	      slv_reg0 <= 2;
+	      slv_reg1 <= 2;
+	      slv_reg2 <= 2;
+	      slv_reg3 <= 2;
 	    end 
 	  else begin
 	    if (slv_reg_wren)
@@ -457,5 +457,10 @@
 		.event_data_in_channel_halt(event_data_in_channel_halt),    // output wire event_data_in_channel_halt
 		.event_data_out_channel_halt(event_data_out_channel_halt)  // output wire event_data_out_channel_halt
 	);
+
+	aes_core u2(
+                .clk(S_AXI_ACLK),
+                .reset_n()
+               );
 
 	endmodule

@@ -27,7 +27,7 @@ THE SOFTWARE.
 `timescale 1ns / 1ps
 
 /*
- * AXI4-Stream 2 port demux (wrapper)
+ * AXI4-Stream 4 port demux (wrapper)
  */
 module axis_dmux_wrapper #
 (
@@ -86,16 +86,34 @@ module axis_dmux_wrapper #
     output wire [ID_WIDTH-1:0]   m01_axis_tid,
     output wire [DEST_WIDTH-1:0] m01_axis_tdest,
     output wire [USER_WIDTH-1:0] m01_axis_tuser,
+
+    output wire [DATA_WIDTH-1:0] m02_axis_tdata,
+    output wire [KEEP_WIDTH-1:0] m02_axis_tkeep,
+    output wire                  m02_axis_tvalid,
+    input  wire                  m02_axis_tready,
+    output wire                  m02_axis_tlast,
+    output wire [ID_WIDTH-1:0]   m02_axis_tid,
+    output wire [DEST_WIDTH-1:0] m02_axis_tdest,
+    output wire [USER_WIDTH-1:0] m02_axis_tuser,
+
+    output wire [DATA_WIDTH-1:0] m03_axis_tdata,
+    output wire [KEEP_WIDTH-1:0] m03_axis_tkeep,
+    output wire                  m03_axis_tvalid,
+    input  wire                  m03_axis_tready,
+    output wire                  m03_axis_tlast,
+    output wire [ID_WIDTH-1:0]   m03_axis_tid,
+    output wire [DEST_WIDTH-1:0] m03_axis_tdest,
+    output wire [USER_WIDTH-1:0] m03_axis_tuser,
 /*
      * Control
      */
     input  wire                  enable,
     input  wire                  drop,
-    input  wire [0:0]            sel
+    input  wire [1:0]            sel
 );
 
 axis_demux #(
-    .M_COUNT(2),
+    .M_COUNT(4),
     .DATA_WIDTH(DATA_WIDTH),
     .KEEP_ENABLE(KEEP_ENABLE),
     .KEEP_WIDTH(KEEP_WIDTH),
@@ -119,14 +137,14 @@ axis_demux_inst (
     .s_axis_tdest(s_axis_tdest),
     .s_axis_tuser(s_axis_tuser),
     // AXI output
-    .m_axis_tdata({ m01_axis_tdata, m00_axis_tdata }),
-    .m_axis_tkeep({ m01_axis_tkeep, m00_axis_tkeep }),
-    .m_axis_tvalid({ m01_axis_tvalid, m00_axis_tvalid }),
-    .m_axis_tready({ m01_axis_tready, m00_axis_tready }),
-    .m_axis_tlast({ m01_axis_tlast, m00_axis_tlast }),
-    .m_axis_tid({ m01_axis_tid, m00_axis_tid }),
-    .m_axis_tdest({ m01_axis_tdest, m00_axis_tdest }),
-    .m_axis_tuser({ m01_axis_tuser, m00_axis_tuser }),
+    .m_axis_tdata({ m03_axis_tdata, m02_axis_tdata, m01_axis_tdata, m00_axis_tdata }),
+    .m_axis_tkeep({ m03_axis_tkeep, m02_axis_tkeep, m01_axis_tkeep, m00_axis_tkeep }),
+    .m_axis_tvalid({ m03_axis_tvalid, m02_axis_tvalid, m01_axis_tvalid, m00_axis_tvalid }),
+    .m_axis_tready({ m03_axis_tready, m02_axis_tready, m01_axis_tready, m00_axis_tready }),
+    .m_axis_tlast({ m03_axis_tlast, m02_axis_tlast, m01_axis_tlast, m00_axis_tlast }),
+    .m_axis_tid({ m03_axis_tid, m02_axis_tid, m01_axis_tid, m00_axis_tid }),
+    .m_axis_tdest({ m03_axis_tdest, m02_axis_tdest, m01_axis_tdest, m00_axis_tdest }),
+    .m_axis_tuser({ m03_axis_tuser, m02_axis_tuser, m01_axis_tuser, m00_axis_tuser }),
     // Control
     .enable(enable),
     .drop(drop),

@@ -273,6 +273,9 @@ static int transfer_file(axidma_dev_t dev, struct dma_transfer *trans,
     int rc;
 
     // Allocate a buffer for the input file, and read it into the buffer
+    printf("***********Allocating Bitstream Buffer************\n");
+
+    struct timespec start_1, finish_1;
     trans->input_buf = axidma_malloc(dev, trans->input_size);
     if (trans->input_buf == NULL) {
         fprintf(stderr, "Failed to allocate the input buffer.\n");
@@ -287,14 +290,44 @@ static int transfer_file(axidma_dev_t dev, struct dma_transfer *trans,
     }
 
     // Allocate a buffer for the output file
+    clock_gettime(CLOCK_REALTIME, &start_1);
+
     trans->output_buf = axidma_malloc(dev, trans->output_size);
+    clock_gettime(CLOCK_REALTIME, &finish_1);
+
     if (trans->output_buf == NULL) {
         rc = -ENOMEM;
         goto free_input_buf;
     }
 
+    long seconds = finish_1.tv_sec - start_1.tv_sec;
+    long ns = finish_1.tv_nsec - start_1.tv_nsec;
+
+    if (start_1.tv_nsec > finish_1.tv_nsec) { // clock underflow
+ 	--seconds;
+ 	ns += 1000000000;
+    }
+    printf("seconds without ns: %ld\n", seconds);
+    printf("nanoseconds: %ld\n", ns);
+    printf("total seconds: %e\n", (double)seconds + (double)ns/(double)1000000000);
+    printf("***********Setting CSU Registers************\n");
+
+    struct timespec start_0, finish_0;
+    clock_gettime(CLOCK_REALTIME, &start_0);
 	system("echo 0xFFCA3008 0xFFFFFFFF 0 > /sys/firmware/zynqmp/config_reg");
 	system("echo 0xFFCA3008 > /sys/firmware/zynqmp/config_reg");
+    clock_gettime(CLOCK_REALTIME, &finish_0);
+
+    seconds = finish_0.tv_sec - start_0.tv_sec;
+    ns = finish_0.tv_nsec - start_0.tv_nsec;
+
+    if (start_0.tv_nsec > finish_0.tv_nsec) { // clock underflow
+ 	--seconds;
+ 	ns += 1000000000;
+    }
+    printf("seconds without ns: %ld\n", seconds);
+    printf("nanoseconds: %ld\n", ns);
+    printf("total seconds: %e\n", (double)seconds + (double)ns/(double)1000000000);
 
     printf("***********Running ZyCAP Test************\n");
 	system("devmem 0xA0001000");
@@ -317,8 +350,8 @@ static int transfer_file(axidma_dev_t dev, struct dma_transfer *trans,
 
     clock_gettime(CLOCK_REALTIME, &finish);
 
-    long seconds = finish.tv_sec - start.tv_sec;
-    long ns = finish.tv_nsec - start.tv_nsec;
+    seconds = finish.tv_sec - start.tv_sec;
+    ns = finish.tv_nsec - start.tv_nsec;
 
     if (start.tv_nsec > finish.tv_nsec) { // clock underflow
  	--seconds;
@@ -402,8 +435,22 @@ int main(int argc, char **argv)
         rc = 1;
         goto ret;
     }
-
+//    struct timespec start, finish;
+//    clock_gettime(CLOCK_REALTIME, &start);
     loadDMA();
+//    clock_gettime(CLOCK_REALTIME, &finish);
+
+//    long seconds = finish.tv_sec - start.tv_sec;
+//    long ns = finish.tv_nsec - start.tv_nsec;
+
+//    if (start.tv_nsec > finish.tv_nsec) { // clock underflow
+// 	--seconds;
+// 	ns += 1000000000;
+//    }
+//    printf("seconds without ns: %ld\n", seconds);
+//    printf("nanoseconds: %ld\n", ns);
+//    printf("total seconds: %e\n", (double)seconds + (double)ns/(double)1000000000);
+
     initFPGAManager(&fpga, "fpga0", 0);
 
     if (udmabuf_open(&src_buf, "udmabuf0", buf_cache_on) == -1) {
@@ -444,7 +491,7 @@ int main(int argc, char **argv)
     // If the output size was not specified by the user, set it to the default
     trans.input_size = input_stat.st_size;
     if (trans.output_size == -1) {
-        trans.output_size = trans.input_size;
+        trans.output_size = 8000000;
     }
 
     // Get the tx and rx channels if they're not already specified
@@ -471,8 +518,8 @@ int main(int argc, char **argv)
 //    printf("AXI DMA File Transfer Info:\n");
 //    printf("\tTransmit Channel: %d\n", trans.input_channel);
 //    printf("\tReceive Channel: %d\n", trans.output_channel);
-//    printf("\tInput File Size: %.2f MiB\n", BYTE_TO_MIB(trans.input_size));
-//    printf("\tOutput File Size: %.2f MiB\n\n", BYTE_TO_MIB(trans.output_size));
+    printf("\tInput File Size: %.2f MiB\n", BYTE_TO_MIB(trans.input_size));
+    printf("\tOutput File Size: %.2f MiB\n\n", BYTE_TO_MIB(trans.output_size));
 
     // Transfer the file over the AXI DMA
     rc = transfer_file(axidma_dev, &trans, output_path);

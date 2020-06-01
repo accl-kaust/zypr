@@ -4,7 +4,7 @@
       "vivado_path": "/opt/Xilinx/Vivado/2018.3/bin/vivado",
       "vivado_version": "2018.3",
       "vivado_params": "-nojou -nolog",
-      "vivado_proxy": ""
+      "vivado_proxy": "proxychains4"
     },
     "config_petalinux": {
       "petalinux_path": "/home/alex/petalinux"
@@ -82,7 +82,14 @@
           "config_c": { 
             "desc":"HLS FIR Filter using AXIS",
             "rtl": [
-              "mode_c.v"
+              "mode_c.v",
+              "aes_core.v",
+              "aes_decipher_block.v",
+              "aes_encipher_block.v",
+              "aes_inv_sbox.v",
+              "aes_key_mem.v",
+              "aes_sbox.v",
+              "aes.v"
             ],
             "ip":{
               "xfft_2":{
@@ -115,16 +122,6 @@
             }
           }
         }
-      },
-      "mode_b": {
-        "name": "Demo PR Project 1",
-        "configs": {},
-        "interfaces": {}
-      },
-      "mode_c": {
-        "name": "Demo PR Project 2",
-        "configs": {},
-        "interfaces": {}
       }
     }
   },

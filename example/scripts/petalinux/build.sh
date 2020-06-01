@@ -174,7 +174,7 @@ fi
 if ! [ -d "${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/project-spec/meta-user/recipes-modules/xilinx-axidma" ]; then
   log_info "- Generating AXI DMA module..."
   petalinux-create -t modules -n xilinx-axidma --enable --force
-  cp -r ${ZYCAP_ROOT_PATH}/linux/xilinx-axidma/files ${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/project-spec/meta-user/recipes-modules/xilinx-axidma/files/
+  cp -r ${ZYCAP_ROOT_PATH}/linux/xilinx-axidma/files ${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/project-spec/meta-user/recipes-modules/xilinx-axidma
   # cp ${ZYCAP_ROOT_PATH}/linux/xilinx-axidma/dma-proxy.c ${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/project-spec/meta-user/recipes-modules/dmaproxy/files/dmaproxy.c
   cp ${ZYCAP_ROOT_PATH}/linux/xilinx-axidma/xilinx-axidma.bb ${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/project-spec/meta-user/recipes-modules/xilinx-axidma/xilinx-axidma.bb
   # insert_dtsi "\/include\/ \"xilinx-axidma.dtsi\"" "${ZYCAP_ROOT_PATH}/linux/${DESIGN_NAME}/project-spec/meta-user/recipes-bsp/device-tree"

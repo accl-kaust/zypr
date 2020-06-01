@@ -27,7 +27,7 @@ THE SOFTWARE.
 `timescale 1ns / 1ps
 
 /*
- * AXI4-Stream 2 port mux (wrapper)
+ * AXI4-Stream 4 port mux (wrapper)
  */
 module axis_mux_wrapper #
 (
@@ -75,6 +75,24 @@ module axis_mux_wrapper #
     input  wire [DEST_WIDTH-1:0] s01_axis_tdest,
     input  wire [USER_WIDTH-1:0] s01_axis_tuser,
 
+    input  wire [DATA_WIDTH-1:0] s02_axis_tdata,
+    input  wire [KEEP_WIDTH-1:0] s02_axis_tkeep,
+    input  wire                  s02_axis_tvalid,
+    output wire                  s02_axis_tready,
+    input  wire                  s02_axis_tlast,
+    input  wire [ID_WIDTH-1:0]   s02_axis_tid,
+    input  wire [DEST_WIDTH-1:0] s02_axis_tdest,
+    input  wire [USER_WIDTH-1:0] s02_axis_tuser,
+
+    input  wire [DATA_WIDTH-1:0] s03_axis_tdata,
+    input  wire [KEEP_WIDTH-1:0] s03_axis_tkeep,
+    input  wire                  s03_axis_tvalid,
+    output wire                  s03_axis_tready,
+    input  wire                  s03_axis_tlast,
+    input  wire [ID_WIDTH-1:0]   s03_axis_tid,
+    input  wire [DEST_WIDTH-1:0] s03_axis_tdest,
+    input  wire [USER_WIDTH-1:0] s03_axis_tuser,
+
     /*
      * AXI Stream output
      */
@@ -91,11 +109,11 @@ module axis_mux_wrapper #
      * Control
      */
     input  wire                  enable,
-    input  wire [0:0]            sel
+    input  wire [1:0]            sel
 );
 
 axis_mux #(
-    .S_COUNT(2),
+    .S_COUNT(4),
     .DATA_WIDTH(DATA_WIDTH),
     .KEEP_ENABLE(KEEP_ENABLE),
     .KEEP_WIDTH(KEEP_WIDTH),
@@ -110,14 +128,14 @@ axis_mux_inst (
     .clk(clk),
     .rst(rst),
     // AXI inputs
-    .s_axis_tdata({ s01_axis_tdata, s00_axis_tdata }),
-    .s_axis_tkeep({ s01_axis_tkeep, s00_axis_tkeep }),
-    .s_axis_tvalid({ s01_axis_tvalid, s00_axis_tvalid }),
-    .s_axis_tready({ s01_axis_tready, s00_axis_tready }),
-    .s_axis_tlast({ s01_axis_tlast, s00_axis_tlast }),
-    .s_axis_tid({ s01_axis_tid, s00_axis_tid }),
-    .s_axis_tdest({ s01_axis_tdest, s00_axis_tdest }),
-    .s_axis_tuser({ s01_axis_tuser, s00_axis_tuser }),
+    .s_axis_tdata({ s03_axis_tdata, s02_axis_tdata, s01_axis_tdata, s00_axis_tdata }),
+    .s_axis_tkeep({ s03_axis_tkeep, s02_axis_tkeep, s01_axis_tkeep, s00_axis_tkeep }),
+    .s_axis_tvalid({ s03_axis_tvalid, s02_axis_tvalid, s01_axis_tvalid, s00_axis_tvalid }),
+    .s_axis_tready({ s03_axis_tready, s02_axis_tready, s01_axis_tready, s00_axis_tready }),
+    .s_axis_tlast({ s03_axis_tlast, s02_axis_tlast, s01_axis_tlast, s00_axis_tlast }),
+    .s_axis_tid({ s03_axis_tid, s02_axis_tid, s01_axis_tid, s00_axis_tid }),
+    .s_axis_tdest({ s03_axis_tdest, s02_axis_tdest, s01_axis_tdest, s00_axis_tdest }),
+    .s_axis_tuser({ s03_axis_tuser, s02_axis_tuser, s01_axis_tuser, s00_axis_tuser }),
     // AXI output
     .m_axis_tdata(m_axis_tdata),
     .m_axis_tkeep(m_axis_tkeep),

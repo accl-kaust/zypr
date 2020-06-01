@@ -27,19 +27,19 @@ THE SOFTWARE.
 `timescale 1ns / 1ps
 
 /*
- * GPIO 2 mux (wrapper)
+ * GPIO 4 mux (wrapper)
  */
 
 module split(
 
     output enable,
     output drop,
-    output [0:0] sel,
-    input [2:0] gpio
+    output [2:0] sel,
+    input [4:0] gpio
     );
     
     assign enable = gpio[0];
     assign drop = gpio[1];
-    assign sel [0:0] = gpio[2:2];
+    assign sel [2:0] = gpio[4:2];
 
 endmodule

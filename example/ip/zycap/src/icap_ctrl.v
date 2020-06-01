@@ -33,7 +33,7 @@ output      [31 : 0]                       M_AXIS_TDATA;
 output                                     M_AXIS_TLAST;
 output                                     M_AXIS_TVALID;
 
-assign S_AXIS_TREADY = M_AXIS_TREADY;
+assign S_AXIS_TREADY = 1;
 assign M_AXIS_TDATA = S_AXIS_TDATA;
 assign M_AXIS_TLAST = S_AXIS_TLAST;
 assign M_AXIS_TVALID = S_AXIS_TVALID;
