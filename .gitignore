@@ -17,8 +17,12 @@ node_modules
 # .python
 # .json
 .*
-!/.python-version
+.python-version
 !/.gitignore
+*.egg-info
+build
+dist
+__pycache__
 
 # vivado
 *.log

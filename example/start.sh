@@ -8,12 +8,14 @@ VIVADO_PATH=$(jq .config.config_vivado.vivado_path global_config.json | tr -d \"
 VIVADO_VER=$(jq .config.config_vivado.vivado_version global_config.json | tr -d \")
 VIVADO_PARAMS=$(jq .config.config_vivado.vivado_params global_config.json | tr -d \")
 VIVADO_PROXY=$(jq .config.config_vivado.vivado_proxy global_config.json | tr -d \")
+PETALINUX_PATH=$(jq .config.config_petalinux.petalinux_path global_config.json | tr -d \")
 
 source "$(pwd)/scripts/bash/logger.sh"
 source "$(pwd)/scripts/bash/spinner.sh"
+# source "$(pwd)/scripts/license/proxy.sh"
 
 log_info "Checking Petalinux is in PATH..."
-source "/home/alex/petalinux/settings.sh" > /dev/null
+source "${PETALINUX_PATH}/settings.sh" > /dev/null
 
 cd $ZYCAP_ROOT_PATH/rtl && make clean-meta >/dev/null
 if [ ! -d "$ZYCAP_ROOT_PATH/rtl/.logs" ]; then

@@ -1,13 +1,13 @@
 {
   "config": {
     "config_vivado": {
-      "vivado_path": "/opt/Xilinx/Vivado/2018.3/bin/vivado",
+      "vivado_path": "/tools/Xilinx/Vivado/2018.3",
       "vivado_version": "2018.3",
       "vivado_params": "-nojou -nolog",
-      "vivado_proxy": "proxychains4"
+      "vivado_proxy": ""
     },
     "config_petalinux": {
-      "petalinux_path": "/home/alex/petalinux"
+      "petalinux_path": "/tools/Xilinx/Petalinux"
     },
     "config_run": {
       "static_synth": 1,
@@ -43,44 +43,47 @@
       "mode_a": {
         "name": "Demo PR Project 0",
         "pr_module": "partial_led_test_v1_0_S00_AXI",
-        "pr_cell": ["partial_led_test_v1_0_S00_AXI_inst","demo"],
+        "pr_cell": [
+          "partial_led_test_v1_0_S00_AXI_inst",
+          "demo"
+        ],
         "configs": {
           "config_a": {
-            "desc":"FFT Implementation using Xilinx FFT IP Core",
+            "desc": "FFT Implementation using Xilinx FFT IP Core",
             "rtl": [
               "mode_a.v"
             ],
-            "ip":{
-              "xfft_0":{
-                "vendor":"xilinx.com",
-                "library":"ip",
-                "version":9.1,
-                "name":"xfft",
-                "xci":"xfft_mode_a"
+            "ip": {
+              "xfft_0": {
+                "vendor": "xilinx.com",
+                "library": "ip",
+                "version": 9.1,
+                "name": "xfft",
+                "xci": "xfft_mode_a"
               }
             },
             "top_module": "top.v",
             "top_cell": "partial_led_test_v1_0"
           },
           "config_b": {
-            "desc":"Pure Verilog AES Implementation using AXI",
+            "desc": "Pure Verilog AES Implementation using AXI",
             "rtl": [
               "mode_b.v"
             ],
-            "ip":{
-              "xfft_1":{
-                "vendor":"xilinx.com",
-                "library":"ip",
-                "version":9.1,
-                "name":"xfft",
-                "xci":"xfft_mode_b"
+            "ip": {
+              "xfft_1": {
+                "vendor": "xilinx.com",
+                "library": "ip",
+                "version": 9.1,
+                "name": "xfft",
+                "xci": "xfft_mode_b"
               }
             },
             "top_module": "top.v",
             "top_cell": "partial_led_test_v1_0"
           },
-          "config_c": { 
-            "desc":"HLS FIR Filter using AXIS",
+          "config_c": {
+            "desc": "HLS FIR Filter using AXIS",
             "rtl": [
               "mode_c.v",
               "aes_core.v",
@@ -91,13 +94,13 @@
               "aes_sbox.v",
               "aes.v"
             ],
-            "ip":{
-              "xfft_2":{
-                "vendor":"xilinx.com",
-                "library":"ip",
-                "version":9.1,
-                "name":"xfft",
-                "xci":"xfft_mode_c"
+            "ip": {
+              "xfft_2": {
+                "vendor": "xilinx.com",
+                "library": "ip",
+                "version": 9.1,
+                "name": "xfft",
+                "xci": "xfft_mode_c"
               }
             },
             "top_module": "top.v",
@@ -108,7 +111,9 @@
           "master": {
             "axi_stream": {
               "width": 32,
-              "port": ["m0_axis"]
+              "port": [
+                "m0_axis"
+              ]
             },
             "axi_lite": {
               "width": 32,
@@ -118,7 +123,9 @@
           "slave": {
             "axi_stream": {
               "width": 32,
-              "port": ["m0_axis"]
+              "port": [
+                "m0_axis"
+              ]
             }
           }
         }

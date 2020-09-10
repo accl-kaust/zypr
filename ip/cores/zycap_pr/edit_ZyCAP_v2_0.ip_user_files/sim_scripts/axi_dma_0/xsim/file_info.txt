@@ -1,0 +1,2 @@
+axi_dma_0.vhd,vhdl,xil_defaultlib,../../../../ZyCAP_2.0/src/axi_dma_0/sim/axi_dma_0.vhd,
+glbl.v,Verilog,xil_defaultlib,glbl.v
