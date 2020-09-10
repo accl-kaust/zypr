@@ -9,9 +9,14 @@ setup(
     version = "0.0.1",
     # packages=['zycap'],
     packages=find_packages(),
-    package_data = {'fpga' : [
-        'config/global.json'
-    ]},
+    package_data = {
+        'fpga' : [
+            'config/global.json',
+            'ip/*'
+        ],
+        'linux':[
+            'drivers/*'
+        ]},
     include_package_data=True,
     py_modules=['zycap'],
     author = "Alex Bucknall",
@@ -31,7 +36,8 @@ setup(
         'xmltodict',
         'fdt',
         'Click',
-        'progress',
+        'click-log',
+        'colorlog',
         'pyverilog==1.2.1',
         'colorlog==4.1.0',
         'mkdocs>=1.1',
@@ -45,7 +51,7 @@ setup(
     ],
     entry_points='''
         [console_scripts]
-        zycap=zycap.scripts.zycap:cli
+        zycap=zycap.scripts.cli:cli
     ''',
     # Supported Python versions: 3.5+
     python_requires=">=3.5, <4",
