@@ -7,7 +7,6 @@ def read(fname):
 setup(
     name = "zycap",
     version = "0.0.1",
-    # packages=['zycap'],
     packages=find_packages(),
     package_data = {
         'fpga' : [
@@ -16,6 +15,10 @@ setup(
         ],
         'linux':[
             'drivers/*'
+        ],
+        'docs':[
+            'mkdocs.yml',
+            'docs/*'
         ]},
     include_package_data=True,
     py_modules=['zycap'],
@@ -28,7 +31,7 @@ setup(
     long_description=read('README.md'),
     classifiers=[
         "Development Status :: 4 - Beta",
-        "License :: OSI Approved :: GNU GPLv3 License",
+        "License :: OSI Approved :: MIT License",
         "Topic :: Scientific/Engineering :: Electronic Design Automation (EDA)",
         "Topic :: Utilities",
     ],
@@ -38,10 +41,12 @@ setup(
         'Click',
         'click-log',
         'colorlog',
+        'click-help-colors',
         'pyverilog==1.2.1',
-        'colorlog==4.1.0',
         'mkdocs>=1.1',
         'mkdocs-wavedrom-plugin==0.1.1',
+        'mkdocs-monorepo-plugin>=0.4.2',
+        'mkdocs-material',
         'mkdocs-bibtex==0.2.3',
         'pytest>=3.3.0',
         'Jinja2 >=2.8, !=2.11.0, !=2.11.1',

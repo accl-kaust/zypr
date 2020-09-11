@@ -1,13 +1,13 @@
 site_name: ZyCAP2 Docs
 
 nav:
-  - Intro: 'index.md'
-  - Getting Started: 'getting-started.md'
+  - Intro: './docs/index.md'
+  - Getting Started: './docs/getting-started.md'
   - Guides:
-    - Hardware: '!include ./hdl/mkdocs.yml'
-    - Software: '!include ./sw/mkdocs.yml'
-    - Linux: '!include ./linux/mkdocs.yml'
-  - References: 'references.md'
+    - Hardware: '!include ./docs/hdl/mkdocs.yml'
+    - Software: '!include ./docs/sw/mkdocs.yml'
+    - Linux: '!include ./docs/linux/mkdocs.yml'
+  - References: './docs/references.md'
 
 plugins:
   - monorepo

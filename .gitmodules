@@ -1,0 +1,4 @@
+[submodule "zycap/interfacer"]
+	path = zycap/interfacer
+	url = git@github.com:warclab/interfacer.git
+	branch = initial-develop

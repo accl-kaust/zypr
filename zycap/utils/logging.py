@@ -1,13 +1,14 @@
 import logging
 import colorlog
 import os
+import glob
 
-def init_logger(dunder_name, testing_mode) -> logging.Logger:
+def init_logger(dunder_name, testing_mode, verbose=False) -> logging.Logger:
     log_format = (
-        '%(asctime)s - '
-        '%(name)s - '
-        '%(funcName)s - '
         '%(levelname)s - '
+        '%(asctime)s - '
+        '%(module)s - '
+        '%(funcName)s - '
         '%(message)s'
     )
     bold_seq = '\033[1m'
@@ -48,6 +49,12 @@ def init_logger(dunder_name, testing_mode) -> logging.Logger:
     fh.setFormatter(formatter)
     logger.addHandler(fh)
 
-    logger.propagate = False
+    if verbose is False:
+        logger.propagate = False
 
     return logger
+
+def clean():
+    files = glob.glob('.logs/*.log')
+    for f in files:
+        os.remove(f)
