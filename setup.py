@@ -16,12 +16,15 @@ setup(
         'linux':[
             'drivers/*'
         ],
+        'boards' : [
+            'boards/*',
+        ],
         'docs':[
             'mkdocs.yml',
             'docs/*'
         ]},
     include_package_data=True,
-    py_modules=['zycap'],
+    py_modules=['zycap','interfacer'],
     author = "Alex Bucknall",
     author_email = "alex.bucknall@gmail.com",
     description = ("ZyCAP is a Partial Reconfiguration build tool and runtime framework for Xilinx Zynq and Zynq Ultrascale+ SoCs"),

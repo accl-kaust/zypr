@@ -9,6 +9,7 @@ nav:
     - Linux: '!include ./linux/mkdocs.yml'
   - Notes: 'notes.md'
   - References: 'references.md'
+  - Citation: 'cite.md'
 
 plugins:
   - monorepo

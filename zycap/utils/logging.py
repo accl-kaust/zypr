@@ -1,6 +1,7 @@
 import logging
 import colorlog
-import os
+from os import path,makedirs,remove
+from shutil import rmtree
 import glob
 
 def init_logger(dunder_name, testing_mode, verbose=False) -> logging.Logger:
@@ -20,8 +21,8 @@ def init_logger(dunder_name, testing_mode, verbose=False) -> logging.Logger:
     colorlog.basicConfig(format=colorlog_format)
     logger = logging.getLogger(dunder_name)
 
-    if not os.path.exists('.logs'):
-        os.makedirs('.logs')
+    if not path.exists('.logs'):
+        makedirs('.logs')
 
     if testing_mode:
         logger.setLevel(logging.DEBUG)
@@ -55,6 +56,4 @@ def init_logger(dunder_name, testing_mode, verbose=False) -> logging.Logger:
     return logger
 
 def clean():
-    files = glob.glob('.logs/*.log')
-    for f in files:
-        os.remove(f)
+    rmtree('.logs')

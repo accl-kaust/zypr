@@ -1,78 +1,71 @@
 import os
 import sys
 import json
+import glob
 import subprocess
-from .utils.tool import tool
+from .utils.tool import Tool
 import click
+from pathlib import Path
 import pkg_resources
 
-exists = lambda x:None if x == '' else x
-
-class build(tool):
+class Build(Tool):
     def __init__(self, logger, json=None, linux=True):  
         self.logger = logger        
         self.config = self.load_config(json)
-        self.root_path = os.getcwd()
+        self.config['filename'] = json
+        self.root_path = Path.cwd()
         self.device = self.config['project']['project_device']['family']
         self.board_name = self.config['project']['project_device']['name']
         self.board_version = self.config['project']['project_device']['version']
         self.design_name = self.config['design']['design_name']
         self.vivado_path = self.config['config']['config_vivado']['vivado_path']
-        self.vivado_version = self.config['config']['config_vivado']['vivado_version']
+        self.xilinx_version = self.config['config']['config_xilinx']['xilinx_version']
         self.vivado_params = self.config['config']['config_vivado']['vivado_params']
-        self.proxy = exists(self.config['config']['config_vivado']['vivado_proxy'])
+        self.proxy = Tool.exists(self.config['config']['config_xilinx']['xilinx_proxy'])
         self.petalinux_path = self.config['config']['config_petalinux']['petalinux_path']
-
-    def load_config(self, filename):
-        try:
-            if filename is None:
-                # click.secho('info: {}'.format('Loading default config.'), fg='blue')
-                filename = pkg_resources.resource_filename('zycap', 'config/global.json')
-            self.logger.info('loading config - {}'.format(filename))
-            with open(filename) as j:
-                return json.load(j)
-        except Exception as e:
-            click.secho('error: {}'.format(e), fg='red')
-            exit()
 
     def generate_configs(self):
         pass
 
     def run(self):
-        click.secho('starting ZyCAP build flow...', fg='magenta')
-        click.secho('project name: {}'.format(self.design_name), fg='blue')
-        click.secho('vivado version: {}'.format(self.vivado_version), fg='blue')
-        self.logger.info('loading config')
+        """Start the fpga build run."""
+        success = False
+        click.secho('Starting ZyCAP build flow...', fg='magenta')
+        click.secho('Project Name: {}'.format(self.design_name), fg='blue')
+        click.secho('Tool Version: {}'.format(self.xilinx_version), fg='blue')
         if self.proxy is not None:
             click.secho('proxy: {}'.format(self.proxy), fg='blue')
+        _,success = self.source_tools('{0}/{1}/settings64.sh'.format(self.vivado_path,self.xilinx_version))
+        self.verify('Setup',success)
+        self.extract()
+        self.generate()
 
-        self.source_tools('{}/settings.sh'.format(self.petalinux_path))
-        # self.source_tools('{0}/{1}/settings64.sh'.format(self.vivado_path,self.vivado_version))
-        click.secho('setup complete [✓]',fg='green')
-        # if self.clean:
-        #     self.clean_directory()        
-        #     click.secho('\rcleaned working directory [✓]',fg='green')
+    def extract(self):
+        """Extract PR modules. Walks the current working directory for module files."""
+        click.secho('Discovering User Configurations...', fg='magenta')
+        self.configs = self.config['design']['design_configurations']
+        modules = set()
+        for config in self.config['design']['design_configurations'].keys():
+            self.logger.info(f"Found config: {config}")
+            modes = {}
+            for mode in self.config['design']['design_configurations'][config]['modes'].keys():
+                self.logger.info(f" ∟ Found mode: {mode}")
+                modes[mode] = self.config['design']['design_configurations'][config]['modes'][mode]
+                for module in modes[mode]['modules']:
+                    if module not in modules:
+                        modules.add(module)
+                    self.logger.info(f"   ∟ Found module: {module}")
+            self.configs[config] = modes
+        success,check_modules = self.check_files_exist(self.root_path, modules, '.v')
+        if not success:
+            self.logger.error(f'Cannot find modules {check_modules}')
+        self.verify('Extract Modules',success)
+
+    def __extract_interfaces(self,module):
+        
+
+    def generate(self):
+        success = True
+        self.verify('Generate Checkpoints',success)
 
 
-
-
-
-
-
-
-
-
-
-# @click.command()
-# @click.option('--config', default=None, help='Specify configuration file.')
-# @click.option('--deps', is_flag=True, help='Check ZyCAP build dependencies.')
-# @click.option('--clean', is_flag=True, help='Check ZyCAP build dependencies.')
-# def cli(config,deps,clean):
-#     if deps is False:
-#         deps = None
-#     z = build(json=config,deps=deps,clean=clean)
-#     z.run_tooling()
-
-
-# if __name__ == '__main__':
-#     cli()

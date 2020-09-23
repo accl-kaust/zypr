@@ -1,19 +1,18 @@
-from ..fpga import build as f
-from ..linux import build as l
+from ..fpga import Build as f
+from ..linux import Build as l
 from ..utils import logging   
-import click
 from click_help_colors import HelpColorsGroup, HelpColorsCommand
+import click
 import subprocess
 import pkg_resources
 from distutils.dir_util import copy_tree
-import os
-from shutil import rmtree
+from os import path,symlink,unlink
 
 @click.group(
     cls=HelpColorsGroup,
     help_headers_color='yellow',
     help_options_color='green',
-    help_options_custom_colors={'run': 'green', 'docs': 'blue', 'setup': 'blue','clean':'red'},
+    help_options_custom_colors={'run': 'green', 'docs': 'blue', 'setup': 'blue','clean':'magenta'},
     chain=True
 )
 @click.option('--verbose','-v', is_flag=True, help='Enable logging.')
@@ -40,7 +39,7 @@ def run(ctx,config,fpga,linux):
     else:
         z = f(json=config,logger=logger, linux=True)
         logger.info('E2E')
-    # z.run()
+    z.run()
 
 @click.option('--deps','-d', is_flag=True, help='Install ZyCAP dependencies.')
 @click.option('--docker', default=None,metavar='<version>', help='Generate Docker Environment. Specify Xilinx Tool Version, i.e. 2019.1.')
@@ -80,12 +79,12 @@ def docs(ctx,clean):
     """Docs - serve documentation"""
     logger = ctx.obj['LOG']
     if clean:
-        if os.path.exists('.docs'):
-            rmtree('.docs')
+        if path.exists('.docs'):
+            unlink('.docs')
         return
     docs = pkg_resources.resource_filename('zycap', 'docs')
-    if not os.path.exists('.docs'):
-        copy_tree(docs, '.docs')
+    if not path.exists('.docs'):
+        symlink(docs, '.docs')
     else:
         logger.error('docs already exist')
     process = subprocess.Popen('mkdocs serve -f .docs/mkdocs.yml'.split(), stdout=subprocess.PIPE)
