@@ -7,6 +7,10 @@ from .utils.tool import Tool
 import click
 from pathlib import Path
 import pkg_resources
+from interfacer.generate import Generate
+from interfacer.identify import Identify
+from interfacer.module import Module
+from interfacer.interface import Interface
 
 class Build(Tool):
     def __init__(self, logger, json=None, linux=True):  
@@ -43,15 +47,15 @@ class Build(Tool):
     def extract(self):
         """Extract PR modules. Walks the current working directory for module files."""
         click.secho('Discovering User Configurations...', fg='magenta')
-        self.configs = self.config['design']['design_configurations']
+        self.configs = self.config['design']['design_mode']
         modules = set()
-        for config in self.config['design']['design_configurations'].keys():
-            self.logger.info(f"Found config: {config}")
+        for mode in self.config['design']['design_mode'].keys():
+            self.logger.info(f"Found mode: {mode}")
             modes = {}
-            for mode in self.config['design']['design_configurations'][config]['modes'].keys():
-                self.logger.info(f" ∟ Found mode: {mode}")
-                modes[mode] = self.config['design']['design_configurations'][config]['modes'][mode]
-                for module in modes[mode]['modules']:
+            for config in self.config['design']['design_mode'][mode]['configs'].keys():
+                self.logger.info(f" ∟ Found config: {config}")
+                modes[config] = self.config['design']['design_mode'][mode]['configs'][config]
+                for module in modes[config]['modules']:
                     if module not in modules:
                         modules.add(module)
                     self.logger.info(f"   ∟ Found module: {module}")
@@ -59,10 +63,13 @@ class Build(Tool):
         success,check_modules = self.check_files_exist(self.root_path, modules, '.v')
         if not success:
             self.logger.error(f'Cannot find modules {check_modules}')
-        self.verify('Extract Modules',success)
+        for module in modules:
+            self.__extract_interfaces(module)
+        self.verify('Extracting Modules',success)
 
     def __extract_interfaces(self,module):
-        
+        pass
+
 
     def generate(self):
         success = True
