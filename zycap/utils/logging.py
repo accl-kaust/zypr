@@ -1,15 +1,41 @@
 import logging
 import colorlog
-from os import path,makedirs,remove
+import sys
+from os import path, makedirs, remove
 from shutil import rmtree
 import glob
 
+
+# def setup_logger():
+#     """Return a logger with a default ColoredFormatter."""
+#     formatter = ColoredFormatter(
+#         "%(log_color)s%(levelname)-8s%(reset)s %(blue)s%(message)s",
+#         datefmt=None,
+#         reset=True,
+#         log_colors={
+#             'DEBUG':    'cyan',
+#             'INFO':     'green',
+#             'WARNING':  'yellow',
+#             'ERROR':    'red',
+#             'CRITICAL': 'red',
+#         }
+#     )
+
+#     logger = logging.getLogger('example')
+#     handler = logging.StreamHandler()
+#     handler.setFormatter(formatter)
+#     logger.addHandler(handler)
+#     logger.setLevel(logging.DEBUG)
+
+#     return logger
+
+
 def init_logger(dunder_name, testing_mode, verbose=False) -> logging.Logger:
     log_format = (
-        '%(levelname)s - '
-        '%(asctime)s - '
-        '%(module)s - '
-        '%(funcName)s - '
+        '%(levelname)5s - '
+        '%(asctime)8s - '
+        '%(module)8s - '
+        '%(funcName)22s - '
         '%(message)s'
     )
     bold_seq = '\033[1m'
@@ -52,8 +78,11 @@ def init_logger(dunder_name, testing_mode, verbose=False) -> logging.Logger:
 
     if verbose is False:
         logger.propagate = False
+    else:
+        logger.propagate = True
 
     return logger
+
 
 def clean():
     rmtree('.logs')

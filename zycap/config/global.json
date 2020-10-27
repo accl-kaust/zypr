@@ -42,6 +42,7 @@
     "design": {
         "design_name": "base",
         "design_owner": "bucknalla",
+        "design_directory": "rtl",
         "design_mode": {
             "mode_a": {
                 "name": "Demo PR Project 0",
@@ -56,17 +57,12 @@
                             "fft": {
                                 "desc": "FFT Implementation using Xilinx FFT IP Core",
                                 "rtl": [
-                                    "mode_a.v"
+                                    "mode_a.v",
+                                    "top.v"
                                 ],
-                                "ip": {
-                                    "xfft_0": {
-                                        "vendor": "xilinx.com",
-                                        "library": "ip",
-                                        "version": 9.1,
-                                        "name": "xfft",
-                                        "xci": "xfft_mode_a"
-                                    }
-                                },
+                                "ip": [
+                                  "test.xci"
+                                ],
                                 "top_module": "top.v",
                                 "top_cell": "partial_led_test_v1_0"
                             }
@@ -77,19 +73,14 @@
                             "aes": {
                                 "desc": "Pure Verilog AES Implementation using AXI",
                                 "rtl": [
-                                    "mode_b.v"
+                                    "mode_b.v",
+                                    "top_0.v"
                                 ],
-                                "ip": {
-                                    "xfft_1": {
-                                        "vendor": "xilinx.com",
-                                        "library": "ip",
-                                        "version": 9.1,
-                                        "name": "xfft",
-                                        "xci": "xfft_mode_b"
-                                    }
-                                },
-                                "top_module": "top.v",
-                                "top_cell": "partial_led_test_v1_0"
+                                "ip": [
+                                  "test.xci"
+                                ],
+                                "top_module": "top_0.v",
+                                "top_cell": "thingy"
                             }
                         }
                     },
@@ -105,19 +96,11 @@
                                     "aes_inv_sbox.v",
                                     "aes_key_mem.v",
                                     "aes_sbox.v",
-                                    "aes.v"
+                                    "aes.v",
+                                    "top_1.v"
                                 ],
-                                "ip": {
-                                    "xfft_2": {
-                                        "vendor": "xilinx.com",
-                                        "library": "ip",
-                                        "version": 9.1,
-                                        "name": "xfft",
-                                        "xci": "xfft_mode_c"
-                                    }
-                                },
-                                "top_module": "top.v",
-                                "top_cell": "partial_led_test_v1_0"
+                                "top_module": "top_1.v",
+                                "top_cell": "weird"
                             }
                         }
                     }
@@ -145,6 +128,12 @@
                     }
                 }
             }
+        },
+        "design_static" : {
+          "name": "Demo PR Project 0",
+          "rtl": ["static.v"],
+          "top": "static",
+          "xdc": ["ultra96.xdc"]
         }
     },
     "linux": {

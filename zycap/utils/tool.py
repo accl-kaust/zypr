@@ -23,12 +23,16 @@ class Tool(object):
 
     def check_files_exist(self,root, files: set,ext: str) -> (bool,list):
         temp_files = files
+        path_files = {}
+        self.logger.info('Searching for: {}'.format(files))
         for each in glob.glob(f'{root}/**/*{ext}', recursive=True):
             stem = Path(each).stem
             if stem in temp_files:
                 temp_files.discard(stem)
+                path_files[stem] = Path(each)
         result = files.intersection(temp_files)
-        return (not bool(result),result)
+        self.logger.info('{}'.format(not bool(result)))
+        return (not bool(result),path_files)
 
     def load_config(self, filename):
         try:
