@@ -5,7 +5,9 @@ import glob
 import subprocess
 from .utils.tool import Tool
 import click
+import click_spinner
 from pathlib import Path
+import shutil
 import pkg_resources
 from interfacer.generate import Generate
 from interfacer.identify import Identify
@@ -14,8 +16,9 @@ from interfacer.interface import Interface
 
 
 class Build(Tool):
-    def __init__(self, logger, json=None, linux=True):
+    def __init__(self, logger, json=None, linux=True, force=False):
         self.logger = logger
+        self.force = force
         self.config = self.load_config(json)
         self.config['filename'] = json
         self.root_path = Path.cwd()
@@ -25,13 +28,15 @@ class Build(Tool):
             self.config['project']['project_device']['package'] + \
             self.config['project']['project_device']['speed'] + \
             self.config['project']['project_device']['option']
+        self.board = self.config['project']['project_device']['board']
         self.board_name = self.config['project']['project_device']['name']
         self.board_version = self.config['project']['project_device']['version']
         self.design_name = self.config['design']['design_name']
+        self.tool_path = self.config['config']['config_tools']['tools_path']
         self.vivado_path = self.config['config']['config_vivado']['vivado_path']
         self.xilinx_version = self.config['config']['config_xilinx']['xilinx_version']
         self.vivado_params = self.config['config']['config_vivado']['vivado_params']
-        self.proxy = Tool.exists(
+        self.proxy = self.exists(
             self.config['config']['config_xilinx']['xilinx_proxy'])
         self.petalinux_path = self.config['config']['config_petalinux']['petalinux_path']
 
@@ -45,6 +50,7 @@ class Build(Tool):
         click.secho('Project Name: {}'.format(self.design_name), fg='blue')
         click.secho('Tool Version: {}'.format(self.xilinx_version), fg='blue')
         click.secho('Target Device: {}'.format(self.part), fg='blue')
+        self.logger.info("Starting toolflow...")
 
         if self.proxy is not None:
             click.secho('proxy: {}'.format(self.proxy), fg='blue')
@@ -137,8 +143,10 @@ class Build(Tool):
         click.secho('Generating Interfaces...', fg='magenta')
         for module in self.modules['modules']:
             inter = Interface()
-            self.__ext_interfaces(module, inter)
-            print(inter.matched_interfaces)
+            interfaces, protocols = self.__ext_interfaces(module, inter)
+            # print(inter.matched_interfaces)
+        self.logger.info(interfaces)
+        self.logger.info(protocols)
         self.verify('Discovering Modules', success)
 
     def __ext_modules(self, module, iden):
@@ -162,16 +170,38 @@ class Build(Tool):
             force=False
         )
         # print(f"MODULE FILES {self.modules['modules'][module]['rtl']}")
-        # print(f"OBJ FILES {self.modules['modules'][module]['obj'].files}")
+        print(f"OBJ FILES {self.modules['modules'][module]['obj'].files}")
         json = iden.load(self.modules['modules'][module]['obj'])
         self.modules['modules'][module]['obj'].update(json)
 
     def __ext_interfaces(self, module, inter):
-        inter.verifyInterface(self.modules['modules'][module]['obj'].ports)
+        interfaces = []
+        protocols = []
+        print(f"MOD PORTS: {self.modules['modules'][module]['obj'].ports}")
+        ports = self.modules['modules'][module]['obj'].ports
+        inter.verifyInterface(ports)
+        print(self.modules['modules'][module]['obj'].ports)
+        for interface in inter.matched_interfaces:
+            if interface not in interfaces:
+                print(interface)
+                # for port in self.modules['modules'][module]['obj'].ports:
+                    
+
+                interfaces.append(interface)
+        for protocol in inter.protocol_match:
+            protocols.append(protocol)
+
+        return interfaces, protocols
 
     def generate(self):
+        if all([self.__gen_modules(), self.__gen_base(self.board), self.__gen_infrastructure()]):
+            self.logger.info("Generation all successful!")
+
+    def __gen_modules(self):
+        click.secho('Generating Module Checkpoints...', fg='magenta')
         prr = 2
         mods = self.modules['modules']
+        print(mods['fir']['obj'].ports)
         mod_list = []
         for mod in mods:
             mod_list.append(self.modules['modules'][mod]['obj'])
@@ -187,9 +217,60 @@ class Build(Tool):
                 gen.wrapper(mod, xilinx_pragmas=True)
             gen.render("rtl/.inst/", prr=pr)
 
-        success = True
+        with click_spinner.spinner():
+            log, success = self.xilinx_tool(self.tool_path,
+                                            "Vivado",
+                                            self.xilinx_version,
+                                            "rtl/.inst/gen_modules.tcl -tclargs True")
 
-        self.verify('Generate Checkpoints', success)
+        return self.verify('Generate Module Checkpoints', success)
+
+    def __gen_base(self, device, custom=None):
+        click.secho(
+            f'Generating Base Design for {self.board_name}...', fg='magenta')
+
+        Path(".build").mkdir(parents=True, exist_ok=True)
+        project_board = pkg_resources.resource_filename(
+            'zycap', 'boards') + '/' + self.board.replace(':', '/')
+        shutil.copy(Path(project_board + '/src/constraint.xdc'), ".build")
+
+        with click_spinner.spinner():
+            log, success = self.xilinx_tool(self.tool_path,
+                                            "Vivado",
+                                            self.xilinx_version,
+                                            f'{project_board}/bd/base.tcl -tclargs {self.design_name}')
+
+        return self.verify('Generated Base Design', success)
+
+    def __gen_infrastructure_map(self, protocol, direction):
+        self.interface_map = {
+        'axis': 
+            {
+                'input':'axis_mux.tcl',
+                'output':'axis_demux.tcl'
+            }
+        }
+        pass
 
     def __gen_infrastructure(self):
-        pass
+        self.logger.info("Generating Infrastructure...")
+        ip_config = pkg_resources.resource_filename(
+            'zycap', 'ip') + '/'
+        success = True
+
+        self.interface_map
+
+        # Check that interface module exists
+        for ip_core in Path(ip_config).iterdir():
+            if not Path(f'{ip_core}/' + self.xilinx_version).is_dir():
+                self.logger.warning(
+                    f"{ip_core} does not exist for version {self.xilinx_version}")
+                success = False
+                break
+
+        # self.__gen_infrastructure_map()
+
+
+
+
+        return self.verify('Generated Infrastructure', success)

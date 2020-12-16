@@ -26,22 +26,23 @@ def cli(ctx, verbose):
         __name__, verbose=verbose, testing_mode=True)
 
 
-@click.option('--linux', '-l', is_flag=True, help='Build for only Linux.')
-@click.option('--fpga', '-f', is_flag=True, help='Build for only FPGA.')
+@click.option('--linux', is_flag=True, help='Build for only Linux.')
+@click.option('--fpga', is_flag=True, help='Build for only FPGA.')
+@click.option('--force', '-f', is_flag=True, default=False, help='Overwrite existing build files')
 @click.option('--config', '-c', default=None, metavar='<config.json>', help='Specify configuration file.')
 @cli.command()
 @click.pass_context
-def run(ctx, config, fpga, linux):
+def run(ctx, config, fpga, linux, force):
     """Run - start ZyCAP design processes"""
     logger = ctx.obj['LOG']
     if fpga:
-        z = f(json=config, logger=logger)
+        z = f(json=config, logger=logger, force=force)
         logger.info('FPGA')
     elif linux:
         z = l(json=config)
         logger.info('Linux')
     else:
-        z = f(json=config, logger=logger, linux=True)
+        z = f(json=config, logger=logger, linux=True, force=force)
         logger.info('E2E')
     z.run()
 

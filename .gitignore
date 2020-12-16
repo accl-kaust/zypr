@@ -18,6 +18,7 @@ node_modules
 # .json
 .*
 .python-version
+.pytest_cache
 !/.gitignore
 !.github
 *.egg-info

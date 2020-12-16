@@ -1,36 +1,40 @@
 import os
 from setuptools import setup, find_packages
 
+
 def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
+
 setup(
-    name = "zycap",
-    version = "0.0.1",
+    name="zycap",
+    version="0.0.1",
     packages=find_packages(),
-    package_data = {
-        'fpga' : [
+    package_data={
+        'fpga': [
             'config/global.json',
             'ip/*'
         ],
-        'linux':[
+        'linux': [
             'drivers/*'
         ],
-        'boards' : [
+        'boards': [
             'boards/*',
         ],
-        'docs':[
+        'docs': [
             'mkdocs.yml',
             'docs/*'
         ]},
     include_package_data=True,
-    py_modules=['zycap','interfacer'],
-    author = "Alex Bucknall",
-    author_email = "alex.bucknall@gmail.com",
-    description = ("ZyCAP is a Partial Reconfiguration build tool and runtime framework for Xilinx Zynq and Zynq Ultrascale+ SoCs"),
-    license = "MIT",
-    keywords = ["verilog", "EDA", "hdl", "rtl", "synthesis", "FPGA", "Xilinx", "Partial Reconfiguration"],
-    url = "https://github.com/warclab/zycap2",
+    py_modules=['zycap', 'interfacer'],
+    author="Alex Bucknall",
+    author_email="alex.bucknall@gmail.com",
+    description=(
+        "ZyCAP is a Partial Reconfiguration build tool and runtime framework for Xilinx Zynq and Zynq Ultrascale+ SoCs"),
+    license="MIT",
+    keywords=["verilog", "EDA", "hdl", "rtl", "synthesis",
+              "FPGA", "Xilinx", "Partial Reconfiguration"],
+    url="https://github.com/warclab/zycap2",
     long_description=read('README.md'),
     classifiers=[
         "Development Status :: 4 - Beta",
@@ -43,6 +47,7 @@ setup(
         'fdt',
         'Click',
         'click-log',
+        'click-spinner',
         'colorlog',
         'nmigen',
         'click-help-colors',
