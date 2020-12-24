@@ -1,7 +1,7 @@
 {
   "config": {
       "config_xilinx": {
-          "xilinx_version": "2018.3",
+          "xilinx_version": "2019.2",
           "xilinx_proxy": ""
       },
       "config_tools":{

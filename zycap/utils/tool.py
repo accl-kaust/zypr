@@ -58,13 +58,15 @@ class Tool(object):
             exit()
 
     def source_tools(self, command) -> (bool, bool):
+        self.logger.debug(f'Running {command}')
         # process = subprocess.Popen(command.split(), stdout=subprocess.PIPE,shell=True, executable='/bin/bash')
         process = subprocess.Popen(". %s; env -0" % command, stdout=subprocess.PIPE,
                                    shell=True, executable='/bin/bash', universal_newlines=True)
         output, error = process.communicate()
         # env = dict((line.split("=", 1) for line in output.split('\x00')))
-        os.environ.update(line.partition('=')[::2]
-                          for line in output.split('\0'))
+        # self.logger.debug(output)
+        # os.environ.update(line.partition('=')[::2]
+        #                   for line in output.split('\0'))
         if error is not None:
             click.secho('error [✗]: {}'.format(error), fg='red')
             error = False

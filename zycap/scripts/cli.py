@@ -101,3 +101,8 @@ def docs(ctx, clean):
     _, error = process.communicate()
     if error:
         logger.info()
+
+@cli.command()
+def install(ctx):
+    """Install - install dependencies for ZyCAP"""
+    pass
