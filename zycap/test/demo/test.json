@@ -1,0 +1,151 @@
+{
+  "config": {
+      "config_xilinx": {
+          "xilinx_version": "2018.3",
+          "xilinx_proxy": ""
+      },
+      "config_tools":{
+          "tools_path":"/tools/Xilinx"
+      },
+      "config_vivado": {
+          "vivado_path": "/tools/Xilinx/Vivado",
+          "vivado_params": "-nojou -nolog"
+      },
+      "config_petalinux": {
+          "petalinux_path": "/tools/Xilinx/Petalinux",
+          "petalinux_params": ""
+      },
+      "config_run": {
+          "static_synth": 1,
+          "rm_synth": 1,
+          "pr_impl": 1,
+          "pr_verify": 1,
+          "gen_bitstream": 1
+      },
+      "config_settings": {
+          "top_file": "top.v",
+          "check_dependencies": false
+      }
+  },
+  "project": {
+      "project_name": "example",
+      "project_owner": "bucknalla",
+      "project_device": {
+          "name": "ultra96v2",
+          "family": "zynq-ultrascale",
+          "device": "xczu3eg",
+          "package": "-sbva484",
+          "speed": "-1",
+          "option": "-i",
+          "board": "em.avnet.com:ultra96v2:part0:1.0",
+          "version": "1.2",
+          "constraint": "default.xdc"
+      }
+  },
+  "design": {
+      "design_name": "base",
+      "design_owner": "bucknalla",
+      "design_directory": "rtl",
+      "design_mode": {
+          "mode_a": {
+              "name": "Demo PR Project 0",
+              "pr_module": "partial_led_test_v1_0_S00_AXI",
+              "pr_cell": [
+                  "partial_led_test_v1_0_S00_AXI_inst",
+                  "demo"
+              ],
+              "configs": {
+                  "config_a": {
+                      "modules": {
+                          "fft": {
+                              "desc": "FFT Implementation using Xilinx FFT IP Core",
+                              "rtl": [
+                                  "mode_a.v",
+                                  "top.v"
+                              ],
+                              "ip": [
+                                "test.xci"
+                              ],
+                              "top_module": "top.v",
+                              "top_cell": "partial_led_test_v1_0"
+                          }
+                      }
+                  },
+                  "config_b": {
+                      "modules": {
+                          "aes": {
+                              "desc": "Pure Verilog AES Implementation using AXI",
+                              "rtl": [
+                                  "mode_b.v",
+                                  "top_0.v"
+                              ],
+                              "ip": [
+                                "test.xci"
+                              ],
+                              "top_module": "top_0.v",
+                              "top_cell": "thingy"
+                          }
+                      }
+                  },
+                  "config_c": {
+                      "modules": {
+                          "fir": {
+                              "desc": "HLS FIR Filter using AXIS",
+                              "rtl": [
+                                  "mode_c.v",
+                                  "aes_core.v",
+                                  "aes_decipher_block.v",
+                                  "aes_encipher_block.v",
+                                  "aes_inv_sbox.v",
+                                  "aes_key_mem.v",
+                                  "aes_sbox.v",
+                                  "aes.v",
+                                  "top_1.v"
+                              ],
+                              "top_module": "top_1.v",
+                              "top_cell": "weird"
+                          }
+                      }
+                  }
+              },
+              "interfaces": {
+                  "master": {
+                      "axi_stream": {
+                          "width": 32,
+                          "port": [
+                              "m0_axis"
+                          ]
+                      },
+                      "axi_lite": {
+                          "width": 32,
+                          "port": []
+                      }
+                  },
+                  "slave": {
+                      "axi_stream": {
+                          "width": 32,
+                          "port": [
+                              "m0_axis"
+                          ]
+                      }
+                  }
+              }
+          }
+      },
+      "design_static" : {
+        "name": "Demo PR Project 0",
+        "rtl": ["static.v"],
+        "top": "static",
+        "xdc": ["ultra96.xdc"]
+      }
+  },
+  "linux": {
+      "linux_device_tree": {
+          "device_tree_config": {
+              "udmabuf": {
+                  "size": 0
+              }
+          }
+      }
+  }
+}

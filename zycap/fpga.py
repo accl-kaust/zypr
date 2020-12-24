@@ -147,6 +147,8 @@ class Build(Tool):
             # print(inter.matched_interfaces)
         self.logger.info(interfaces)
         self.logger.info(protocols)
+        self.interfaces = interfaces
+        self.protocols = protocols
         self.verify('Discovering Modules', success)
 
     def __ext_modules(self, module, iden):
