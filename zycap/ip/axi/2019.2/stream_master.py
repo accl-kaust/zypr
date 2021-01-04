@@ -7,7 +7,10 @@ from __future__ import print_function
 
 import argparse
 import math
+import logging
 from jinja2 import Template
+
+logger = logging.getLogger(__name__)
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__.strip())
@@ -18,26 +21,27 @@ def main():
 
     args = parser.parse_args()
 
+    logger.info('Starting!')
     try:
         generate(**args.__dict__)
     except IOError as ex:
         print(ex)
         exit(1)
 
-def generate(ports=4, name=None, output=None, width=8):
+def generate(ports=2, name=None, output=None, width=8):
     n = ports
 
     if name is None:
-        name = "axis_mux_wrap_{0}".format(n)
+        name = "axis_stream_master"
 
     if output is None:
         output = name + ".v"
 
-    # print("Opening file '{0}'...".format(output))
+    print("Opening file '{0}'...".format(output))
 
     output_file = open(output, 'w')
 
-    # print("Generating {0} port AXI stream mux wrapper {1} with DATA_WIDTH {2}...".format(n, name, width))
+    print("Generating {0} port AXI stream mux wrapper {1} with DATA_WIDTH {2}...".format(n, name, width))
 
     cn = int(math.ceil(math.log(n, 2)))
 
@@ -178,8 +182,10 @@ endmodule
         width=width
     ))
 
-    # print("Done")
+    print("Done")
 
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+#     logger.info('Starting!')
+
+main()
 

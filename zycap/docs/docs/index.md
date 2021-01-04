@@ -1,10 +1,17 @@
 # ZyCAP2
 
-ZyCAP is a partial reconfiguration tool flow for Xilinx Zynq and Zynq Ultrascale SoC platforms.
+ZyCAP is a partial reconfiguration abstraction build/runtime tool for Xilinx Zynq and Zynq Ultrascale+ SoC platforms.
 
-## Project layout
+## CLI Commands
 
-    mkdocs.yml    # The configuration file.
-    docs/
-        index.md  # The documentation homepage.
-        ...       # Other markdown pages, images and other files.
+### `run`
+
+`--config -c` specify configuration file (`json`) to deploy the zycap tool from
+
+### `clean`
+
+### `flash`
+
+### `install`
+
+### `setup`

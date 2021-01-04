@@ -24,11 +24,11 @@ def main():
         print(ex)
         exit(1)
 
-def generate(ports=4, name=None, output=None, width=8):
+def generate(ports=2, name=None, output=None, width=8):
     n = ports
 
     if name is None:
-        name = "axis_demux_wrap_{0}".format(n)
+        name = "axis_stream_slave"
 
     if output is None:
         output = name + ".v"
@@ -183,6 +183,6 @@ endmodule
 
     print("Done")
 
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+main()
 

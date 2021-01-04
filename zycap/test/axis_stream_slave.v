@@ -1,0 +1,190 @@
+/*
+
+Copyright (c) 2018 Alex Forencich
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+
+*/
+
+// Language: Verilog 2001
+
+`timescale 1ns / 1ps
+
+/*
+ * AXI4-Stream 8 port demux (wrapper)
+ */
+module axis_stream_slave #
+(
+    // Width of AXI stream interfaces in bits
+    parameter DATA_WIDTH = None,
+    // Propagate tkeep signal
+    parameter KEEP_ENABLE = (DATA_WIDTH>8),
+    // tkeep signal width (words per cycle)
+    parameter KEEP_WIDTH = (DATA_WIDTH/8),
+    // Propagate tid signal
+    parameter ID_ENABLE = 0,
+    // tid signal width
+    parameter ID_WIDTH = 8,
+    // Propagate tdest signal
+    parameter DEST_ENABLE = 0,
+    // tdest signal width
+    parameter DEST_WIDTH = 8,
+    // Propagate tuser signal
+    parameter USER_ENABLE = 1,
+    // tuser signal width
+    parameter USER_WIDTH = 1
+)
+(
+    input  wire                  clk,
+    input  wire                  rst,
+
+    /*
+     * AXI Stream input
+     */
+    input  wire [DATA_WIDTH-1:0] s_axis_tdata,
+    input  wire [KEEP_WIDTH-1:0] s_axis_tkeep,
+    input  wire                  s_axis_tvalid,
+    output wire                  s_axis_tready,
+    input  wire                  s_axis_tlast,
+    input  wire [ID_WIDTH-1:0]   s_axis_tid,
+    input  wire [DEST_WIDTH-1:0] s_axis_tdest,
+    input  wire [USER_WIDTH-1:0] s_axis_tuser,
+
+    /*
+     * AXI Stream outputs
+     */
+    output wire [DATA_WIDTH-1:0] m00_axis_tdata,
+    output wire [KEEP_WIDTH-1:0] m00_axis_tkeep,
+    output wire                  m00_axis_tvalid,
+    input  wire                  m00_axis_tready,
+    output wire                  m00_axis_tlast,
+    output wire [ID_WIDTH-1:0]   m00_axis_tid,
+    output wire [DEST_WIDTH-1:0] m00_axis_tdest,
+    output wire [USER_WIDTH-1:0] m00_axis_tuser,
+
+    output wire [DATA_WIDTH-1:0] m01_axis_tdata,
+    output wire [KEEP_WIDTH-1:0] m01_axis_tkeep,
+    output wire                  m01_axis_tvalid,
+    input  wire                  m01_axis_tready,
+    output wire                  m01_axis_tlast,
+    output wire [ID_WIDTH-1:0]   m01_axis_tid,
+    output wire [DEST_WIDTH-1:0] m01_axis_tdest,
+    output wire [USER_WIDTH-1:0] m01_axis_tuser,
+
+    output wire [DATA_WIDTH-1:0] m02_axis_tdata,
+    output wire [KEEP_WIDTH-1:0] m02_axis_tkeep,
+    output wire                  m02_axis_tvalid,
+    input  wire                  m02_axis_tready,
+    output wire                  m02_axis_tlast,
+    output wire [ID_WIDTH-1:0]   m02_axis_tid,
+    output wire [DEST_WIDTH-1:0] m02_axis_tdest,
+    output wire [USER_WIDTH-1:0] m02_axis_tuser,
+
+    output wire [DATA_WIDTH-1:0] m03_axis_tdata,
+    output wire [KEEP_WIDTH-1:0] m03_axis_tkeep,
+    output wire                  m03_axis_tvalid,
+    input  wire                  m03_axis_tready,
+    output wire                  m03_axis_tlast,
+    output wire [ID_WIDTH-1:0]   m03_axis_tid,
+    output wire [DEST_WIDTH-1:0] m03_axis_tdest,
+    output wire [USER_WIDTH-1:0] m03_axis_tuser,
+
+    output wire [DATA_WIDTH-1:0] m04_axis_tdata,
+    output wire [KEEP_WIDTH-1:0] m04_axis_tkeep,
+    output wire                  m04_axis_tvalid,
+    input  wire                  m04_axis_tready,
+    output wire                  m04_axis_tlast,
+    output wire [ID_WIDTH-1:0]   m04_axis_tid,
+    output wire [DEST_WIDTH-1:0] m04_axis_tdest,
+    output wire [USER_WIDTH-1:0] m04_axis_tuser,
+
+    output wire [DATA_WIDTH-1:0] m05_axis_tdata,
+    output wire [KEEP_WIDTH-1:0] m05_axis_tkeep,
+    output wire                  m05_axis_tvalid,
+    input  wire                  m05_axis_tready,
+    output wire                  m05_axis_tlast,
+    output wire [ID_WIDTH-1:0]   m05_axis_tid,
+    output wire [DEST_WIDTH-1:0] m05_axis_tdest,
+    output wire [USER_WIDTH-1:0] m05_axis_tuser,
+
+    output wire [DATA_WIDTH-1:0] m06_axis_tdata,
+    output wire [KEEP_WIDTH-1:0] m06_axis_tkeep,
+    output wire                  m06_axis_tvalid,
+    input  wire                  m06_axis_tready,
+    output wire                  m06_axis_tlast,
+    output wire [ID_WIDTH-1:0]   m06_axis_tid,
+    output wire [DEST_WIDTH-1:0] m06_axis_tdest,
+    output wire [USER_WIDTH-1:0] m06_axis_tuser,
+
+    output wire [DATA_WIDTH-1:0] m07_axis_tdata,
+    output wire [KEEP_WIDTH-1:0] m07_axis_tkeep,
+    output wire                  m07_axis_tvalid,
+    input  wire                  m07_axis_tready,
+    output wire                  m07_axis_tlast,
+    output wire [ID_WIDTH-1:0]   m07_axis_tid,
+    output wire [DEST_WIDTH-1:0] m07_axis_tdest,
+    output wire [USER_WIDTH-1:0] m07_axis_tuser,
+/*
+     * Control
+     */
+    input  wire                  enable,
+    input  wire                  drop,
+    input  wire [2:0]            sel
+);
+
+axis_demux #(
+    .M_COUNT(8),
+    .DATA_WIDTH(DATA_WIDTH),
+    .KEEP_ENABLE(KEEP_ENABLE),
+    .KEEP_WIDTH(KEEP_WIDTH),
+    .ID_ENABLE(ID_ENABLE),
+    .ID_WIDTH(ID_WIDTH),
+    .DEST_ENABLE(DEST_ENABLE),
+    .DEST_WIDTH(DEST_WIDTH),
+    .USER_ENABLE(USER_ENABLE),
+    .USER_WIDTH(USER_WIDTH)
+)
+axis_demux_inst (
+    .clk(clk),
+    .rst(rst),
+    // AXI inputs
+    .s_axis_tdata(s_axis_tdata),
+    .s_axis_tkeep(s_axis_tkeep),
+    .s_axis_tvalid(s_axis_tvalid),
+    .s_axis_tready(s_axis_tready),
+    .s_axis_tlast(s_axis_tlast),
+    .s_axis_tid(s_axis_tid),
+    .s_axis_tdest(s_axis_tdest),
+    .s_axis_tuser(s_axis_tuser),
+    // AXI output
+    .m_axis_tdata({ m07_axis_tdata, m06_axis_tdata, m05_axis_tdata, m04_axis_tdata, m03_axis_tdata, m02_axis_tdata, m01_axis_tdata, m00_axis_tdata }),
+    .m_axis_tkeep({ m07_axis_tkeep, m06_axis_tkeep, m05_axis_tkeep, m04_axis_tkeep, m03_axis_tkeep, m02_axis_tkeep, m01_axis_tkeep, m00_axis_tkeep }),
+    .m_axis_tvalid({ m07_axis_tvalid, m06_axis_tvalid, m05_axis_tvalid, m04_axis_tvalid, m03_axis_tvalid, m02_axis_tvalid, m01_axis_tvalid, m00_axis_tvalid }),
+    .m_axis_tready({ m07_axis_tready, m06_axis_tready, m05_axis_tready, m04_axis_tready, m03_axis_tready, m02_axis_tready, m01_axis_tready, m00_axis_tready }),
+    .m_axis_tlast({ m07_axis_tlast, m06_axis_tlast, m05_axis_tlast, m04_axis_tlast, m03_axis_tlast, m02_axis_tlast, m01_axis_tlast, m00_axis_tlast }),
+    .m_axis_tid({ m07_axis_tid, m06_axis_tid, m05_axis_tid, m04_axis_tid, m03_axis_tid, m02_axis_tid, m01_axis_tid, m00_axis_tid }),
+    .m_axis_tdest({ m07_axis_tdest, m06_axis_tdest, m05_axis_tdest, m04_axis_tdest, m03_axis_tdest, m02_axis_tdest, m01_axis_tdest, m00_axis_tdest }),
+    .m_axis_tuser({ m07_axis_tuser, m06_axis_tuser, m05_axis_tuser, m04_axis_tuser, m03_axis_tuser, m02_axis_tuser, m01_axis_tuser, m00_axis_tuser }),
+    // Control
+    .enable(enable),
+    .drop(drop),
+    .sel(sel)
+);
+
+endmodule

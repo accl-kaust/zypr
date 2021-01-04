@@ -1,16 +1,29 @@
 from zycap.fpga import Build as fpga
 from zycap.utils import logging
 import sys
+from pathlib import Path
 
 
 logger = logging.init_logger(
     __name__, verbose=True, testing_mode=True)
 f = fpga(json="demo/config.json", logger=logger, force=True)
+f.protocol_dict = {'SIGNAL': {'CLOCK': [['clk']], 'INTERRUPT': [['irq']], 'GPIO_IN': [['gpio']]}, 'AXI': {'STREAM_MASTER': [['b_TDATA_out', 'b_TVALID', 'b_TREADY']], 'STREAM_SLAVE': [['a_TDATA_in', 'a_TVALID', 'a_TREADY']]}}
+f.xilinx_version = '2019.2'
 
-
-def test_example():
-    assert True == True
+def setup_function():
+    logger.info('Setting up directories')
+    for f in Path('.').glob('*.v'):
+        logger.info(f)
+        try:
+            f.unlink()
+        except OSError as e:
+            print("Error: %s : %s" % (f, e.strerror))
 
 
 def test_gen_infra():
     assert f._Build__gen_infrastructure() == True
+
+
+def teardown_function():
+    logger.info(f'Tearing down directories - ({Path.cwd()})')
+

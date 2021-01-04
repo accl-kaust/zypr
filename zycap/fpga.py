@@ -136,15 +136,20 @@ class Build(Tool):
             else:
                 self.logger.info(
                     f'Found module ip {[s + ".xci" for s in self.modules["ipcores"]]}')
-
         # print(self.modules)
+
         for module in self.modules['modules']:
             self.__ext_modules(module, iden)
         click.secho('Generating Interfaces...', fg='magenta')
         for module in self.modules['modules']:
             inter = Interface()
             interfaces, protocols = self.__ext_interfaces(module, inter)
-            # print(inter.matched_interfaces)
+            self.logger.error(f'ERROR: {inter.protocol_dict}')
+            try:
+                self.protocol_dict = inter.protocol_dict.keys() & self.protocol_dict.keys()
+            except:
+                self.protocol_dict = inter.protocol_dict
+
         self.logger.info(interfaces)
         self.logger.info(protocols)
         self.interfaces = interfaces
@@ -258,17 +263,46 @@ class Build(Tool):
         self.logger.info("Generating Infrastructure...")
         ip_config = pkg_resources.resource_filename(
             'zycap', 'ip') + '/'
+        self.logger.info(ip_config)
         success = True
 
-        self.interface_map
+        self.logger.debug(self.pprint(self.protocol_dict))
 
         # Check that interface module exists
+        self.logger.debug(f'Checking that ip exists for {self.xilinx_version}')
         for ip_core in Path(ip_config).iterdir():
             if not Path(f'{ip_core}/' + self.xilinx_version).is_dir():
                 self.logger.warning(
                     f"{ip_core} does not exist for version {self.xilinx_version}")
                 success = False
                 break
+            if not Path(f'{ip_core}/config.json').is_file():
+                self.logger.warning(
+                    f"Missing config.json for {ip_core}")
+                success = False
+                break
+        for interface in self.protocol_dict:
+            # self.logger.info(interface)
+            for protocol in self.protocol_dict[interface].keys():
+                try:
+                    loc = f"{ip_config}{interface.lower()}/{self.xilinx_version}/{protocol.lower()}.py"
+                    interface_len = len(self.protocol_dict[interface][protocol])
+                    self.logger.debug(loc)
+                    self.logger.info(f'Found {interface_len} interfaces for {interface} - {protocol}')
+                    p = 8
+                    # exec(open(loc).read())
+                    output = open(f'{self.root_path}/.logs/{interface}-{protocol}.log', 'w+')
+                    e = subprocess.run(
+                        f'{loc} -p {p}'.split(), stdout=output, stderr=output)
+                    # if e.returncode != 0:
+                    #     return (f'.logs/{tool}_{tcl}.log', False)
+                    # else:
+                    #     return (f'.logs/{tool}_{tcl}.log', True)
+                except:
+                    self.logger.warning(f'not found - {interface} - {protocol}')
+                    # with open(f'{ip_core}/config.json') as ip:
+                    #     data = json.load(ip)
+                    #     print(data)
 
         # self.__gen_infrastructure_map()
 

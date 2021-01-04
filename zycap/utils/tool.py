@@ -9,7 +9,11 @@ import json
 
 
 class Tool(object):
-    def exists(self, x): return None if x == '' else x
+    def exists(self, x): 
+        return None if x == '' else x
+
+    def pprint(self,text):
+        return json.dumps(text, indent=4, sort_keys=True)
 
     def __init__(self, deps=None):
         self.check_dependencies = deps
