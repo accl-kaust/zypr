@@ -24,6 +24,10 @@ setup(
         'docs': [
             'mkdocs.yml',
             'docs/*'
+        ],
+        'scripts': [
+            'vivado/*',
+            'vitis/*'
         ]},
     include_package_data=True,
     py_modules=['zycap', 'interfacer'],
@@ -44,6 +48,8 @@ setup(
     ],
     install_requires=[
         'xmltodict',
+        'edalize',
+        'nmigen',
         'fdt',
         'Click',
         'click-log',

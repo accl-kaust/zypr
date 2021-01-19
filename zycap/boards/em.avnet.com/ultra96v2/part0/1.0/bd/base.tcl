@@ -2,8 +2,6 @@
 # Block diagram build script
 ################################################################
 
-create_project [lindex $argv 0] .build -part xczu3eg-sbva484-1-e -force
-
 set_property board_part em.avnet.com:ultra96v2:part0:1.0 [current_project]
 
 # CHECKING IF PROJECT EXISTS
@@ -13,7 +11,6 @@ if { [get_projects -quiet] eq "" } {
 }
 
 set work_directory [get_property DIRECTORY [current_project]]
-set design_name [lindex $argv 0]
 set cur_design [current_bd_design -quiet]
 set list_cells [get_bd_cells -quiet]
 
@@ -54,14 +51,32 @@ CONFIG.PSU__GPIO_EMIO__PERIPHERAL__IO {12} \
 CONFIG.PSU__NUM_FABRIC_RESETS {1} \
 CONFIG.PSU__UART0__MODEM__ENABLE {1}] [get_bd_cells zynq_ultra_ps_e_0]
 
+# Add the Direct Memory Access
+create_bd_cell -type ip -vlnv xilinx.com:ip:axi_dma axi_dma_0
+set_property -dict [list CONFIG.c_include_sg {0} \
+CONFIG.c_sg_length_width {26} \
+CONFIG.c_sg_include_stscntrl_strm {0}] [get_bd_cells axi_dma_0]
+
+connect_bd_net [get_bd_pins axi_dma_0/m_axi_mm2s_aclk] [get_bd_pins zynq_ultra_ps_e_0/pl_clk0]
+connect_bd_net [get_bd_pins axi_dma_0/m_axi_s2mm_aclk] [get_bd_pins zynq_ultra_ps_e_0/pl_clk0]
+
+# Concat DMA interupts
+create_bd_cell -type ip -vlnv xilinx.com:ip:xlconcat xlconcat_0
+connect_bd_net [get_bd_pins axi_dma_0/mm2s_introut] [get_bd_pins xlconcat_0/In0]
+connect_bd_net [get_bd_pins axi_dma_0/s2mm_introut] [get_bd_pins xlconcat_0/In1]
+connect_bd_net [get_bd_pins xlconcat_0/dout] [get_bd_pins zynq_ultra_ps_e_0/pl_ps_irq0]
+
+# Automate connections
+apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config { Clk_master {/zynq_ultra_ps_e_0/pl_clk0 (100 MHz)} Clk_slave {Auto} Clk_xbar {Auto} Master {/zynq_ultra_ps_e_0/M_AXI_HPM1_FPD} Slave {/axi_dma_0/S_AXI_LITE} ddr_seg {Auto} intc_ip {New AXI Interconnect} master_apm {0}}  [get_bd_intf_pins axi_dma_0/S_AXI_LITE]
+
 # Create ports for Bluetooth UART0
-create_bd_port -dir I BT_ctsn
-connect_bd_net [get_bd_ports BT_ctsn] [get_bd_pins zynq_ultra_ps_e_0/emio_uart0_ctsn]
-create_bd_port -dir O BT_rtsn
-connect_bd_net [get_bd_ports BT_rtsn] [get_bd_pins zynq_ultra_ps_e_0/emio_uart0_rtsn]
+create_bd_port -dir I BT_HCI_CTS
+connect_bd_net [get_bd_ports BT_HCI_CTS] [get_bd_pins zynq_ultra_ps_e_0/emio_uart0_ctsn]
+create_bd_port -dir O BT_HCI_RTS
+connect_bd_net [get_bd_ports BT_HCI_RTS] [get_bd_pins zynq_ultra_ps_e_0/emio_uart0_rtsn]
 
 # Connect FPD to PL CLK
-connect_bd_net [get_bd_pins zynq_ultra_ps_e_0/maxihpm1_fpd_aclk] [get_bd_pins zynq_ultra_ps_e_0/pl_clk0]
+#connect_bd_net [get_bd_pins zynq_ultra_ps_e_0/maxihpm1_fpd_aclk] [get_bd_pins zynq_ultra_ps_e_0/pl_clk0]
 
 # Restore current instance
 current_bd_instance $oldCurInst
@@ -69,5 +84,5 @@ current_bd_instance $oldCurInst
 validate_bd_design
 save_bd_design
 
-make_wrapper -files [get_files $work_directory/$design_name.srcs/sources_1/bd/$design_name/$design_name.bd] -top
-add_files -norecurse $work_directory/$design_name.srcs/sources_1/bd/$design_name/hdl/${design_name}_wrapper.v
+#make_wrapper -files [get_files $work_directory/$design_name.srcs/sources_1/bd/$design_name/$design_name.bd] -top
+#add_files -norecurse $work_directory/$design_name.srcs/sources_1/bd/$design_name/hdl/${design_name}_wrapper.v

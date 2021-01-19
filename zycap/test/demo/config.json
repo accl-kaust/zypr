@@ -36,7 +36,7 @@
             "device": "xczu3eg",
             "package": "-sbva484",
             "speed": "-1",
-            "option": "-i",
+            "option": "-e",
             "board": "em.avnet.com:ultra96v2:part0:1.0",
             "version": "1.2",
             "constraint": "default.xdc"

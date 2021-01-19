@@ -14,8 +14,9 @@ logger = logging.getLogger(__name__)
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__.strip())
-    parser.add_argument('-p', '--ports',  type=int, default=4, help="number of ports")
+    parser.add_argument('-p', '--ports',  type=int, default=1, help="number of ports")
     parser.add_argument('-n', '--name',   type=str, help="module name")
+    parser.add_argument('-i', '--icap',   type=bool, default=True,help="icap enabled")
     parser.add_argument('-o', '--output', type=str, help="output file name")
     parser.add_argument('-w', '--width', type=str, default=32, help="data width")
 
@@ -28,8 +29,8 @@ def main():
         print(ex)
         exit(1)
 
-def generate(ports=2, name=None, output=None, width=8):
-    n = ports
+def generate(ports=1, name=None, output=None, width=8, icap=True):
+    n = ports + 1
 
     if name is None:
         name = "axis_stream_master"
@@ -67,6 +68,8 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
+Modified 2021 Alex Bucknall
+
 */
 
 // Language: Verilog 2001
@@ -98,32 +101,70 @@ module {{name}} #
     parameter USER_WIDTH = 1
 )
 (
+    (* X_INTERFACE_INFO = "xilinx.com:signal:clock:1.0 clk CLK" *)
     input  wire                  clk,
+    (* X_INTERFACE_INFO = "xilinx.com:signal:reset:1.0 rst RST" *)
     input  wire                  rst,
+
+    /*
+     * ICAP Stream inputs
+     */
+    (* X_INTERFACE_INFO = "xilinx.com:interface:axis:1.0 ICAP TDATA" *)
+    input  wire [DATA_WIDTH-1:0] icap_axis_tdata,
+    (* X_INTERFACE_INFO = "xilinx.com:interface:axis:1.0 ICAP TKEEP" *)
+    input  wire [KEEP_WIDTH-1:0] icap_axis_tkeep,
+    (* X_INTERFACE_INFO = "xilinx.com:interface:axis:1.0 ICAP TVALID" *)
+    input  wire                  icap_axis_tvalid,
+    (* X_INTERFACE_INFO = "xilinx.com:interface:axis:1.0 ICAP TREADY" *)
+    output wire                  icap_axis_tready,
+    (* X_INTERFACE_INFO = "xilinx.com:interface:axis:1.0 ICAP TLAST" *)
+    input  wire                  icap_axis_tlast,
+    (* X_INTERFACE_INFO = "xilinx.com:interface:axis:1.0 ICAP TID" *)
+    input  wire [ID_WIDTH-1:0]   icap_axis_tid,
+    (* X_INTERFACE_INFO = "xilinx.com:interface:axis:1.0 ICAP TDEST" *)
+    input  wire [DEST_WIDTH-1:0] icap_axis_tdest,
+    (* X_INTERFACE_INFO = "xilinx.com:interface:axis:1.0 ICAP TUSER" *)
+    input  wire [USER_WIDTH-1:0] icap_axis_tuser,
 
     /*
      * AXI Stream inputs
      */
 {%- for p in range(n) %}
-    input  wire [DATA_WIDTH-1:0] s{{'%02d'%p}}_axis_tdata,
-    input  wire [KEEP_WIDTH-1:0] s{{'%02d'%p}}_axis_tkeep,
-    input  wire                  s{{'%02d'%p}}_axis_tvalid,
-    output wire                  s{{'%02d'%p}}_axis_tready,
-    input  wire                  s{{'%02d'%p}}_axis_tlast,
-    input  wire [ID_WIDTH-1:0]   s{{'%02d'%p}}_axis_tid,
-    input  wire [DEST_WIDTH-1:0] s{{'%02d'%p}}_axis_tdest,
-    input  wire [USER_WIDTH-1:0] s{{'%02d'%p}}_axis_tuser,
+    (* X_INTERFACE_INFO = "xilinx.com:interface:axis:1.0 s_{{'%02d'%p}}_axis TDATA" *)
+    input  wire [DATA_WIDTH-1:0] s_{{'%02d'%p}}_axis_tdata,
+    (* X_INTERFACE_INFO = "xilinx.com:interface:axis:1.0 s_{{'%02d'%p}}_axis TKEEP" *)
+    input  wire [KEEP_WIDTH-1:0] s_{{'%02d'%p}}_axis_tkeep,
+    (* X_INTERFACE_INFO = "xilinx.com:interface:axis:1.0 s_{{'%02d'%p}}_axis TVALID" *)
+    input  wire                  s_{{'%02d'%p}}_axis_tvalid,
+    (* X_INTERFACE_INFO = "xilinx.com:interface:axis:1.0 s_{{'%02d'%p}}_axis TREADY" *)
+    output wire                  s_{{'%02d'%p}}_axis_tready,
+    (* X_INTERFACE_INFO = "xilinx.com:interface:axis:1.0 s_{{'%02d'%p}}_axis TLAST" *)
+    input  wire                  s_{{'%02d'%p}}_axis_tlast,
+    (* X_INTERFACE_INFO = "xilinx.com:interface:axis:1.0 s_{{'%02d'%p}}_axis TID" *)
+    input  wire [ID_WIDTH-1:0]   s_{{'%02d'%p}}_axis_tid,
+    (* X_INTERFACE_INFO = "xilinx.com:interface:axis:1.0 s_{{'%02d'%p}}_axis TDEST" *)
+    input  wire [DEST_WIDTH-1:0] s_{{'%02d'%p}}_axis_tdest,
+    (* X_INTERFACE_INFO = "xilinx.com:interface:axis:1.0 s_{{'%02d'%p}}_axis TUSER" *)
+    input  wire [USER_WIDTH-1:0] s_{{'%02d'%p}}_axis_tuser,
 {% endfor %}
     /*
      * AXI Stream output
      */
+    (* X_INTERFACE_INFO = "xilinx.com:interface:axis:1.0 DMA TDATA" *)
     output wire [DATA_WIDTH-1:0] m_axis_tdata,
+    (* X_INTERFACE_INFO = "xilinx.com:interface:axis:1.0 DMA TKEEP" *)
     output wire [KEEP_WIDTH-1:0] m_axis_tkeep,
+    (* X_INTERFACE_INFO = "xilinx.com:interface:axis:1.0 DMA TVALID" *)
     output wire                  m_axis_tvalid,
+    (* X_INTERFACE_INFO = "xilinx.com:interface:axis:1.0 DMA TREADY" *)
     input  wire                  m_axis_tready,
+    (* X_INTERFACE_INFO = "xilinx.com:interface:axis:1.0 DMA TLAST" *)
     output wire                  m_axis_tlast,
+    (* X_INTERFACE_INFO = "xilinx.com:interface:axis:1.0 DMA TID" *)
     output wire [ID_WIDTH-1:0]   m_axis_tid,
+    (* X_INTERFACE_INFO = "xilinx.com:interface:axis:1.0 DMA TDEST" *)
     output wire [DEST_WIDTH-1:0] m_axis_tdest,
+    (* X_INTERFACE_INFO = "xilinx.com:interface:axis:1.0 DMA TUSER" *)
     output wire [USER_WIDTH-1:0] m_axis_tuser,
 
     /*
@@ -149,14 +190,14 @@ axis_mux_inst (
     .clk(clk),
     .rst(rst),
     // AXI inputs
-    .s_axis_tdata({ {% for p in range(n-1,-1,-1) %}s{{'%02d'%p}}_axis_tdata{% if not loop.last %}, {% endif %}{% endfor %} }),
-    .s_axis_tkeep({ {% for p in range(n-1,-1,-1) %}s{{'%02d'%p}}_axis_tkeep{% if not loop.last %}, {% endif %}{% endfor %} }),
-    .s_axis_tvalid({ {% for p in range(n-1,-1,-1) %}s{{'%02d'%p}}_axis_tvalid{% if not loop.last %}, {% endif %}{% endfor %} }),
-    .s_axis_tready({ {% for p in range(n-1,-1,-1) %}s{{'%02d'%p}}_axis_tready{% if not loop.last %}, {% endif %}{% endfor %} }),
-    .s_axis_tlast({ {% for p in range(n-1,-1,-1) %}s{{'%02d'%p}}_axis_tlast{% if not loop.last %}, {% endif %}{% endfor %} }),
-    .s_axis_tid({ {% for p in range(n-1,-1,-1) %}s{{'%02d'%p}}_axis_tid{% if not loop.last %}, {% endif %}{% endfor %} }),
-    .s_axis_tdest({ {% for p in range(n-1,-1,-1) %}s{{'%02d'%p}}_axis_tdest{% if not loop.last %}, {% endif %}{% endfor %} }),
-    .s_axis_tuser({ {% for p in range(n-1,-1,-1) %}s{{'%02d'%p}}_axis_tuser{% if not loop.last %}, {% endif %}{% endfor %} }),
+    .s_axis_tdata({ {% for p in range(n-1,-1,-1) %}s{{'%02d'%p}}_axis_tdata{% if not loop.last %}, {% endif %}{% if loop.last %}, icap_axis_tdata{% endif %}{% endfor %} }),
+    .s_axis_tkeep({ {% for p in range(n-1,-1,-1) %}s{{'%02d'%p}}_axis_tkeep{% if not loop.last %}, {% endif %}{% if loop.last %}, icap_axis_tkeep{% endif %}{% endfor %} }),
+    .s_axis_tvalid({ {% for p in range(n-1,-1,-1) %}s{{'%02d'%p}}_axis_tvalid{% if not loop.last %}, {% endif %}{% if loop.last %}, icap_axis_tvalid{% endif %}{% endfor %} }),
+    .s_axis_tready({ {% for p in range(n-1,-1,-1) %}s{{'%02d'%p}}_axis_tready{% if not loop.last %}, {% endif %}{% if loop.last %}, icap_axis_tready{% endif %}{% endfor %} }),
+    .s_axis_tlast({ {% for p in range(n-1,-1,-1) %}s{{'%02d'%p}}_axis_tlast{% if not loop.last %}, {% endif %}{% if loop.last %}, icap_axis_tlast{% endif %}{% endfor %} }),
+    .s_axis_tid({ {% for p in range(n-1,-1,-1) %}s{{'%02d'%p}}_axis_tid{% if not loop.last %}, {% endif %}{% if loop.last %}, icap_axis_tid{% endif %}{% endfor %} }),
+    .s_axis_tdest({ {% for p in range(n-1,-1,-1) %}s{{'%02d'%p}}_axis_tdest{% if not loop.last %}, {% endif %}{% if loop.last %}, icap_axis_tdest{% endif %}{% endfor %} }),
+    .s_axis_tuser({ {% for p in range(n-1,-1,-1) %}s{{'%02d'%p}}_axis_tuser{% if not loop.last %}, {% endif %}{% if loop.last %}, icap_axis_tuser{% endif %}{% endfor %} }),
     // AXI output
     .m_axis_tdata(m_axis_tdata),
     .m_axis_tkeep(m_axis_tkeep),

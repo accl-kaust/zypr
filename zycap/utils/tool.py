@@ -27,6 +27,16 @@ class Tool(object):
             click.secho('{} complete [✓]'.format(process), fg='green')
             return success
 
+    def source_tool(self, xilinx_dir, tool, version) -> (str, bool):
+        output = open(f'.logs/{tool}.log', 'w+')
+        os.system(f'bash {xilinx_dir}/{tool.title()}/{version}/settings64.sh')
+        # e = subprocess.run(
+        #     f'bash source {xilinx_dir}/{tool.title()}/{version}/settings64.sh'.split(), stdout=output, stderr=output)
+        if e.returncode != 0:
+            return (f'.logs/{tool}.log', False)
+        else:
+            return (f'.logs/{tool}.log', True)
+
     def xilinx_tool(self, xilinx_dir, tool, version, tcl) -> (str, bool):
         output = open(f'.logs/{tool}_{Path(tcl).stem}.log', 'w+')
         e = subprocess.run(

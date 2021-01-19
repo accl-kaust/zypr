@@ -151,7 +151,7 @@ always @* begin
 end
 
 always @(posedge clk) begin
-    if (rst) begin
+    if (!rst) begin
         sel_reg <= 2'd0;
         drop_reg <= 1'b0;
         frame_reg <= 1'b0;
@@ -226,7 +226,7 @@ always @* begin
 end
 
 always @(posedge clk) begin
-    if (rst) begin
+    if (!rst) begin
         m_axis_tvalid_reg <= {M_COUNT{1'b0}};
         m_axis_tready_int_reg <= 1'b0;
         temp_m_axis_tvalid_reg <= {M_COUNT{1'b0}};

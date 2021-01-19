@@ -12,6 +12,15 @@ f.xilinx_version = '2019.2'
 
 def setup_function():
     logger.info('Setting up directories')
+
+    path = Path.cwd() / 'rtl' / ".inst"
+    try:
+        path.mkdir(parents=True, exist_ok=False)
+    except FileExistsError:
+        print("Folder is already there")
+    else:
+        print("Folder was created")
+
     for f in Path('.').glob('*.v'):
         logger.info(f)
         try:

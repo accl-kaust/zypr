@@ -44,7 +44,7 @@ def init_logger(dunder_name, testing_mode, verbose=False) -> logging.Logger:
         '%(log_color)s '
         f'{log_format}'
     )
-    colorlog.basicConfig(format=colorlog_format)
+    colorlog.basicConfig(format=colorlog_format,datefmt="%H:%M:%S")
     logger = logging.getLogger(dunder_name)
 
     if not path.exists('.logs'):
