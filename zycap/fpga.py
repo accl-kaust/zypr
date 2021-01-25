@@ -19,7 +19,7 @@ from edalize import *
 
 
 class Build(Tool):
-    def __init__(self, logger, json=None, linux=True, force=False):
+    def __init__(self, logger, json=None, force=False):
         self.logger = logger
         self.force = force
         self.config = self.load_config(json)
@@ -44,6 +44,8 @@ class Build(Tool):
             self.config['config']['config_xilinx']['xilinx_proxy'])
         self.petalinux_path = self.config['config']['config_petalinux']['petalinux_path']
         self.tcl_scripts = []
+        self.rtl_hash = self.hash_directory(self.rtl_directory)
+        self.work_root = 'build'
 
     def setup_vivado_project(self):
         board = self.board.replace(':','/')
@@ -51,40 +53,31 @@ class Build(Tool):
         self.logger.info(f"Generating Vivado Project for {board}...")
 
         bd_files = pkg_resources.resource_filename(
-            'zycap', f'scripts/vivado/generate_bd.tcl')
+            'zycap', f'scripts/vivado/generate_bd_wrapper.tcl')
         self.logger.info(bd_files)
 
-        exit()
+        gen_bd_files = pkg_resources.resource_filename(
+            'zycap', f'scripts/vivado/generate_hwdef.tcl')
+        self.logger.info(bd_files)
 
         board_files = pkg_resources.resource_filename(
-            'zycap', f'boards/{board}')
+            'zycap', f'boards/{board}/bd/{self.xilinx_version}')
         self.logger.info(board_files)
         success = True
 
         self.logger.debug(f"Board files: {board_files}...")
 
-        self.work_root = 'build'
-
         build_path = Path.cwd() / self.work_root / '.inst'
-        try:
-            build_path.mkdir(parents=True, exist_ok=False)
-        except FileExistsError:
-            self.logger.debug(f"Directory '{self.work_root}' already exists")
-        else:
-            self.logger.debug(f"Directory '{self.work_root}' created")
+        self._create_path(build_path)
 
         checkpoint_path = Path.cwd() / self.work_root / '.checkpoint'
-        try:
-            checkpoint_path.mkdir(parents=True, exist_ok=False)
-        except FileExistsError:
-            self.logger.debug(f"Directory '{self.work_root}/.checkpoint' already exists")
-        else:
-            self.logger.debug(f"Directory '{self.work_root}/.checkpoint' created")
+        self._create_path(checkpoint_path)
+
+        sdk_path = Path.cwd() / self.work_root / f'{self.project_name}.sdk'
+        self._create_path(sdk_path)
 
         board_constraint = Path(f'{board_files}/src/constraint.xdc')
         board_bd = Path(f'{board_files}/bd/base.tcl')
-
-        print(board_constraint.as_posix())
 
         defines = {'design_name':self.project_name,'test':1000}
 
@@ -97,7 +90,7 @@ class Build(Tool):
         {'name':f"{self.project_name}_params.tcl",'file_type': 'tclSource'},
         {'name' : board_bd.as_posix(),'file_type' : 'tclSource'},
         {'name' : board_constraint.as_posix(),'file_type' : 'xdc'},
-        {'name' : bd_files, 'file_type':'tclSource'}
+        {'name' : bd_files, 'file_type':'tclSource'},
         # {'name' : os.path.relpath('build-ps.tcl', work_root),
         # 'file_type' : 'tclSource'},
         # {'name' : os.path.relpath('blinky.v', work_root),
@@ -116,12 +109,27 @@ class Build(Tool):
             'vivado-settings': f'{self.vivado_path}/{self.xilinx_version}/settings64.sh'
         }   
 
+        generate_sdk_files = {
+            'name': 'test',
+            'cmd' : [f"{self.tool_path}/Vivado/{self.xilinx_version}/bin/vivado", "-mode", "batch", "-source", gen_bd_files, "-tclargs", self.project_name]
+        }
+
+            # 'cmd' : f"bash {self.tool_path}/Vivado/{self.xilinx_version}/bin/vivado -mode batch -source {gen_bd_files}"
+
+
+        hooks = {
+            'post_build' : [generate_sdk_files]
+        }
+
+
+
         self.edam = {
         'files'        : files,
         'name'         : self.project_name,
         'parameters'   : parameters,
         'toplevel'     : f'{self.project_name}_wrapper',
-        'tool_options': {'vivado' : tool_options}
+        'tool_options': {'vivado' : tool_options},
+        'hooks' : hooks
         }
 
         # self.edam['files'][:0] = [{'name' : board_constraint.as_posix(),
@@ -143,11 +151,12 @@ class Build(Tool):
     def run(self):
         """Start the fpga build run."""
         success = False
-        click.secho('Starting ZyCAP build flow...', fg='magenta')
+        click.secho('Starting ZyCAP FPGA build...', fg='magenta')
         click.secho('Project Name: {}'.format(self.design_name), fg='blue')
         click.secho('Tool Version: {}'.format(self.xilinx_version), fg='blue')
         click.secho('Target Device: {}'.format(self.part), fg='blue')
-        click.secho('Board: {}'.format(self.board), fg='blue')
+        click.secho('Board: {}'.format(self.board), fg='blue')  
+        click.secho('Project Version: {}'.format(self.rtl_hash), fg='blue')
         self.logger.info("Starting toolflow...")
 
         if self.proxy is not None:
@@ -155,6 +164,15 @@ class Build(Tool):
         _, success = self.source_tools(
             '{0}/{1}/settings64.sh'.format(self.vivado_path, self.xilinx_version))
         self.verify('Setup', success)
+        with open(f"{self.work_root}/.hash", "r") as f:
+            hash_file = f.readline()
+
+        if hash_file != self.rtl_hash:
+            self.logger.warning('detected file changes in RTL')
+            self.changes = True
+        else:
+            self.changes = False
+
         self.extract()
         self.generate()
 
@@ -238,7 +256,7 @@ class Build(Tool):
 
         for module in self.modules['modules']:
             self.__ext_modules(module, iden)
-        click.secho('Generating Interfaces...', fg='magenta')
+        click.secho('Extracting Interfaces...', fg='magenta')
         for module in self.modules['modules']:
             inter = Interface()
             interfaces, protocols = self.__ext_interfaces(module, inter)
@@ -300,15 +318,21 @@ class Build(Tool):
         return interfaces, protocols
 
     def generate(self):
+        with open(f"{self.work_root}/.hash", "w") as f:
+            f.write(self.hash_directory(self.rtl_directory))
         self.setup_vivado_project()
-        if all([self.__gen_modules(), self.__gen_base(self.board), self.__gen_infrastructure()]):
+        if all([self.__gen_modules(), self.__gen_infrastructure(), self.__gen_base(self.board)]):
             self.logger.info("Generation all successful!")
+            self.export()
+        else:
+            exit(1)
+        
 
     def __gen_modules(self):
         click.secho('Generating PR Module Checkpoints...', fg='magenta')
         prr = 2
         mods = self.modules['modules']
-        print(mods['fir']['obj'].ports)
+        # print(mods['fir']['obj'].ports)
         mod_list = []
         for mod in mods:
             mod_list.append(self.modules['modules'][mod]['obj'])
@@ -324,8 +348,14 @@ class Build(Tool):
                 gen.wrapper(mod, xilinx_pragmas=True)
             gen.render(f"{self.work_root}/.inst/", prr=pr)
 
-        self.edam['files'][:0] = [{'name' : '.inst/gen_modules.tcl',
-        'file_type' : 'tclSource'}]
+        # Check for differences in checkpoint files before regenerating checkpoints
+        p = Path(f'{self.work_root}/.checkpoint')  
+        checkpoints = [y for y in p.rglob(f'*.dcp')] 
+
+        if self.changes == True or (len(checkpoints) != len(mod_list)):
+            self.logger.info("Changes identifies in PR module checkpoints...")
+            self.edam['files'].insert(1, {'name' : '.inst/gen_modules.tcl',
+            'file_type' : 'tclSource'})
 
         success = True
 
@@ -340,29 +370,28 @@ class Build(Tool):
         return self.verify('Generate Module Checkpoints', success)
 
     def __gen_base(self, device, custom=None):
-        # click.secho(
-        #     f'Generating Base Design for {self.board_name}...', fg='magenta')
-
-        # Path(".build").mkdir(parents=True, exist_ok=True)
-        # project_board = pkg_resources.resource_filename(
-        #     'zycap', 'boards') + '/' + self.board.replace(':', '/')
-        # shutil.copy(Path(project_board + '/src/constraint.xdc'), ".build")
-
-        # with click_spinner.spinner():
-        #     log, success = self.source_tool(self.tool_path,
-        #                                     "Vivado",
-        #                                     self.xilinx_version)
+        click.secho(
+            f'Generating Base Design for {self.board_name}...', fg='magenta')
 
         self.backend.configure()
-        try:
-            self.backend.run()
-        except:
-            self.logger.error("Vivado missing from PATH")
 
+        with open(f'{self.work_root}/{self.project_name}.tcl', 'a') as f:
+            f.write('set_property source_mgmt_mode All [current_project]')
+
+        # try:
+        #     self.backend.build()
+        #     success = True
+        # except:
+        #     self.logger.error("Problems with Vivado build process")
+        success = True
         return self.verify('Generated Base Design', success)
 
     def __gen_infrastructure(self):
         self.logger.info("Generating Infrastructure...")
+
+        ip_path = Path.cwd() / self.work_root / '.ip'
+        self._create_path(ip_path)
+
         ip_config = pkg_resources.resource_filename(
             'zycap', 'ip') + '/'
         self.logger.info(ip_config)
@@ -382,18 +411,21 @@ class Build(Tool):
             for protocol in self.protocol_dict[interface].keys():
                 try:
                     interface_script = f"{ip_config}{interface.lower()}/{self.xilinx_version}/{protocol.lower()}.py"
+                    if Path(f"{ip_config}{interface.lower()}/src").is_dir():
+                        for each in Path(f"{ip_config}{interface.lower()}/src").glob(f'{protocol.lower()}*'):
+                            self.edam['files'].insert(1, {'name' : str(each), 'file_type' : 'verilogSource'})
                     interface_len = len(self.protocol_dict[interface][protocol])
                     self.logger.debug(self.protocol_dict[interface][protocol])
                     self.logger.info(f'Found {interface_len} interfaces for {interface} - {protocol}')
                     output = open(f'{self.root_path}/.logs/{interface}-{protocol}.log', 'w+')
                     e = subprocess.run(
-                        f'{interface_script} -p {interface_len} -o {self.rtl_directory}/.inst/{interface}_{protocol}.v'.split(), stdout=output, stderr=output)
+                        f'{interface_script} -p {interface_len} -o {self.work_root}/.ip/{interface}_{protocol}.v'.split(), stdout=output, stderr=output)
                     if e.returncode != 0:
-                        self.logger.error(f"Error {e.returncode} in IP generation")
+                        self.logger.error(f"Error {e} in IP generation")
                         return self.verify('Generated Infrastructure', False)
                 except Exception as e:
                     self.logger.warning(f'No IP for {interface} - {protocol}')
-        
+
         # Generate ICAP infrastructure
         try:
             interface_script = f"{ip_config}icap/{self.xilinx_version}/icape.py"
@@ -404,11 +436,26 @@ class Build(Tool):
             self.logger.debug(f"Attempting to generate ICAP interface for {self.family} - ICAPE{version}")
             output = open(f'{self.root_path}/.logs/icap.log', 'w+')
             e = subprocess.run(
-                f'{interface_script} -n icap -v {version} -o {self.rtl_directory}/.inst/ICAP.v'.split(), stdout=output, stderr=output)
+                f'{interface_script} -n icap -v {version} -o {self.work_root}/.ip/ICAP.v'.split(), stdout=output, stderr=output)
             if e.returncode != 0:
-                self.logger.error(f"Error {e.returncode} in ICAP generation")
+                self.logger.error(f"Error {e} in ICAP generation")
                 return self.verify('Generated Infrastructure', False)
         except Exception as e:
             self.logger.error(f'Error generating ICAP - {e}')
+            success = False
+
+        ip_script = pkg_resources.resource_filename(
+            'zycap', f'scripts/vivado/generate_bd_wrapper.tcl')
+        
+        # self.edam['files'].insert(1, {'name' : str(each.relative_to(Path.cwd() / self.work_root)),
+        #     'file_type' : 'verilogSource'})
+
+        for each in ip_path.glob('*.v'):
+            self.logger.info(f"Appending IP file {str(each.relative_to(Path.cwd() / self.work_root))} to project")
+            self.edam['files'].insert(1, {'name' : str(each.relative_to(Path.cwd() / self.work_root)),
+                'file_type' : 'verilogSource'})
 
         return self.verify('Generated Infrastructure', success)
+
+    def export(self):
+        pass

@@ -11,8 +11,12 @@
           "vivado_path": "/tools/Xilinx/Vivado",
           "vivado_params": "-nojou -nolog"
       },
+      "config_sdk": {
+        "sdk_path": "/tools/Xilinx/Vitis",
+        "sdk_params": ""
+    },
       "config_petalinux": {
-          "petalinux_path": "/tools/Xilinx/Petalinux",
+          "petalinux_path": "/home/alex/Petalinux",
           "petalinux_params": ""
       },
       "config_run": {
@@ -36,7 +40,7 @@
           "device": "xczu3eg",
           "package": "-sbva484",
           "speed": "-1",
-          "option": "-i",
+          "option": "-e",
           "board": "em.avnet.com:ultra96v2:part0:1.0",
           "version": "1.2",
           "constraint": "default.xdc"

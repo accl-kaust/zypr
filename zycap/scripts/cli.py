@@ -38,14 +38,17 @@ def run(ctx, config, fpga, linux, force):
     if fpga:
         z = f(json=config, logger=logger, force=force)
         logger.info('FPGA')
+        z.run()
     elif linux:
-        z = l(json=config)
+        z = l(json=config, logger=logger)
         logger.info('Linux')
+        z.run()
     else:
-        z = f(json=config, logger=logger, linux=True, force=force)
+        z = f(json=config, logger=logger, force=force)
         logger.info('E2E')
-    z.run()
-
+        z_l = l(json=config, logger=logger)
+        z.run()
+        z_l.run()
 
 @click.option('--deps', '-d', is_flag=True, help='Install ZyCAP dependencies.')
 @click.option('--docker', default=None, metavar='<version>', help='Generate Docker Environment. Specify Xilinx Tool Version, i.e. 2019.1.')

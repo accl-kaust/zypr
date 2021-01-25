@@ -6,6 +6,10 @@ import logging
 from pathlib import Path
 import glob
 import json
+import hashlib
+from _hashlib import HASH as Hash
+from typing import Union
+import shutil
 
 
 class Tool(object):
@@ -26,6 +30,29 @@ class Tool(object):
         else:
             click.secho('{} complete [✓]'.format(process), fg='green')
             return success
+
+    def hash_directory(self, path):
+        digest = hashlib.sha1()
+
+        for root, dirs, files in os.walk(path):
+            for names in files:
+                file_path = os.path.join(root, names)
+
+                # Hash the path and add to the digest to account for empty files/directories
+                digest.update(hashlib.sha1(file_path[len(path):].encode()).digest())
+
+                # Per @pt12lol - if the goal is uniqueness over repeatability, this is an alternative method using 'hash'
+                # digest.update(str(hash(file_path[len(path):])).encode())
+
+                if os.path.isfile(file_path):
+                    with open(file_path, 'rb') as f_obj:
+                        while True:
+                            buf = f_obj.read(1024 * 1024)
+                            if not buf:
+                                break
+                            digest.update(buf)
+
+        return digest.hexdigest()
 
     def source_tool(self, xilinx_dir, tool, version) -> (str, bool):
         output = open(f'.logs/{tool}.log', 'w+')
@@ -71,16 +98,33 @@ class Tool(object):
             click.secho('error: {}'.format(e), fg='red')
             exit()
 
-    def source_tools(self, command) -> (bool, bool):
+    def _create_path(self,path):
+        try:
+            path.mkdir(parents=True, exist_ok=False)
+        except FileExistsError:
+            self.logger.debug(f"Directory '{path.as_posix()}' already exists")
+        else:
+            self.logger.debug(f"Directory '{path.as_posix()}' created")
+
+    def copytree(self, src, dst, symlinks=False, ignore=None):
+        for item in os.listdir(src):
+            s = os.path.join(src, item)
+            d = os.path.join(dst, item)
+            if os.path.isdir(s):
+                shutil.copytree(s, d, symlinks, ignore)
+            else:
+                shutil.copy2(s, d)
+
+    def source_tools(self, command, quiet=False) -> (bool, bool):
         self.logger.debug(f'Running {command}')
-        # process = subprocess.Popen(command.split(), stdout=subprocess.PIPE,shell=True, executable='/bin/bash')
-        process = subprocess.Popen(". %s; env -0" % command, stdout=subprocess.PIPE,
-                                   shell=True, executable='/bin/bash', universal_newlines=True)
-        output, error = process.communicate()
-        # env = dict((line.split("=", 1) for line in output.split('\x00')))
-        # self.logger.debug(output)
-        # os.environ.update(line.partition('=')[::2]
-        #                   for line in output.split('\0'))
+        if quiet:
+            process = subprocess.Popen(". %s; env -0" % command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, 
+                                    shell=True, executable='/bin/bash', universal_newlines=True)
+            output, error = process.communicate()
+        else:
+            process = subprocess.Popen(". %s; env -0" % command, stdout=subprocess.PIPE,
+                                    shell=True, executable='/bin/bash', universal_newlines=True)
+            output, error = process.communicate()
         if error is not None:
             click.secho('error [✗]: {}'.format(error), fg='red')
             error = False
