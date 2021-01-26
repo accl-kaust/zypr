@@ -9,8 +9,7 @@ import json
 import hashlib
 from _hashlib import HASH as Hash
 from typing import Union
-import shutil
-
+from distutils.dir_util import copy_tree
 
 class Tool(object):
     def exists(self, x): 
@@ -106,14 +105,8 @@ class Tool(object):
         else:
             self.logger.debug(f"Directory '{path.as_posix()}' created")
 
-    def copytree(self, src, dst, symlinks=False, ignore=None):
-        for item in os.listdir(src):
-            s = os.path.join(src, item)
-            d = os.path.join(dst, item)
-            if os.path.isdir(s):
-                shutil.copytree(s, d, symlinks, ignore)
-            else:
-                shutil.copy2(s, d)
+    def copytree(self, src, dst):
+        copy_tree(src, dst)
 
     def source_tools(self, command, quiet=False) -> (bool, bool):
         self.logger.debug(f'Running {command}')

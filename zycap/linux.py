@@ -48,7 +48,6 @@ class Build(Tool):
         self.sdk_tool = 'xsct'
 
     def __fsbl(self, bootloader_files):
-        return True
         click.secho('Generating fsbl...', fg='magenta')
         with click_spinner.spinner():
             process = subprocess.Popen(
@@ -57,7 +56,6 @@ class Build(Tool):
         return success
 
     def __pmufw(self, bootloader_files):
-        return True
         click.secho('Generating pmufw...', fg='magenta')
         with click_spinner.spinner():
             process = subprocess.Popen(
@@ -66,12 +64,12 @@ class Build(Tool):
         return success
 
     def __atf(self, bootloader_files):
-        return True
         click.secho('Generating arm trusted firmware...', fg='magenta')
         with click_spinner.spinner():
             process = subprocess.Popen(
-                f'bash {bootloader_files}/atf/build.sh {self.project_name} {self.work_root}'.split(), stdout=subprocess.DEVNULL)
+                f'bash {bootloader_files}/atf/build.sh {self.project_name} {self.work_root}'.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             output, success = process.communicate()
+            print(output)
         return success
 
     def __uboot(self, bootloader_files):
@@ -80,7 +78,7 @@ class Build(Tool):
         self.copytree(f'{bootloader_files}/uboot/src', f'./{self.work_root}/{self.project_name}.sdk/uboot/src')
         with click_spinner.spinner():
             process = subprocess.Popen(
-                f'bash {bootloader_files}/uboot/build.sh {self.project_name} {self.work_root}'.split(), stdout=subprocess.PIPE)
+                f'bash {bootloader_files}/uboot/build.sh {self.project_name} {self.work_root}'.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             output, success = process.communicate()
         return success
 
