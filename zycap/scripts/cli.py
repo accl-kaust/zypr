@@ -7,7 +7,7 @@ import subprocess
 import pkg_resources
 from distutils.dir_util import copy_tree
 from os import path, symlink, unlink
-
+from pathlib import Path
 
 @click.group(
     cls=HelpColorsGroup,
@@ -72,7 +72,7 @@ def clean(ctx, linux, fpga, logs):
     logger = ctx.obj['LOG']
     logger.info('cleaning')
     if logs:
-        logging.clean()
+        logging.clean(Path.cwd(), ('.log','.jou','.str'))
 
 
 @click.option('--device', '-d', default='Ultra96v2', help='Sets device to be flashed.')

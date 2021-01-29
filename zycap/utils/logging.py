@@ -1,10 +1,10 @@
 import logging
 import colorlog
 import sys
-from os import path, makedirs, remove
+from os import path, makedirs, remove, listdir, walk
 from shutil import rmtree
 import glob
-
+import re
 
 # def setup_logger():
 #     """Return a logger with a default ColoredFormatter."""
@@ -83,6 +83,14 @@ def init_logger(dunder_name, testing_mode, verbose=False) -> logging.Logger:
 
     return logger
 
+# def clean(dir, pattern):
+#     for f in listdir(dir):
+#         if re.search(pattern, f):
+#             remove(path.join(dir, f))
 
-def clean():
-    rmtree('.logs')
+def clean(path, exts):
+    for root, dirs, files in walk(path):
+        for currentFile in files:
+            if currentFile.lower().endswith(exts):
+                print(f"removing file: {currentFile}")
+                remove(path.join(root, currentFile))

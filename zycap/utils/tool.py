@@ -97,6 +97,11 @@ class Tool(object):
             click.secho('error: {}'.format(e), fg='red')
             exit()
 
+    def _renderTemplate(self, jinja_env, template_file, target_file, template_vars={}):
+        template = jinja_env.get_template(template_file)
+        with open(target_file, 'w') as f:
+            f.write(template.render(template_vars))
+
     def _create_path(self,path):
         try:
             path.mkdir(parents=True, exist_ok=False)

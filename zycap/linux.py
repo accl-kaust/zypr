@@ -9,6 +9,7 @@ import click
 import click_spinner
 import pkg_resources
 from pathlib import Path
+from jinja2 import Environment, FileSystemLoader
 
 class Build(Tool):
     def __init__(self, logger, json=None):  
@@ -42,12 +43,15 @@ class Build(Tool):
         self.source_tools(f'{self.petalinux_path}/settings.sh',True)
         click.secho('setup complete [✓]',fg='green')
 
+        self.setup()
         self.generate()
 
     def __set_tool(self, version):
         self.sdk_tool = 'xsct'
 
     def __fsbl(self, bootloader_files):
+        return True
+
         click.secho('Generating fsbl...', fg='magenta')
         with click_spinner.spinner():
             process = subprocess.Popen(
@@ -56,6 +60,7 @@ class Build(Tool):
         return success
 
     def __pmufw(self, bootloader_files):
+        return True
         click.secho('Generating pmufw...', fg='magenta')
         with click_spinner.spinner():
             process = subprocess.Popen(
@@ -64,6 +69,7 @@ class Build(Tool):
         return success
 
     def __atf(self, bootloader_files):
+        return True
         click.secho('Generating arm trusted firmware...', fg='magenta')
         with click_spinner.spinner():
             process = subprocess.Popen(
@@ -73,6 +79,7 @@ class Build(Tool):
         return success
 
     def __uboot(self, bootloader_files):
+        return True
         click.secho('Generating uboot...', fg='magenta')
         self._create_path(Path.cwd() / self.work_root / f'{self.project_name}.sdk' / 'uboot' / 'src')
         self.copytree(f'{bootloader_files}/uboot/src', f'./{self.work_root}/{self.project_name}.sdk/uboot/src')
@@ -82,6 +89,27 @@ class Build(Tool):
             output, success = process.communicate()
         return success
 
+    def __image(self, bootloader_files):
+        click.secho('Generating boot image...', fg='magenta')
+
+        jinja_env = Environment(loader=FileSystemLoader(bootloader_files))
+
+        p = Path(f"{self.work_root}/{self.project_name}.bitstreams").glob('*.bit')
+        bitstreams = [x.absolute() for x in p if x.is_file()]
+        self.logger.info(bitstreams)
+
+        self._renderTemplate(jinja_env, 'boot.bif.j2', Path.cwd() / self.work_root / f'{self.project_name}.sdk' / 'boot.bif', template_vars={'bitstreams' : bitstreams})
+        self._create_path(Path.cwd() / self.work_root / f'{self.project_name}.sdk' / 'uboot' / 'src')
+
+        with click_spinner.spinner():
+            process = subprocess.Popen(
+                f'bash {bootloader_files}/boot.sh {self.work_root}/{self.project_name}.sdk'.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            output, success = process.communicate()
+        return success
+
+    def setup(self):
+        self._create_path(Path.cwd() / self.work_root / f'{self.project_name}.linux')
+
     def generate(self):
         board = self.board.replace(':','/')
 
@@ -90,11 +118,12 @@ class Build(Tool):
         self.logger.info(bootloader_files)
         success = True
 
-        if all([self.__fsbl(bootloader_files), self.__pmufw(bootloader_files), self.__atf(bootloader_files), self.__uboot(bootloader_files)]):
-            self.logger.info("Generation all successful!")
-            self.export()
+        if all([self.__fsbl(bootloader_files), self.__pmufw(bootloader_files), self.__atf(bootloader_files), self.__uboot(bootloader_files), self.__image(bootloader_files)]):
+            self.logger.info("Generation all boot components successful!")
         else:
             exit(1)
+
+        self.export()
         pass
 
     def export(self):

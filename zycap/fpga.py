@@ -70,6 +70,9 @@ class Build(Tool):
         build_path = Path.cwd() / self.work_root / '.inst'
         self._create_path(build_path)
 
+        inst_path = Path.cwd() / self.work_root / f'{self.project_name}.inst'
+        self._create_path(inst_path)
+
         checkpoint_path = Path.cwd() / self.work_root / '.checkpoint'
         self._create_path(checkpoint_path)
 
@@ -77,7 +80,7 @@ class Build(Tool):
         self._create_path(sdk_path)
 
         board_constraint = Path(f'{board_files}/src/constraint.xdc')
-        board_bd = Path(f'{board_files}/bd/base.tcl')
+        board_bd = Path(f'{board_files}/base.tcl')
 
         defines = {'design_name':self.project_name,'test':1000}
 
@@ -110,15 +113,17 @@ class Build(Tool):
         }   
 
         generate_sdk_files = {
-            'name': 'test',
+            'name': 'generate_sdk_files',
             'cmd' : [f"{self.tool_path}/Vivado/{self.xilinx_version}/bin/vivado", "-mode", "batch", "-source", gen_bd_files, "-tclargs", self.project_name]
         }
 
-            # 'cmd' : f"bash {self.tool_path}/Vivado/{self.xilinx_version}/bin/vivado -mode batch -source {gen_bd_files}"
-
+        move_bitstreams = {
+            'name': 'move_bitstreams',
+            'cmd' : ["cp", "*.bit", f"{self.project_name}.bitstreams"]
+        }
 
         hooks = {
-            'post_build' : [generate_sdk_files]
+            'post_build' : [generate_sdk_files, move_bitstreams]
         }
 
 
@@ -321,7 +326,7 @@ class Build(Tool):
         with open(f"{self.work_root}/.hash", "w") as f:
             f.write(self.hash_directory(self.rtl_directory))
         self.setup_vivado_project()
-        if all([self.__gen_modules(), self.__gen_infrastructure(), self.__gen_base(self.board)]):
+        if all([self.__gen_modules(), self.__gen_infrastructure(), self.__gen_wrapper(), self.__gen_base(self.board)]):
             self.logger.info("Generation all successful!")
             self.export()
         else:
@@ -346,7 +351,7 @@ class Build(Tool):
             for mod in mod_list:
                 self.logger.info(f'Mod {mod.name}')
                 gen.wrapper(mod, xilinx_pragmas=True)
-            gen.render(f"{self.work_root}/.inst/", prr=pr)
+            gen.render(f"{self.work_root}/example.inst/", prr=pr)
 
         # Check for differences in checkpoint files before regenerating checkpoints
         p = Path(f'{self.work_root}/.checkpoint')  
@@ -378,18 +383,24 @@ class Build(Tool):
         with open(f'{self.work_root}/{self.project_name}.tcl', 'a') as f:
             f.write('set_property source_mgmt_mode All [current_project]')
 
-        # try:
-        #     self.backend.build()
-        #     success = True
-        # except:
-        #     self.logger.error("Problems with Vivado build process")
-        success = True
+        try:
+            self.backend.build()
+            success = True
+        except:
+            self.logger.error("Problems with Vivado build process")
+            success = False
         return self.verify('Generated Base Design', success)
+
+    def __gen_wrapper(self):
+        self.edam['files'].insert(1, {'name' : str(Path(f"{self.work_root}/{self.project_name}.inst/wrapper.v").absolute().relative_to(Path.cwd() / self.work_root)),
+                'file_type' : 'verilogSource'})
+
+
 
     def __gen_infrastructure(self):
         self.logger.info("Generating Infrastructure...")
 
-        ip_path = Path.cwd() / self.work_root / '.ip'
+        ip_path = Path.cwd() / self.work_root / f'{self.project_name}.ip'
         self._create_path(ip_path)
 
         ip_config = pkg_resources.resource_filename(
@@ -419,7 +430,7 @@ class Build(Tool):
                     self.logger.info(f'Found {interface_len} interfaces for {interface} - {protocol}')
                     output = open(f'{self.root_path}/.logs/{interface}-{protocol}.log', 'w+')
                     e = subprocess.run(
-                        f'{interface_script} -p {interface_len} -o {self.work_root}/.ip/{interface}_{protocol}.v'.split(), stdout=output, stderr=output)
+                        f'{interface_script} -p {interface_len} -o {self.work_root}/{self.project_name}.ip/{interface}_{protocol}.v'.split(), stdout=output, stderr=output)
                     if e.returncode != 0:
                         self.logger.error(f"Error {e} in IP generation")
                         return self.verify('Generated Infrastructure', False)
@@ -436,7 +447,7 @@ class Build(Tool):
             self.logger.debug(f"Attempting to generate ICAP interface for {self.family} - ICAPE{version}")
             output = open(f'{self.root_path}/.logs/icap.log', 'w+')
             e = subprocess.run(
-                f'{interface_script} -n icap -v {version} -o {self.work_root}/.ip/ICAP.v'.split(), stdout=output, stderr=output)
+                f'{interface_script} -n icap -v {version} -o {self.work_root}/{self.project_name}.ip/ICAP.v'.split(), stdout=output, stderr=output)
             if e.returncode != 0:
                 self.logger.error(f"Error {e} in ICAP generation")
                 return self.verify('Generated Infrastructure', False)
@@ -451,6 +462,7 @@ class Build(Tool):
         #     'file_type' : 'verilogSource'})
 
         for each in ip_path.glob('*.v'):
+            print(each)
             self.logger.info(f"Appending IP file {str(each.relative_to(Path.cwd() / self.work_root))} to project")
             self.edam['files'].insert(1, {'name' : str(each.relative_to(Path.cwd() / self.work_root)),
                 'file_type' : 'verilogSource'})
