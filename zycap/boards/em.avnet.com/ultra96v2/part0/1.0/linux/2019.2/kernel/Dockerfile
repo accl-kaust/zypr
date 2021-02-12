@@ -2,6 +2,8 @@ FROM ubuntu:bionic
 
 ARG XILINX_VER=rel-v2019.2
 
+ENV USER_NAME zycap
+
 RUN apt-get update && apt-get install -y \
 gawk \
 wget \
@@ -12,24 +14,50 @@ curl \
 texinfo \
 gcc-multilib \
 build-essential \
+libncurses-dev \
 chrpath \
 socat \
 libsdl1.2-dev \
 xterm \
-repo
+screen \
+openssl \
+repo \
+locales \
+nano \
+cpio
 
-WORKDIR /usr/app
+# Correctly setup locales
+RUN sed -i '/en_US.UTF-8/s/^# //g' /etc/locale.gen && \
+    locale-gen
 
-RUN mkdir ${HOME}/bin && cd ${HOME}/bin
+ENV LANG en_US.UTF-8  
+ENV LANGUAGE en_US:en  
+ENV LC_ALL en_US.UTF-8  
+
+# Add user
+ARG host_uid=1001
+ARG host_gid=1001
+RUN groupadd -g $host_gid $USER_NAME && \
+    useradd -g $host_gid -m -s /bin/bash -u $host_uid $USER_NAME
+
+WORKDIR /usr/app 
+
+RUN chown ${USER_NAME} /usr/app
+RUN chown ${USER_NAME} /usr/bin
+
+
+USER $USER_NAME
+
+RUN cd /usr/bin
 
 # install repo
 RUN curl https://storage.googleapis.com/git-repo-downloads/repo > repo 
 RUN chmod a+x repo 
 RUN python3 repo --help
 
-ENV PATH ${HOME}/bin:$PATH
+ENV PATH /usr/bin:$PATH
 
-RUN cd ${HOME}
+RUN cd /usr/app
 
 RUN python3 repo init -u git://github.com/Xilinx/yocto-manifests.git -b "${XILINX_VER}"
 RUN python3 repo sync && \

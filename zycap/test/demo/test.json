@@ -2,7 +2,7 @@
   "config": {
       "config_xilinx": {
           "xilinx_version": "2019.2",
-          "xilinx_proxy": ""
+          "xilinx_proxy": "ssh -NfD 9050 alex@donnager.eng.warwick.ac.uk"
       },
       "config_tools":{
           "tools_path":"/tools/Xilinx"
@@ -28,7 +28,8 @@
       },
       "config_settings": {
           "top_file": "top.v",
-          "check_dependencies": false
+          "check_dependencies": false,
+          "cores" : 8
       }
   },
   "project": {
@@ -58,6 +59,9 @@
                   "partial_led_test_v1_0_S00_AXI_inst",
                   "demo"
               ],
+              "pblock":[
+                  "CLOCKREGION_X1Y1:CLOCKREGION_X1Y1"
+              ],
               "configs": {
                   "config_a": {
                       "modules": {
@@ -65,13 +69,10 @@
                               "desc": "FFT Implementation using Xilinx FFT IP Core",
                               "rtl": [
                                   "mode_a.v",
-                                  "top.v"
+                                  "top_a.v"
                               ],
-                              "ip": [
-                                "test.xci"
-                              ],
-                              "top_module": "top.v",
-                              "top_cell": "partial_led_test_v1_0"
+                              "top_module": "top_a.v",
+                              "top_cell": "axis_fifo_top"
                           }
                       }
                   },
@@ -81,13 +82,13 @@
                               "desc": "Pure Verilog AES Implementation using AXI",
                               "rtl": [
                                   "mode_b.v",
-                                  "top_0.v"
+                                  "top_b.v"
                               ],
                               "ip": [
                                 "test.xci"
                               ],
-                              "top_module": "top_0.v",
-                              "top_cell": "thingy"
+                              "top_module": "top_b.v",
+                              "top_cell": "axis_fifo_top"
                           }
                       }
                   },
@@ -104,10 +105,10 @@
                                   "aes_key_mem.v",
                                   "aes_sbox.v",
                                   "aes.v",
-                                  "top_1.v"
+                                  "top_c.v"
                               ],
-                              "top_module": "top_1.v",
-                              "top_cell": "weird"
+                              "top_module": "top_c.v",
+                              "top_cell": "axis_fifo_top"
                           }
                       }
                   }

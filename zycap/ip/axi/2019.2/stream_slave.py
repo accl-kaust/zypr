@@ -15,7 +15,7 @@ def main():
     parser.add_argument('-n', '--name',   type=str, help="module name")
     parser.add_argument('-i', '--icap',   type=bool, default=True, help="icap enable")
     parser.add_argument('-o', '--output', type=str, help="output file name")
-    parser.add_argument('-w', '--width', type=int, default=8, help="data width")
+    parser.add_argument('-w', '--width', type=int, default=32, help="data width")
 
     args = parser.parse_args()
 

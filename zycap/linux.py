@@ -107,6 +107,21 @@ class Build(Tool):
             output, success = process.communicate()
         return success
 
+    def __device_tree(self, vitis_scripts):
+        self._create_path(Path.cwd() / self.work_root / f'{self.project_name}.linux' / 'device_tree')
+        
+        with click_spinner.spinner():
+            process = subprocess.Popen(
+                f'bash {vitis_scripts}/dt/dtg.sh {self.work_root}/{self.project_name}.linux/device_tree {self.xilinx_version}'.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            output, success = process.communicate()
+
+            if success == False:
+                return success
+
+            process = subprocess.Popen(
+                f'{self.sdk_tool} {vitis_scripts}/dt/dtg.tcl {self.project_name} {self.work_root} psu_cortexa53_0 {self.work_root}/{self.project_name}.linux/device_tree/dtg'.split(), stdout=subprocess.PIPE)
+            output, success = process.communicate()
+
     def setup(self):
         self._create_path(Path.cwd() / self.work_root / f'{self.project_name}.linux')
 
@@ -116,12 +131,18 @@ class Build(Tool):
         bootloader_files = pkg_resources.resource_filename(
             'zycap', f'boards/{board}/linux/{self.xilinx_version}')
         self.logger.info(bootloader_files)
+
+        vitis_scripts = pkg_resources.resource_filename(
+            'zycap', f'scripts/vitis')
+        self.logger.info(vitis_scripts)
         success = True
 
-        if all([self.__fsbl(bootloader_files), self.__pmufw(bootloader_files), self.__atf(bootloader_files), self.__uboot(bootloader_files), self.__image(bootloader_files)]):
-            self.logger.info("Generation all boot components successful!")
-        else:
-            exit(1)
+        # if all([self.__fsbl(bootloader_files), self.__pmufw(bootloader_files), self.__atf(bootloader_files), self.__uboot(bootloader_files), self.__image(bootloader_files)]):
+        #     self.logger.info("Generation all boot components successful!")
+        # else:
+        #     exit(1)
+
+        self.__device_tree(vitis_scripts)
 
         self.export()
         pass

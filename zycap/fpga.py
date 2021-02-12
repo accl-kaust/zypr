@@ -1,14 +1,11 @@
-import os
-import sys
+import os,sys,glob,shutil
 import json
-import glob
 import subprocess
 from .utils.tool import Tool
-import click
-import click_spinner
+import click, click_spinner
 from pathlib import Path
-import shutil
 import pkg_resources
+from jinja2 import Environment, FileSystemLoader
 
 from interfacer.generate import Generate
 from interfacer.identify import Identify
@@ -45,12 +42,25 @@ class Build(Tool):
         self.petalinux_path = self.config['config']['config_petalinux']['petalinux_path']
         self.tcl_scripts = []
         self.rtl_hash = self.hash_directory(self.rtl_directory)
+        self.no_cores = self.exists(
+            self.config['config']['config_settings']['cores'])
         self.work_root = 'build'
+
+        inst_path = Path.cwd() / self.work_root / f'{self.project_name}.inst'
+        self._create_path(inst_path)
 
     def setup_vivado_project(self):
         board = self.board.replace(':','/')
 
         self.logger.info(f"Generating Vivado Project for {board}...")
+
+        no_cores = pkg_resources.resource_filename(
+            'zycap', f'scripts/vivado')
+        self.logger.info(no_cores)
+        
+        jinja_env = Environment(loader=FileSystemLoader(no_cores))
+
+        self._renderTemplate(jinja_env, 'no_cores.tcl.j2', Path.cwd() / self.work_root / f"{self.project_name}_params.tcl", template_vars={'cores' : self.no_cores if self.no_cores else os.cpu_count() - 1})
 
         bd_files = pkg_resources.resource_filename(
             'zycap', f'scripts/vivado/generate_bd_wrapper.tcl')
@@ -67,13 +77,10 @@ class Build(Tool):
 
         self.logger.debug(f"Board files: {board_files}...")
 
-        build_path = Path.cwd() / self.work_root / '.inst'
-        self._create_path(build_path)
+        # build_path = Path.cwd() / self.work_root / '.inst'
+        # self._create_path(build_path)
 
-        inst_path = Path.cwd() / self.work_root / f'{self.project_name}.inst'
-        self._create_path(inst_path)
-
-        checkpoint_path = Path.cwd() / self.work_root / '.checkpoint'
+        checkpoint_path = Path.cwd() / self.work_root / f'{self.project_name}.checkpoint'
         self._create_path(checkpoint_path)
 
         sdk_path = Path.cwd() / self.work_root / f'{self.project_name}.sdk'
@@ -84,22 +91,16 @@ class Build(Tool):
 
         defines = {'design_name':self.project_name,'test':1000}
 
-        with open(f"{self.work_root}/{self.project_name}_params.tcl", "w+") as file:
+        with open(f"{self.work_root}/{self.project_name}_params.tcl", "a+") as f:
             for each in defines:
                 print(each,defines[each])
-                file.write(f"set {each} {defines[each]}\n")
+                f.write(f"set {each} {defines[each]}\n")
 
         files = [
-        {'name':f"{self.project_name}_params.tcl",'file_type': 'tclSource'},
-        {'name' : board_bd.as_posix(),'file_type' : 'tclSource'},
-        {'name' : board_constraint.as_posix(),'file_type' : 'xdc'},
-        {'name' : bd_files, 'file_type':'tclSource'},
-        # {'name' : os.path.relpath('build-ps.tcl', work_root),
-        # 'file_type' : 'tclSource'},
-        # {'name' : os.path.relpath('blinky.v', work_root),
-        # 'file_type' : 'verilogSource'},
-        # {'name' : os.path.relpath('constraint.xdc', work_root),
-        # 'file_type' : 'xdc'},
+            {'name':f"{self.project_name}_params.tcl",'file_type': 'tclSource'},
+            {'name' : board_bd.as_posix(),'file_type' : 'tclSource'},
+            {'name' : board_constraint.as_posix(),'file_type' : 'xdc'},
+            {'name' : bd_files, 'file_type':'tclSource'},
         ]
 
         parameters = {
@@ -229,6 +230,7 @@ class Build(Tool):
                 self.static = Static(
                     top=self.config['design']['design_static']['top'],
                     directory=self.rtl_directory,
+                    project=self.project_name,
                     files=static_files_list,
                     ipcores=None,
                     xdc=self.config['design']['design_static']['xdc'],
@@ -276,7 +278,39 @@ class Build(Tool):
         self.interfaces = interfaces
         self.protocols = protocols
         self.logger.debug(self.pprint(self.protocol_dict))
+        with open(f"{self.work_root}/{self.project_name}.inst/protocol.json", "w") as f:
+            json.dump(self.protocol_dict, f,  indent=4, sort_keys=True)
+
+        flat = self.flatten_json(self.protocol_dict)
+        self.flat_protocol_dict = {value:key.rsplit('_', 1)[0] for key, value in flat.items()}
+        print(self.flat_protocol_dict)
+        
         self.verify('Discovering Modules', success)
+
+    def flatten_json(self, nested_json):
+        """
+            Flatten json object with nested keys into a single level.
+            Args:
+                nested_json: A nested json object.
+            Returns:
+                The flattened json object if successful, None otherwise.
+        """
+        out = {}
+
+        def flatten(x, name=''):
+            if type(x) is dict:
+                for a in x:
+                    flatten(x[a], name + a + '_')
+            elif type(x) is list:
+                i = 0
+                for a in x:
+                    flatten(a, name + str(i) + '_')
+                    i += 1
+            else:
+                out[name[:-1]] = x
+
+        flatten(nested_json)
+        return out
 
     def __ext_modules(self, module, iden):
         self.logger.info(f'Preparing module {module}')
@@ -293,6 +327,7 @@ class Build(Tool):
         self.modules['modules'][module]['obj'] = Module(
             top=self.modules['modules'][module]['top_cell'],
             directory=self.rtl_directory,
+            project=self.project_name,
             files=[s + ".v" for s in self.modules['modules'][module]['rtl']],
             ipcores=ip,
             version=self.xilinx_version,
@@ -347,19 +382,22 @@ class Build(Tool):
                        prr=prr,
                        part=self.part)
         gen.implement()
+
+
+
         for pr in range(prr):
             for mod in mod_list:
                 self.logger.info(f'Mod {mod.name}')
-                gen.wrapper(mod, xilinx_pragmas=True)
-            gen.render(f"{self.work_root}/example.inst/", prr=pr)
+                gen.wrapper(mod, protocol_file=self.flat_protocol_dict, xilinx_pragmas=True)
+            gen.render(f"{self.work_root}/{self.project_name}.inst/", build_dir=self.project_name, prr=pr)
 
         # Check for differences in checkpoint files before regenerating checkpoints
-        p = Path(f'{self.work_root}/.checkpoint')  
+        p = Path(f'{self.work_root}/{self.project_name}.checkpoint')  
         checkpoints = [y for y in p.rglob(f'*.dcp')] 
 
         if self.changes == True or (len(checkpoints) != len(mod_list)):
             self.logger.info("Changes identifies in PR module checkpoints...")
-            self.edam['files'].insert(1, {'name' : '.inst/gen_modules.tcl',
+            self.edam['files'].insert(1, {'name' : f'{self.project_name}.inst/gen_modules.tcl',
             'file_type' : 'tclSource'})
 
         success = True
@@ -393,6 +431,13 @@ class Build(Tool):
 
     def __gen_wrapper(self):
         self.edam['files'].insert(1, {'name' : str(Path(f"{self.work_root}/{self.project_name}.inst/wrapper.v").absolute().relative_to(Path.cwd() / self.work_root)),
+                'file_type' : 'verilogSource'})
+                
+        build_path = Path.cwd() / self.work_root / f'{self.project_name}.inst'
+
+        for each in build_path.glob('blackbox_*'):
+            self.logger.info(f"Appending blackbox source {str(each.relative_to(Path.cwd() / self.work_root))} to project")
+            self.edam['files'].insert(1, {'name' : str(each.relative_to(Path.cwd() / self.work_root)),
                 'file_type' : 'verilogSource'})
 
 
@@ -462,7 +507,6 @@ class Build(Tool):
         #     'file_type' : 'verilogSource'})
 
         for each in ip_path.glob('*.v'):
-            print(each)
             self.logger.info(f"Appending IP file {str(each.relative_to(Path.cwd() / self.work_root))} to project")
             self.edam['files'].insert(1, {'name' : str(each.relative_to(Path.cwd() / self.work_root)),
                 'file_type' : 'verilogSource'})

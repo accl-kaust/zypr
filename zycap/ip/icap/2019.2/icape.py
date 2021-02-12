@@ -145,7 +145,7 @@ class ICAPE(Elaboratable):
         elif self.version == 3:
             m.submodules.icap = Instance(f"ICAPE{self.version}",
                 p_DEVICE_ID=0xdeadbeef,
-                p_ICAP_AUTO_SWITCH="DISABLED",
+                p_ICAP_AUTO_SWITCH="DISABLE",
                 p_SIM_CFG_FILE_NAME="NONE",
 
                 o_AVAIL=avail,
