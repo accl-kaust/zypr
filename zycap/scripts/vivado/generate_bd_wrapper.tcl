@@ -1,3 +1,5 @@
+logger "Generating ZyCAP infrastructure" INFO
+
 set work_directory [get_property DIRECTORY [current_project]]
 set_property source_mgmt_mode All [current_project]
 
@@ -67,7 +69,6 @@ set rst_pins [get_bd_pins -hierarchical rst_*]
 foreach i $rst_pins {
     connect_bd_net [get_bd_pins $i] [get_bd_pins rst_ps8_0_100M/peripheral_aresetn]
 }
-
 
 generate_target all [get_files $work_directory/$design_name.srcs/sources_1/bd/$design_name/$design_name.bd]
 

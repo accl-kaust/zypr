@@ -51,6 +51,7 @@
       "design_name": "base",
       "design_owner": "bucknalla",
       "design_directory": "rtl",
+      "design_default_mode": "mode_a",
       "design_mode": {
           "mode_a": {
               "name": "Demo PR Project 0",
@@ -59,9 +60,22 @@
                   "partial_led_test_v1_0_S00_AXI_inst",
                   "demo"
               ],
-              "pblock":[
-                  "CLOCKREGION_X1Y1:CLOCKREGION_X1Y1"
-              ],
+              "pr_regions": {
+                    "region_a":{
+                        "pblock":[
+                            "SLICE_X36Y121:SLICE_X47Y155 DSP48E2_X3Y50:DSP48E2_X4Y61 RAMB18_X5Y50:RAMB18_X5Y61 RAMB36_X5Y25:RAMB36_X5Y30"
+                        ],
+                        "default_config":"config_a",
+                        "valid_configs":["axis_fifo_top_a","axis_fifo_top_b","axis_fifo_top_c"]
+                    },
+                    "region_b":{
+                        "pblock":[
+                            "SLICE_X36Y60:SLICE_X48Y96 DSP48E2_X3Y24:DSP48E2_X4Y37 RAMB18_X5Y24:RAMB18_X5Y37 RAMB36_X5Y12:RAMB36_X5Y18"
+                        ],
+                        "default_config":"config_b",
+                        "valid_configs":["axis_fifo_top_a","axis_fifo_top_b","axis_fifo_top_c"]
+                    }
+              },
               "configs": {
                   "config_a": {
                       "modules": {
@@ -72,7 +86,7 @@
                                   "top_a.v"
                               ],
                               "top_module": "top_a.v",
-                              "top_cell": "axis_fifo_top"
+                              "top_cell": "axis_fifo_top_a"
                           }
                       }
                   },
@@ -88,7 +102,7 @@
                                 "test.xci"
                               ],
                               "top_module": "top_b.v",
-                              "top_cell": "axis_fifo_top"
+                              "top_cell": "axis_fifo_top_b"
                           }
                       }
                   },
@@ -108,30 +122,8 @@
                                   "top_c.v"
                               ],
                               "top_module": "top_c.v",
-                              "top_cell": "axis_fifo_top"
+                              "top_cell": "axis_fifo_top_c"
                           }
-                      }
-                  }
-              },
-              "interfaces": {
-                  "master": {
-                      "axi_stream": {
-                          "width": 32,
-                          "port": [
-                              "m0_axis"
-                          ]
-                      },
-                      "axi_lite": {
-                          "width": 32,
-                          "port": []
-                      }
-                  },
-                  "slave": {
-                      "axi_stream": {
-                          "width": 32,
-                          "port": [
-                              "m0_axis"
-                          ]
                       }
                   }
               }

@@ -1,0 +1,78 @@
+#!/usr/bin/tclsh
+
+logger "Starting PRR init process..." INFO
+
+set work_directory [get_property DIRECTORY [current_project]]
+set design_name [get_property NAME [current_project]]
+
+open_run synth_1 -name synth_1
+write_checkpoint -force example.checkpoint/top_synth.dcp
+
+# Set PR cells to HD.RECONFIGURABLE
+set bb_inst [get_cells -hier -filter IS_BLACKBOX]
+foreach i $bb_inst {
+    set_property HD.RECONFIGURABLE true [get_cells $i]
+}
+
+# Set constraints
+{% if constraints is defined %}
+logger "Loading constraints" INFO
+read_xdc ./constraints/top_io.xdc
+{% endif %}
+
+{% for config in configs %}
+set Configs({{ loop.index - 1 }}) {{ config }}
+{% endfor %}
+
+{% for pblock in pblocks %}
+set pBlock({{ loop.index - 1 }}) { {{ pblock }} }
+{% endfor %}
+
+# Load initial PR configs
+set ct 0 
+foreach i $bb_inst {
+    set name [string range $i [expr {[string last "/" $i] + 1}] end]
+    set config $Configs($ct)
+    logger "Loading $i with $config" INFO
+    read_checkpoint ${design_name}.checkpoint/init/${config}.dcp -cell ${i}
+
+    create_pblock pblock_${ct}
+    resize_pblock pblock_${ct} -add $pBlock($ct)
+    set p_size [get_property GRID_RANGES [get_pblocks pblock_${ct}]]
+    logger "Setting pblock_${ct} to size $p_size" INFO
+    set_property SNAPPING_MODE ON [get_pblocks pblock_${ct}]
+    set_property RESET_AFTER_RECONFIG true [get_pblocks pblock_${ct}]
+
+    add_cells_to_pblock pblock_${ct} $i -clear_locs
+
+    incr ct
+}
+
+# Run DRC
+logger "Running PR default DRC..." INFO
+create_drc_ruledeck ruledeck_1
+add_drc_checks -ruledeck ruledeck_1 [get_drc_checks {HDPRA-62 HDPRA-60 HDPRA-58 HDPRA-57 HDPRA-56 HDPRA-55 HDPRA-54 HDPRA-53 HDPRA-52 HDPRA-51 HDPRA-21 HDPR-43 HDPR-20 HDPR-88 HDPR-41 HDPR-30 HDPR-96 HDPR-95 HDPR-94 HDPR-93 HDPR-92 HDPR-91 HDPR-90 HDPR-87 HDPR-86 HDPR-85 HDPR-84 HDPR-83 HDPR-74 HDPR-73 HDPR-72 HDPR-71 HDPR-70 HDPR-69 HDPR-68 HDPR-67 HDPR-66 HDPR-65 HDPR-64 HDPR-63 HDPR-62 HDPR-61 HDPR-60 HDPR-59 HDPR-58 HDPR-57 HDPR-54 HDPR-50 HDPR-49 HDPR-48 HDPR-47 HDPR-46 HDPR-44 HDPR-42 HDPR-38 HDPR-37 HDPR-35 HDPR-34 HDPR-33 HDPR-32 HDPR-29 HDPR-28 HDPR-25 HDPR-23 HDPR-22 HDPR-18 HDPR-17 HDPR-16 HDPR-14 HDPR-13 HDPR-12 HDPR-11 HDPR-6 HDPR-5 HDPR-4 HDPR-3 HDPR-2 HDPR-1}]
+report_drc -name drc_1 -ruledecks {ruledeck_1}
+delete_drc_ruledeck ruledeck_1
+
+write_xdc -force ${design_name}.inst/top_fplan.xdc
+logger "Writing default linked checkpoint" INFO
+write_checkpoint -force ${design_name}.checkpoint/default_linked.dcp
+
+logger "Running PR default opt..." INFO
+opt_design
+logger "Running PR default place..." INFO
+place_design
+logger "Running PR default route..." INFO
+route_design
+
+logger "Writing default routed checkpoint" INFO
+write_checkpoint -force ${design_name}.checkpoint/default_routed.dcp
+
+foreach i $bb_inst {
+    update_design -cell $i -black_box
+}
+
+logger "Writing static routed checkpoint" INFO
+lock_design -level routing
+write_checkpoint -force ${design_name}.checkpoint/static_routed.dcp

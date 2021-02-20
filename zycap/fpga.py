@@ -6,6 +6,7 @@ import click, click_spinner
 from pathlib import Path
 import pkg_resources
 from jinja2 import Environment, FileSystemLoader
+from itertools import product, chain 
 
 from interfacer.generate import Generate
 from interfacer.identify import Identify
@@ -62,13 +63,52 @@ class Build(Tool):
 
         self._renderTemplate(jinja_env, 'no_cores.tcl.j2', Path.cwd() / self.work_root / f"{self.project_name}_params.tcl", template_vars={'cores' : self.no_cores if self.no_cores else os.cpu_count() - 1})
 
+        colour_logging = pkg_resources.resource_filename(
+            'zycap', f'scripts/utils/colours.tcl')
+        self.logger.info(colour_logging)
+
         bd_files = pkg_resources.resource_filename(
             'zycap', f'scripts/vivado/generate_bd_wrapper.tcl')
         self.logger.info(bd_files)
 
         gen_bd_files = pkg_resources.resource_filename(
             'zycap', f'scripts/vivado/generate_hwdef.tcl')
-        self.logger.info(bd_files)
+        self.logger.info(gen_bd_files)
+
+        synth = pkg_resources.resource_filename(
+            'zycap', f'scripts/vivado/synth.tcl')
+        self.logger.info(synth)
+
+
+
+        scripts = pkg_resources.resource_filename(
+            'zycap', f'scripts/vivado')
+        jinja_env = Environment(loader=FileSystemLoader(scripts))
+
+
+        self._renderTemplate(jinja_env, 'load_init_prr.tcl.j2', Path.cwd() / self.work_root / f'{self.project_name}.inst'/ "init_prr.tcl", 
+            template_vars={
+                'configs': list(self.default_configs[self.default_mode].values()),
+                'pblocks': (elem[0] for elem in self.default_pblocks[self.default_mode].values())
+                })
+
+        init_prr = Path.cwd() / self.work_root / f'{self.project_name}.inst'/ "init_prr.tcl"
+        self.logger.info(init_prr.as_posix())
+
+
+
+        print(self.__gen_prr_permutations(*self.valid_regions))
+
+        self._renderTemplate(jinja_env, 'load_prr.tcl.j2', Path.cwd() / self.work_root / f'{self.project_name}.inst'/ "prr.tcl", 
+            template_vars={
+                'configs': self.__gen_prr_permutations(*self.valid_regions),
+                'pblocks': (elem[0] for elem in self.default_pblocks[self.default_mode].values())
+                })
+
+        prr = Path.cwd() / self.work_root / f'{self.project_name}.inst'/ "prr.tcl"
+        self.logger.info(prr.as_posix())
+
+
 
         board_files = pkg_resources.resource_filename(
             'zycap', f'boards/{board}/bd/{self.xilinx_version}')
@@ -77,11 +117,11 @@ class Build(Tool):
 
         self.logger.debug(f"Board files: {board_files}...")
 
-        # build_path = Path.cwd() / self.work_root / '.inst'
-        # self._create_path(build_path)
+        checkpoint_path_init = Path.cwd() / self.work_root / f'{self.project_name}.checkpoint' / 'init'
+        checkpoint_path_final = Path.cwd() / self.work_root / f'{self.project_name}.checkpoint' / 'final'
+        self._create_path(checkpoint_path_init)
+        self._create_path(checkpoint_path_final)
 
-        checkpoint_path = Path.cwd() / self.work_root / f'{self.project_name}.checkpoint'
-        self._create_path(checkpoint_path)
 
         sdk_path = Path.cwd() / self.work_root / f'{self.project_name}.sdk'
         self._create_path(sdk_path)
@@ -97,10 +137,14 @@ class Build(Tool):
                 f.write(f"set {each} {defines[each]}\n")
 
         files = [
+            {'name' : colour_logging,'file_type' : 'tclSource'},
             {'name':f"{self.project_name}_params.tcl",'file_type': 'tclSource'},
             {'name' : board_bd.as_posix(),'file_type' : 'tclSource'},
             {'name' : board_constraint.as_posix(),'file_type' : 'xdc'},
             {'name' : bd_files, 'file_type':'tclSource'},
+            {'name' : synth, 'file_type':'tclSource'},
+            {'name' : init_prr.as_posix(), 'file_type':'tclSource'},
+            {'name' : prr.as_posix(), 'file_type':'tclSource'},
         ]
 
         parameters = {
@@ -113,6 +157,7 @@ class Build(Tool):
             'vivado-settings': f'{self.vivado_path}/{self.xilinx_version}/settings64.sh'
         }   
 
+        # Post-build scripts
         generate_sdk_files = {
             'name': 'generate_sdk_files',
             'cmd' : [f"{self.tool_path}/Vivado/{self.xilinx_version}/bin/vivado", "-mode", "batch", "-source", gen_bd_files, "-tclargs", self.project_name]
@@ -123,33 +168,23 @@ class Build(Tool):
             'cmd' : ["cp", "*.bit", f"{self.project_name}.bitstreams"]
         }
 
-        hooks = {
-            'post_build' : [generate_sdk_files, move_bitstreams]
+        self.hooks = {
+            'post_build' : [generate_sdk_files, move_bitstreams],
+            # 'pre_run' : [init_prr]
         }
-
 
 
         self.edam = {
-        'files'        : files,
-        'name'         : self.project_name,
-        'parameters'   : parameters,
-        'toplevel'     : f'{self.project_name}_wrapper',
-        'tool_options': {'vivado' : tool_options},
-        'hooks' : hooks
+            'files'        : files,
+            'name'         : self.project_name,
+            'parameters'   : parameters,
+            'toplevel'     : f'{self.project_name}_wrapper',
+            'tool_options': {'vivado' : tool_options},
+            'hooks' : self.hooks
         }
-
-        # self.edam['files'][:0] = [{'name' : board_constraint.as_posix(),
-        # 'file_type' : 'verilogSource'}]
 
         self.backend = get_edatool('vivado')(edam=self.edam,
                                     work_root=self.work_root)
-        
-        # backend.configure()
-        # # args = {'test' : 1000}
-
-        # backend.run()
-        # exit()
-
 
     def generate_configs(self):
         pass
@@ -189,6 +224,10 @@ class Build(Tool):
         config_store = {}
         self.modules = {}
         self.modules['modules'] = {}
+        self.default_mode = self.config['design']['design_default_mode']
+        self.default_configs = {}
+        self.default_pblocks = {}
+        self.valid_regions = [] 
 
         iden = Identify()
 
@@ -196,7 +235,15 @@ class Build(Tool):
         configs = set()
         modes = set()
         for mode in mode_store.keys():
+            # if self.default_mode 
             self.logger.info(f"Mode: {mode}")
+            self.default_configs[mode] = {}
+            self.default_pblocks[mode] = {}
+            for region in mode_store[mode]['pr_regions'].keys():
+                self.default_configs[mode][region] = (mode_store[mode]['pr_regions'][region]['default_config'])
+                self.valid_regions.append(mode_store[mode]['pr_regions'][region]['valid_configs'])
+                self.default_pblocks[mode][region] = (mode_store[mode]['pr_regions'][region]['pblock'])
+                self.logger.info(f"Mode {mode} - {region} - default config: {self.default_configs[mode][region]} - default pblock {self.default_pblocks[mode][region]}")
             modes.add(mode)
             for config in mode_store[mode]['configs'].keys():
                 self.logger.info(f" ∟ Config: {config}")
@@ -214,6 +261,7 @@ class Build(Tool):
                     self.modules['modules'][module]['rtl'] = list(module_files)
                     self.modules['modules'][module]['top_module'] = mode_store[mode]['configs'][config]['modules'][module]['top_module']
                     self.modules['modules'][module]['top_cell'] = mode_store[mode]['configs'][config]['modules'][module]['top_cell']
+                    self.modules['modules'][module]['config'] = config
                     self.logger.info(f"   ∟ Module: {module}")
             config_store[config] = mode_store
         self.configs = configs
@@ -370,22 +418,28 @@ class Build(Tool):
 
     def __gen_modules(self):
         click.secho('Generating PR Module Checkpoints...', fg='magenta')
-        prr = 2
+
+        prr = self.default_configs[self.default_mode]
+
+        print(prr)
+
         mods = self.modules['modules']
         # print(mods['fir']['obj'].ports)
         mod_list = []
+        config_defaults = {}
         for mod in mods:
             mod_list.append(self.modules['modules'][mod]['obj'])
-        # print(mod_list)
+            print(mods[mod]['config'])
+            if (mods[mod]['config'] in self.default_configs[self.default_mode].values()): config_defaults[self.modules['modules'][mod]['obj'].name] = mods[mod]['config']
+
         gen = Generate(static=self.static,
                        modules=mod_list,
+                       config_defaults=config_defaults,
                        prr=prr,
                        part=self.part)
         gen.implement()
 
-
-
-        for pr in range(prr):
+        for pr in range(len(prr)):
             for mod in mod_list:
                 self.logger.info(f'Mod {mod.name}')
                 gen.wrapper(mod, protocol_file=self.flat_protocol_dict, xilinx_pragmas=True)
@@ -401,14 +455,6 @@ class Build(Tool):
             'file_type' : 'tclSource'})
 
         success = True
-
-        # with click_spinner.spinner():
-        #     log, success = self.xilinx_tool(self.tool_path,
-        #                                     "Vivado",
-        #                                     self.xilinx_version,
-        #                                     f"{self.work_root}/.inst/gen_modules.tcl -tclargs True")
-
-        self.backend.configure()
 
         return self.verify('Generate Module Checkpoints', success)
 
@@ -440,7 +486,16 @@ class Build(Tool):
             self.edam['files'].insert(1, {'name' : str(each.relative_to(Path.cwd() / self.work_root)),
                 'file_type' : 'verilogSource'})
 
-
+    def __gen_prr_permutations(self, *module_lists):
+        self.logger.info(f"Generating possible combinations for modules...")
+        seen = set()
+        result = []
+        for x in list(product(*module_lists)):
+            s = frozenset(x)
+            if s not in seen:
+                result.append(x)
+                seen.add(s)
+        return result
 
     def __gen_infrastructure(self):
         self.logger.info("Generating Infrastructure...")

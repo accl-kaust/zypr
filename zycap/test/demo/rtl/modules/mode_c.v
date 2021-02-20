@@ -75,17 +75,17 @@ module axis_fifo #
     parameter DROP_WHEN_FULL = 0
 )
 (
-    input  wire                   clk,
-    input  wire                   rst,
+    input  wire [0:0]                  clk,
+    input  wire [0:0]                  rst,
 
     /*
      * AXI input
      */
     input  wire [DATA_WIDTH-1:0]  s_axis_tdata,
     input  wire [KEEP_WIDTH-1:0]  s_axis_tkeep,
-    input  wire                   s_axis_tvalid,
-    output wire                   s_axis_tready,
-    input  wire                   s_axis_tlast,
+    input  wire [0:0]                  s_axis_tvalid,
+    output wire  [0:0]                 s_axis_tready,
+    input  wire  [0:0]                 s_axis_tlast,
     input  wire [ID_WIDTH-1:0]    s_axis_tid,
     input  wire [DEST_WIDTH-1:0]  s_axis_tdest,
     input  wire [USER_WIDTH-1:0]  s_axis_tuser,
@@ -95,9 +95,9 @@ module axis_fifo #
      */
     output wire [DATA_WIDTH-1:0]  m_axis_tdata,
     output wire [KEEP_WIDTH-1:0]  m_axis_tkeep,
-    output wire                   m_axis_tvalid,
-    input  wire                   m_axis_tready,
-    output wire                   m_axis_tlast,
+    output wire  [0:0]                 m_axis_tvalid,
+    input  wire  [0:0]                 m_axis_tready,
+    output wire  [0:0]                 m_axis_tlast,
     output wire [ID_WIDTH-1:0]    m_axis_tid,
     output wire [DEST_WIDTH-1:0]  m_axis_tdest,
     output wire [USER_WIDTH-1:0]  m_axis_tuser
@@ -286,6 +286,128 @@ always @(posedge clk) begin
 end
 
 endmodule
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

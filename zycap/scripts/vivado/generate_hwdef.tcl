@@ -1,5 +1,5 @@
 #file copy -force [file join $work_directory $design_name.runs "impl_1" ${design_name}_wrapper.hwdef] [file join $work_directory $design_name.sdk $design_name.hwdef]
-
+logger "Generating HWDef files..."
 open_project [lindex $argv 0]
 
 set work_directory [get_property DIRECTORY [current_project]]
