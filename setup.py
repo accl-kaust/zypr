@@ -56,6 +56,7 @@ setup(
         'click-spinner',
         'colorlog',
         'nmigen',
+        'docker',
         'click-help-colors',
         'pyverilog==1.2.1',
         'mkdocs>=1.1',

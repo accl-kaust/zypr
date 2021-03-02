@@ -137,6 +137,9 @@
       }
   },
   "linux": {
+      "linux_build":{
+          "build_platform":"petalinux"
+      },
       "linux_device_tree": {
           "device_tree_config": {
               "udmabuf": {

@@ -1,4 +1,8 @@
 #file copy -force [file join $work_directory $design_name.runs "impl_1" ${design_name}_wrapper.hwdef] [file join $work_directory $design_name.sdk $design_name.hwdef]
+
+# load logging library
+source [lindex $argv 1]
+
 logger "Generating HWDef files..."
 open_project [lindex $argv 0]
 

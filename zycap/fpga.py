@@ -160,7 +160,7 @@ class Build(Tool):
         # Post-build scripts
         generate_sdk_files = {
             'name': 'generate_sdk_files',
-            'cmd' : [f"{self.tool_path}/Vivado/{self.xilinx_version}/bin/vivado", "-mode", "batch", "-source", gen_bd_files, "-tclargs", self.project_name]
+            'cmd' : [f"{self.tool_path}/Vivado/{self.xilinx_version}/bin/vivado", "-mode", "batch", "-source", gen_bd_files, "-tclargs", self.project_name, colour_logging]
         }
 
         move_bitstreams = {

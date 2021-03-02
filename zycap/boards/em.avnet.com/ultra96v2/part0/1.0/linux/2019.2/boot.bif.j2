@@ -7,4 +7,7 @@ the_ROM_image:
 {%- endfor %}
         [destination_cpu=a53-0, exception_level=el-3, trustzone]  bl31.elf
         [destination_cpu=a53-0, exception_level=el-2]             u-boot.elf
+        [load=0x2a00000]                                          system.dtb
+        [load=0x2000000]                                          uramdisk
+        [load=0x3000000]                                          Image.bin
 }

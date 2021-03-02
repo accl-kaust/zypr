@@ -10,6 +10,7 @@ import hashlib
 from _hashlib import HASH as Hash
 from typing import Union
 from distutils.dir_util import copy_tree
+import docker
 
 class Tool(object):
     def exists(self, x): 
@@ -29,6 +30,16 @@ class Tool(object):
         else:
             click.secho('{} complete [✓]'.format(process), fg='green')
             return success
+
+    def verify_func(func):
+        def test(*args, **kwargs):
+            success = func(*args, **kwargs)
+            if not success:
+                click.secho('{} failed [✗]'.format(func.__name__), fg='red')
+                exit()
+            else:
+                click.secho('{} complete [✓]'.format(func.__name__), fg='green')
+        return test
 
     def hash_directory(self, path):
         digest = hashlib.sha1()
@@ -71,6 +82,18 @@ class Tool(object):
             return (f'.logs/{tool}_{tcl}.log', False)
         else:
             return (f'.logs/{tool}_{tcl}.log', True)
+
+    def docker_config(self):
+        self.docker = docker.from_env()
+        return 
+
+    def docker_build_image(self, dockerfile, tag):
+        self.docker.images.build(path=dockerfile, quiet=False, tag=f'{tag}')
+        pass
+
+    def docker_run(self, image):
+
+        pass
 
     def check_files_exist(self, root, files: set, ext: str) -> (bool, list):
         temp_files = files

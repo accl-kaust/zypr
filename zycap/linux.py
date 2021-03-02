@@ -7,31 +7,40 @@ import subprocess
 from .utils.tool import Tool
 import click
 import click_spinner
+import time
 import pkg_resources
 from pathlib import Path
 from jinja2 import Environment, FileSystemLoader
 
 class Build(Tool):
-    def __init__(self, logger, json=None):  
+    def __init__(self, logger, json=None, force=False):  
         self.logger = logger        
-        self.config = self.load_config(json)
-        self.root_path = os.getcwd()
-        self.device = self.config['project']['project_device']['family']
-        self.board = self.config['project']['project_device']['board']
-        self.board_name = self.config['project']['project_device']['name']
-        self.board_version = self.config['project']['project_device']['version']
-        self.design_name = self.config['design']['design_name']
-        self.project_name = self.config['project']['project_name']
-        self.xilinx_version = self.config['config']['config_xilinx']['xilinx_version']
-        self.proxy = self.exists(
-            self.config['config']['config_xilinx']['xilinx_proxy'])
-        self.petalinux_path = self.config['config']['config_petalinux']['petalinux_path']
-        self.sdk_path = self.config['config']['config_sdk']['sdk_path']
-        self.work_root = 'build'
+        self.force = force
+        success = self.unpack_config(self.load_config(json))
+        self.verify('Setup', success)
         _, success = self.source_tools(
             '{0}/{1}/settings64.sh'.format(self.sdk_path, self.xilinx_version))
         self.verify('Setup', success)
         self.__set_tool(self.xilinx_version)
+
+    def unpack_config(self, config):
+        try:
+            self.device = config['project']['project_device']['family']
+            self.board = config['project']['project_device']['board']
+            self.board_name = config['project']['project_device']['name']
+            self.board_version = config['project']['project_device']['version']
+            self.design_name = config['design']['design_name']
+            self.project_name = config['project']['project_name']
+            self.xilinx_version = config['config']['config_xilinx']['xilinx_version']
+            self.proxy = self.exists(
+                config['config']['config_xilinx']['xilinx_proxy'])
+            self.petalinux_path = config['config']['config_petalinux']['petalinux_path']
+            self.sdk_path = config['config']['config_sdk']['sdk_path']
+            self.work_root = 'build'
+            self.root_path = os.getcwd()
+            return True
+        except:
+            return False
 
     def run(self):
         click.secho('Starting ZyCAP Linux build...', fg='magenta')
@@ -50,8 +59,6 @@ class Build(Tool):
         self.sdk_tool = 'xsct'
 
     def __fsbl(self, bootloader_files):
-        return True
-
         click.secho('Generating fsbl...', fg='magenta')
         with click_spinner.spinner():
             process = subprocess.Popen(
@@ -60,7 +67,6 @@ class Build(Tool):
         return success
 
     def __pmufw(self, bootloader_files):
-        return True
         click.secho('Generating pmufw...', fg='magenta')
         with click_spinner.spinner():
             process = subprocess.Popen(
@@ -68,8 +74,8 @@ class Build(Tool):
             output, success = process.communicate()
         return success
 
+    @Tool.verify_func
     def __atf(self, bootloader_files):
-        return True
         click.secho('Generating arm trusted firmware...', fg='magenta')
         with click_spinner.spinner():
             process = subprocess.Popen(
@@ -78,8 +84,8 @@ class Build(Tool):
             print(output)
         return success
 
+    @Tool.verify_func
     def __uboot(self, bootloader_files):
-        return True
         click.secho('Generating uboot...', fg='magenta')
         self._create_path(Path.cwd() / self.work_root / f'{self.project_name}.sdk' / 'uboot' / 'src')
         self.copytree(f'{bootloader_files}/uboot/src', f'./{self.work_root}/{self.project_name}.sdk/uboot/src')
@@ -89,6 +95,7 @@ class Build(Tool):
             output, success = process.communicate()
         return success
 
+    @Tool.verify_func
     def __image(self, bootloader_files):
         click.secho('Generating boot image...', fg='magenta')
 
@@ -107,12 +114,13 @@ class Build(Tool):
             output, success = process.communicate()
         return success
 
+    @Tool.verify_func
     def __device_tree(self, vitis_scripts):
         self._create_path(Path.cwd() / self.work_root / f'{self.project_name}.linux' / 'device_tree')
         
         with click_spinner.spinner():
             process = subprocess.Popen(
-                f'bash {vitis_scripts}/dt/dtg.sh {self.work_root}/{self.project_name}.linux/device_tree {self.xilinx_version}'.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                f'bash {vitis_scripts}/dt/dtg.sh {self.work_root}/{self.project_name}.sdk/device_tree {self.xilinx_version}'.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             output, success = process.communicate()
 
             if success == False:
@@ -123,7 +131,8 @@ class Build(Tool):
             output, success = process.communicate()
 
     def setup(self):
-        self._create_path(Path.cwd() / self.work_root / f'{self.project_name}.linux')
+        self.kernel_path = Path.cwd() / self.work_root / f'{self.project_name}.linux' / 'kernel'
+        self._create_path(self.kernel_path)
 
     def generate(self):
         board = self.board.replace(':','/')
@@ -142,10 +151,84 @@ class Build(Tool):
         # else:
         #     exit(1)
 
-        self.__device_tree(vitis_scripts)
+        # self.__device_tree(vitis_scripts)
+
+        self.__prepare_kernel()
 
         self.export()
         pass
+
+    @Tool.verify_func
+    def __prepare_petalinux(self, linux_docker, tool, version):
+        success = True
+        self.logger.info(f'Starting HTTP server')
+        process = subprocess.Popen(
+            f'bash {linux_docker}/serve-petalinux.sh {linux_docker} {version}'.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        process.wait()
+        self.logger.info(f'Starting build')
+        self.docker_build_image(linux_docker,f'zycap/{tool}/{self.xilinx_version}')
+        self.logger.info(f'Using {linux_docker}/Dockerfile to build Linux Kernel')
+        
+        try:
+            container = self.docker.containers.get(f'{tool}-{version}-kernel')
+            container.stop()
+
+        except: 
+            logger.warning(f'{tool}-{version}-kernel not running...')
+            container = self.docker.containers.run(
+                                                    image=f'zycap/{tool}/{self.xilinx_version}',
+                                                    stdin_open = True,
+                                                    tty = True,
+                                                    name=f'{tool}-{version}-kernel',
+                                                    volumes={self.kernel_path: {'bind': '/home/plnx/project', 'mode': 'rw'}},
+                                                    detach=True
+                                                )            
+        container.start()
+        if container.status == "running":
+            if (container.exec_run("/bin/bash -c 'for i in $(ls -d */); do echo ${i%%/}; done'",user='plnx').output.decode().strip() != self.project_name) and not self.force:
+                self.logger.warning(f"Project {self.project_name} not found, creating...")
+                build = container.exec_run(f"/bin/bash -c 'source /opt/petalinux/settings.sh && petalinux-create --type project --template zynqMP --name {self.project_name}'",user='plnx')
+                if build.exit_code != 0:
+                    self.logger.warning(build.output.decode())
+                    return False
+            # Copy in base Petalinux Project
+            board = self.board.replace(':','/')
+            project_spec = pkg_resources.resource_filename(
+                'zycap', f'boards/{board}/linux/{self.xilinx_version}/petalinux/project-spec')
+            self.logger.info(f'Found {project_spec}')
+            self.copytree(project_spec, f"{self.work_root}/{self.project_name}.linux/kernel/{self.project_name}/project-spec")
+            self.logger.info(f"Starting Kernel build")
+            self.__build_petalinux(container)
+
+        else:
+            success = False
+        return success
+
+    def __build_petalinux(self, container):
+        petalinux = container.exec_run(f"/bin/bash -c 'source /opt/petalinux/settings.sh && cd {self.project_name} && petalinux-build'",user='plnx',socket=True)
+        print(dir(petalinux.output))
+        while petalinux.output.fileno() != -1:
+            data = petalinux.output.read(1024)
+            print(data.decode('utf_8', 'ignore'))
+    
+    @Tool.verify_func
+    def __prepare_kernel(self, tool="petalinux", version="2019.2"):
+        success = True
+        linux_docker = pkg_resources.resource_filename(
+            'zycap', f'docker/{tool}/{self.xilinx_version}')
+        self.docker_config()
+        with click_spinner.spinner():
+            self.logger.info(f'Using {linux_docker}/Dockerfile to build Linux Kernel')
+            try: 
+                self.logger.info(f"Found {self.docker.images.get(f'zycap/{tool}/{self.xilinx_version}').tags}...")
+            except:
+                self.logger.warning(f'Docker image for zycap/{tool}/{self.xilinx_version} not found...')
+            if tool == "petalinux":
+                self.__prepare_petalinux(linux_docker, tool, version)
+                    
+
+            # print(container.top())
+        return success
 
     def export(self):
         pass

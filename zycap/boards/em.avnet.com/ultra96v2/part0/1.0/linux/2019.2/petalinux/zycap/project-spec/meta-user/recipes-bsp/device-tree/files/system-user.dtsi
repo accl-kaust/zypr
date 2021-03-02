@@ -1,0 +1,22 @@
+/include/ "system-conf.dtsi"
+/ {
+};
+
+&sdhci1 {
+        max-frequency = <50000000>;
+        /delete-property/cap-power-off-card;
+        wilc_sdio@1 {
+                compatible = "microchip,wilc3000";
+                reg = <0>;
+                bus-width = <0x4>;
+                status = "okay";
+        };
+        /delete-node/wifi@2;
+};
+&sdhci0 {
+	status = "okay";
+	xlnx,has-cd = <0x1>;
+	xlnx,has-power = <0x0>;
+	xlnx,has-wp = <0x1>;
+	disable-wp;
+};
