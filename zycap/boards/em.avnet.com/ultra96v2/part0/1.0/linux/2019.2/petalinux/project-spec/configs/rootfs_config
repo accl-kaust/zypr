@@ -162,7 +162,7 @@ CONFIG_haveged=y
 #
 # i2c-tools 
 #
-# CONFIG_i2c-tools is not set
+CONFIG_i2c-tools=y
 # CONFIG_i2c-tools-dev is not set
 # CONFIG_i2c-tools-misc is not set
 # CONFIG_i2c-tools-dbg is not set
@@ -480,7 +480,7 @@ CONFIG_canutils=y
 #
 # dropbear 
 #
-# CONFIG_dropbear is not set
+CONFIG_dropbear=y
 # CONFIG_dropbear-dev is not set
 # CONFIG_dropbear-dbg is not set
 
@@ -560,7 +560,7 @@ CONFIG_openssh-sftp-server=y
 #
 # rsync 
 #
-# CONFIG_rsync is not set
+CONFIG_rsync=y
 # CONFIG_rsync-dev is not set
 # CONFIG_rsync-dbg is not set
 
@@ -589,7 +589,7 @@ CONFIG_openssh-sftp-server=y
 #
 # wget 
 #
-# CONFIG_wget is not set
+CONFIG_wget=y
 # CONFIG_wget-dev is not set
 # CONFIG_wget-dbg is not set
 
@@ -1298,7 +1298,7 @@ CONFIG_run-postinsts=y
 #
 # bluez5 
 #
-# CONFIG_bluez5 is not set
+CONFIG_bluez5=y
 # CONFIG_bluez5-obex is not set
 # CONFIG_bluez5-dev is not set
 # CONFIG_bluez5-dbg is not set
@@ -2142,7 +2142,7 @@ CONFIG_run-postinsts=y
 #
 # opencv 
 #
-# CONFIG_opencv is not set
+CONFIG_opencv=y
 # CONFIG_opencv-dbg is not set
 # CONFIG_opencv-apps is not set
 # CONFIG_opencv-dev is not set
@@ -3668,7 +3668,7 @@ CONFIG_bridge-utils=y
 #
 # wpa-supplicant 
 #
-# CONFIG_wpa-supplicant is not set
+CONFIG_wpa-supplicant=y
 # CONFIG_wpa-supplicant-passphrase is not set
 # CONFIG_wpa-supplicant-dev is not set
 # CONFIG_wpa-supplicant-dbg is not set
@@ -4056,7 +4056,7 @@ CONFIG_hellopm=y
 #
 # packagegroup-petalinux 
 #
-# CONFIG_packagegroup-petalinux is not set
+CONFIG_packagegroup-petalinux=y
 # CONFIG_packagegroup-petalinux-dbg is not set
 # CONFIG_packagegroup-petalinux-dev is not set
 
@@ -4077,7 +4077,7 @@ CONFIG_hellopm=y
 #
 # packagegroup-petalinux-display-debug 
 #
-# CONFIG_packagegroup-petalinux-display-debug is not set
+CONFIG_packagegroup-petalinux-display-debug=y
 # CONFIG_packagegroup-petalinux-display-debug-dbg is not set
 # CONFIG_packagegroup-petalinux-display-debug-dev is not set
 
@@ -4098,7 +4098,7 @@ CONFIG_hellopm=y
 #
 # packagegroup-petalinux-matchbox 
 #
-# CONFIG_packagegroup-petalinux-matchbox is not set
+CONFIG_packagegroup-petalinux-matchbox=y
 # CONFIG_packagegroup-petalinux-matchbox-dbg is not set
 # CONFIG_packagegroup-petalinux-matchbox-dev is not set
 
@@ -4126,7 +4126,7 @@ CONFIG_hellopm=y
 #
 # packagegroup-petalinux-networking-stack 
 #
-# CONFIG_packagegroup-petalinux-networking-stack is not set
+CONFIG_packagegroup-petalinux-networking-stack=y
 # CONFIG_packagegroup-petalinux-networking-stack-dbg is not set
 # CONFIG_packagegroup-petalinux-networking-stack-dev is not set
 
@@ -4183,7 +4183,7 @@ CONFIG_packagegroup-petalinux-opencv=y
 #
 # packagegroup-petalinux-v4lutils 
 #
-# CONFIG_packagegroup-petalinux-v4lutils is not set
+CONFIG_packagegroup-petalinux-v4lutils=y
 # CONFIG_packagegroup-petalinux-v4lutils-dbg is not set
 # CONFIG_packagegroup-petalinux-v4lutils-dev is not set
 
@@ -4197,7 +4197,7 @@ CONFIG_packagegroup-petalinux-opencv=y
 #
 # packagegroup-petalinux-x11 
 #
-# CONFIG_packagegroup-petalinux-x11 is not set
+CONFIG_packagegroup-petalinux-x11=y
 # CONFIG_packagegroup-petalinux-x11-dev is not set
 # CONFIG_packagegroup-petalinux-x11-dbg is not set
 
@@ -4215,25 +4215,45 @@ CONFIG_imagefeature-ssh-server-dropbear=y
 # CONFIG_imagefeature-ssh-server-openssh is not set
 CONFIG_imagefeature-hwcodecs=y
 # CONFIG_imagefeature-package-management is not set
-# CONFIG_imagefeature-debug-tweaks is not set
+CONFIG_imagefeature-debug-tweaks=y
 
 #
 # apps 
 #
 # CONFIG_gpio-demo is not set
 # CONFIG_peekpoke is not set
+CONFIG_sds-lib=y
+CONFIG_ultra96-radio-leds=y
+CONFIG_ultra96-wpa=y
+CONFIG_usb-gadget-ethernet=y
+CONFIG_zycap=y
 
 #
 # modules 
 #
+CONFIG_axidma=y
+CONFIG_led-brightness=y
+CONFIG_udmabuf=y
 CONFIG_wilc=y
 
 #
 # user packages 
 #
+CONFIG_libftdi=y
+CONFIG_bonniePLUSPLUS=y
+CONFIG_cmake=y
+CONFIG_iperf3=y
+CONFIG_iw=y
+CONFIG_lmsensors-sensorsdetect=y
+CONFIG_nano=y
+CONFIG_packagegroup-base-extended=y
+CONFIG_python-pyserial=y
+CONFIG_python3-pip=y
+CONFIG_ultra96-misc=y
+CONFIG_wilc3000-fw=y
 
 #
 # PetaLinux RootFS Settings
 #
 CONFIG_ROOTFS_ROOT_PASSWD="root"
-CONFIG_ADD_EXTRA_USERS=""
+CONFIG_ADD_EXTRA_USERS="zycap"

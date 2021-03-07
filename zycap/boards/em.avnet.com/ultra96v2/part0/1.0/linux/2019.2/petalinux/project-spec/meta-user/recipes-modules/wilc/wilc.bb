@@ -1,3 +1,20 @@
+#SUMMARY = "Recipe for  build an external wilc Linux kernel module"
+#SECTION = "PETALINUX/modules"
+#LICENSE = "GPLv2"
+#LIC_FILES_CHKSUM = "file://COPYING;md5=12f884d2ae1ff87c09e5b7ccc2c4ca7e"
+#
+#inherit module
+#
+#SRC_URI = "file://Makefile \
+#           file://wilc.c \
+#	   file://COPYING \
+#          "
+#
+#S = "${WORKDIR}"
+#
+# The inherit of module.bbclass will automatically name module packages with
+# "kernel-module-" prefix as required by the oe-core build environment.
+
 SUMMARY = "Recipe for building an external wilc Linux kernel module"
 SECTION = "PETALINUX/modules"
 LICENSE = "GPLv3"
@@ -5,7 +22,7 @@ LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/GPL-3.0;md5=c79ff39f19dfec6d293
 
 inherit module
 
-SRC_URI =  "git://github.com/Avnet/u96v2-wilc-driver;protocol=http;branch=v15_2"
+SRC_URI =  "git://github.com/avnet/u96v2-wilc-driver;protocol=http;branch=v15_2"
 
 SRCREV = "01ab7484e0e6b2191c69d7ec7c6e89da5ca51f0f"
 
