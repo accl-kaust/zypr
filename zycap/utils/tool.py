@@ -11,6 +11,7 @@ from _hashlib import HASH as Hash
 from typing import Union
 from distutils.dir_util import copy_tree
 import docker
+import re
 
 class Tool(object):
     def exists(self, x): 

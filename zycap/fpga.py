@@ -1,7 +1,6 @@
 import os,sys,glob,shutil
 import json
 import subprocess
-from .utils.tool import Tool
 import click, click_spinner
 from pathlib import Path
 import pkg_resources
@@ -13,7 +12,11 @@ from interfacer.identify import Identify
 from interfacer.module import Module, Static
 from interfacer.interface import Interface
 
+from .utils.tool import Tool
+from .zycap_ctrl import ZycapCtrl
+
 from edalize import *
+
 
 
 class Build(Tool):
@@ -272,7 +275,7 @@ class Build(Tool):
                 static_files.add(Path(each).stem)
             static_files_list = [s + ".v" for s in static_files]
             success, files = self.check_files_exist(
-                self.root_path, static_files, '.v')
+                f'{self.root_path}/{self.rtl_directory}', static_files, '.v')
             if success:
                 # TODO: handle ip cores in static design
                 self.static = Static(
@@ -290,7 +293,7 @@ class Build(Tool):
             # TODO: handle no custom static design
 
         success, self.modules['files'] = self.check_files_exist(
-            self.root_path, module_files, '.v')
+            f'{self.root_path}/{self.rtl_directory}', module_files, '.v')
         if len(self.modules['files']) > 0:
             self.logger.info(
                 f'Found module files {[s + ".v" for s in self.modules["files"]]}')
@@ -300,7 +303,7 @@ class Build(Tool):
 
         if len(ip_files) > 0:
             success, self.modules['ipcores'] = self.check_files_exist(
-                self.root_path, ip_files, '.xci')
+                f'{self.root_path}/{self.rtl_directory}', ip_files, '.xci')
             if not success:
                 self.logger.error(
                     f'Missing module ip {[s + ".xci" for s in ip_files]}')
@@ -309,31 +312,49 @@ class Build(Tool):
                     f'Found module ip {[s + ".xci" for s in self.modules["ipcores"]]}')
         # print(self.modules)
 
+        self.protocol_dict = {}
+
         for module in self.modules['modules']:
             self.__ext_modules(module, iden)
         click.secho('Extracting Interfaces...', fg='magenta')
         for module in self.modules['modules']:
             inter = Interface()
             interfaces, protocols = self.__ext_interfaces(module, inter)
-            # self.logger.error(f'ERROR: {inter.protocol_dict}')
-            try:
-                self.protocol_dict = inter.protocol_dict.keys() & self.protocol_dict.keys()
-            except:
-                self.protocol_dict = inter.protocol_dict
+            self.protocol_dict = self.__merge(self.protocol_dict, inter.protocol_dict)
+            # try:
+            #     self.logger.error(f'INT: {inter.protocol_dict}')
+            #     self.logger.error(f'PROT: {self.protocol_dict}')
+            #     self.protocol_dict = inter.protocol_dict.keys() & self.protocol_dict.keys()
+            # except:
+            #     self.protocol_dict = inter.protocol_dict
 
-        # self.logger.info(interfaces)
-        # self.logger.info(protocols)
+        self.logger.info(interfaces)
+        self.logger.info(protocols)
         self.interfaces = interfaces
         self.protocols = protocols
-        self.logger.debug(self.pprint(self.protocol_dict))
+        # self.logger.debug(self.pprint(self.protocol_dict))
         with open(f"{self.work_root}/{self.project_name}.inst/protocol.json", "w") as f:
             json.dump(self.protocol_dict, f,  indent=4, sort_keys=True)
 
         flat = self.flatten_json(self.protocol_dict)
         self.flat_protocol_dict = {value:key.rsplit('_', 1)[0] for key, value in flat.items()}
-        print(self.flat_protocol_dict)
-        
+        self.logger.debug(self.pprint(self.flat_protocol_dict))
         self.verify('Discovering Modules', success)
+
+    def __merge(self, a, b, path=None):
+        "merges b into a"
+        if path is None: path = []
+        for key in b:
+            if key in a:
+                if isinstance(a[key], dict) and isinstance(b[key], dict):
+                    self.__merge(a[key], b[key], path + [str(key)])
+                elif a[key] == b[key]:
+                    pass # same leaf value
+                else:
+                    raise Exception('Conflict at %s' % '.'.join(path + [str(key)]))
+            else:
+                a[key] = b[key]
+        return a
 
     def flatten_json(self, nested_json):
         """
@@ -389,13 +410,12 @@ class Build(Tool):
     def __ext_interfaces(self, module, inter):
         interfaces = []
         protocols = []
-        print(f"MOD PORTS: {self.modules['modules'][module]['obj'].ports}")
+        self.logger.info(f"MOD PORTS: {self.modules['modules'][module]['obj'].ports}")
         ports = self.modules['modules'][module]['obj'].ports
         inter.verifyInterface(ports)
-        print(self.modules['modules'][module]['obj'].ports)
         for interface in inter.matched_interfaces:
             if interface not in interfaces:
-                print(interface)
+                print(f"Interface: {interface}")
                 # for port in self.modules['modules'][module]['obj'].ports:
                     
 
@@ -409,12 +429,23 @@ class Build(Tool):
         with open(f"{self.work_root}/.hash", "w") as f:
             f.write(self.hash_directory(self.rtl_directory))
         self.setup_vivado_project()
-        if all([self.__gen_modules(), self.__gen_infrastructure(), self.__gen_wrapper(), self.__gen_base(self.board)]):
+        if all([self.__gen_modules(), self.__gen_infrastructure(), self.__gen_wrapper(), self.__gen_zycap_ctrl(), self.__gen_base(self.board)]):
             self.logger.info("Generation all successful!")
             self.export()
         else:
             exit(1)
         
+    def __gen_zycap_ctrl(self):
+
+
+        print(self.interfaces)
+        z = ZycapCtrl(self.interfaces)
+
+        z.build(f'{self.project_name}.inst/zycap.v')
+
+        self.edam['files'].insert(1, {'name' : f'{self.project_name}.inst/zycap.v',
+            'file_type' : 'verilogSource'})
+
 
     def __gen_modules(self):
         click.secho('Generating PR Module Checkpoints...', fg='magenta')

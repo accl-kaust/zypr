@@ -58,6 +58,7 @@ class Build(Tool):
     def __set_tool(self, version):
         self.sdk_tool = 'xsct'
 
+    @Tool.verify_func
     def __fsbl(self, bootloader_files):
         click.secho('Generating fsbl...', fg='magenta')
         with click_spinner.spinner():
@@ -66,6 +67,7 @@ class Build(Tool):
             output, success = process.communicate()
         return success
 
+    @Tool.verify_func
     def __pmufw(self, bootloader_files):
         click.secho('Generating pmufw...', fg='magenta')
         with click_spinner.spinner():
@@ -108,15 +110,17 @@ class Build(Tool):
         self._renderTemplate(jinja_env, 'boot.bif.j2', Path.cwd() / self.work_root / f'{self.project_name}.sdk' / 'boot.bif', template_vars={'bitstreams' : bitstreams})
         self._create_path(Path.cwd() / self.work_root / f'{self.project_name}.sdk' / 'uboot' / 'src')
 
+        self.logger.info("Building BOOT.BIN...")
         with click_spinner.spinner():
             process = subprocess.Popen(
-                f'bash {bootloader_files}/boot.sh {self.work_root}/{self.project_name}.sdk'.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                f'bootgen -arch zynqmp -image {self.work_root}/{self.project_name}.sdk/boot.bif -w -o {self.work_root}/{self.project_name}.sdk/boot.bin'.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE
+                )
             output, success = process.communicate()
         return success
 
     @Tool.verify_func
     def __device_tree(self, vitis_scripts):
-        self._create_path(Path.cwd() / self.work_root / f'{self.project_name}.linux' / 'device_tree')
+        self._create_path(Path.cwd() / self.work_root / f'{self.project_name}.sdk' / 'device_tree')
         
         with click_spinner.spinner():
             process = subprocess.Popen(
@@ -126,9 +130,14 @@ class Build(Tool):
             if success == False:
                 return success
 
+            print(f'{self.sdk_tool} {vitis_scripts}/dt/dtg.tcl {self.project_name} {self.work_root} psu_cortexa53_0 {self.work_root}/{self.project_name}.sdk/device_tree/dtg')
+            exit()
             process = subprocess.Popen(
-                f'{self.sdk_tool} {vitis_scripts}/dt/dtg.tcl {self.project_name} {self.work_root} psu_cortexa53_0 {self.work_root}/{self.project_name}.linux/device_tree/dtg'.split(), stdout=subprocess.PIPE)
+                f'{self.sdk_tool} {vitis_scripts}/dt/dtg.tcl {self.project_name} {self.work_root} psu_cortexa53_0 {self.work_root}/{self.project_name}.sdk/device_tree/dtg'.split(), stdout=subprocess.PIPE)
             output, success = process.communicate()
+            print(output)
+            return success
+
 
     def setup(self):
         self.kernel_path = Path.cwd() / self.work_root / f'{self.project_name}.linux' / 'kernel'
@@ -146,12 +155,18 @@ class Build(Tool):
         self.logger.info(vitis_scripts)
         success = True
 
-        # if all([self.__fsbl(bootloader_files), self.__pmufw(bootloader_files), self.__atf(bootloader_files), self.__uboot(bootloader_files), self.__image(bootloader_files)]):
-        #     self.logger.info("Generation all boot components successful!")
-        # else:
-        #     exit(1)
+        self.__device_tree(vitis_scripts)
+        exit()
+
+        if all([self.__fsbl(bootloader_files), self.__pmufw(bootloader_files), self.__atf(bootloader_files), self.__uboot(bootloader_files), self.__image(bootloader_files),self.__device_tree(vitis_scripts)]):
+            self.logger.info("Generation all boot components successful!")
+        else:
+            exit(1)
+
 
         # self.__device_tree(vitis_scripts)
+
+        exit()
 
         self.__prepare_kernel()
 
@@ -174,7 +189,7 @@ class Build(Tool):
             container.stop()
 
         except: 
-            logger.warning(f'{tool}-{version}-kernel not running...')
+            self.logger.warning(f'{tool}-{version}-kernel not running...')
             container = self.docker.containers.run(
                                                     image=f'zycap/{tool}/{self.xilinx_version}',
                                                     stdin_open = True,
@@ -201,15 +216,19 @@ class Build(Tool):
             self.__build_petalinux(container)
 
         else:
+            self.logger.warning(f'Docker error - {container.status}')
             success = False
         return success
 
     def __build_petalinux(self, container):
         petalinux = container.exec_run(f"/bin/bash -c 'source /opt/petalinux/settings.sh && cd {self.project_name} && petalinux-build'",user='plnx',socket=True)
-        print(dir(petalinux.output))
-        while petalinux.output.fileno() != -1:
-            data = petalinux.output.read(1024)
-            print(data.decode('utf_8', 'ignore'))
+        print(petalinux.exit_code)
+        while petalinux.exit_code == None:
+            print("building...")
+            time.sleep(5) 
+        # while petalinux.output.fileno() != -1:
+        #     data = petalinux.output.read(1024)
+        #     print(data.decode('utf_8', 'ignore'))
     
     @Tool.verify_func
     def __prepare_kernel(self, tool="petalinux", version="2019.2"):
