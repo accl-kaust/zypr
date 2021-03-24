@@ -1,0 +1,20 @@
+{
+    "slug": "sobel_a",
+    "type": "partial",
+    "base": "example.bin",
+    "overlay": "sobel_a.dtbo",
+    "regions": [
+        {"name": "sobel_a", "partial": "sobel_a.bin", "interfaces":
+            {
+                "axi_stream": "0x0", 
+                "axi_mmio": "0xb0002000"
+            }
+        },
+        {"name": "sobel_a", "partial": "sobel_b.bin", "interfaces":
+            {
+                "axi_stream": "0x1", 
+                "axi_mmio": "0xb0003000"
+            }
+        }    
+    ]
+}

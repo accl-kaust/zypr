@@ -1,0 +1,8 @@
+&amba_pl {
+    zycap: zycap@0xB0010000 {
+        compatible = "generic-uio";
+        interrupt-parent = <&gic>;
+        interrupts = <0 91 4>;
+        reg = <0x0 0xB0010000 0x0 0x10000>;        
+    };
+};

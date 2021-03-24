@@ -59,4 +59,6 @@ foreach key [array names Checkpoints] {
     close_design
 }
 
+read_checkpoint ${design_name}.checkpoint/default_routed.dcp
+
 logger "All bitstreams complete" SUCCESS

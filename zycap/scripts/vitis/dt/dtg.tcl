@@ -9,7 +9,7 @@ set hwspec_file       "${project_name}.xsa"
 set proc_name         [lindex $argv 2]
 set repo_name         [lindex $argv 3]
 set project_dir       [file join [pwd] [lindex $argv 1]]
-set sdk_workspace     [file join $project_dir "${project_name}.linux"]
+set sdk_workspace     [file join $project_dir "${project_name}.sdk"]
 set app_dir           [file join ${sdk_workspace}/device_tree $app_name]
 
 puts [file join $sdk_workspace $hwspec_file]
@@ -23,5 +23,6 @@ set hw_design         [hsi::open_hw_design [file join $sdk_workspace $hwspec_fil
 
 hsi::set_repo_path $repo_name
 hsi::create_sw_design device-tree -os device_tree -proc $proc_name
+hsi::set_property CONFIG.dt_overlay true [hsi::get_os]
 hsi::generate_target -dir $app_dir
 hsi::close_hw_design [hsi::current_hw_design]

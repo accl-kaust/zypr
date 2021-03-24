@@ -47,6 +47,7 @@ IMAGE_INSTALL = "\
 		zycap \
 		axidma \
 		led-brightness \
+		u-dma-buf \
 		udmabuf \
 		wilc \
 		libftdi \

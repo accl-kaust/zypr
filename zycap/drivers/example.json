@@ -1,0 +1,14 @@
+{
+    "slug": "example",
+    "type": "full",
+    "base_bitstream": "example.bin",
+    "device_tree": "example.dtb",
+    "partial_bitstream": [
+        "sobel_a.json",
+        "sobel_b.json"
+    ],
+    "mmio":{
+        "dma": "0xB0000000",
+        "zycap": "0xB0001000"
+    }
+}

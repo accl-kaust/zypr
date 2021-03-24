@@ -2,7 +2,7 @@
 
 import os
 import sys
-import json
+import json as j
 import subprocess
 from .utils.tool import Tool
 import click
@@ -20,6 +20,11 @@ class Build(Tool):
         self.verify('Setup', success)
         _, success = self.source_tools(
             '{0}/{1}/settings64.sh'.format(self.sdk_path, self.xilinx_version))
+        source = 'source {0}/{1}/settings64.sh'.format(self.sdk_path, self.xilinx_version)
+        dump = '/usr/bin/python -c "import os, json;print json.dumps(dict(os.environ))"'
+        pipe = subprocess.Popen(['/bin/bash', '-c', '%s && %s' %(source,dump)], stdout=subprocess.PIPE)
+        env = j.loads(pipe.stdout.read())
+        os.environ = env
         self.verify('Setup', success)
         self.__set_tool(self.xilinx_version)
 
@@ -63,8 +68,11 @@ class Build(Tool):
         click.secho('Generating fsbl...', fg='magenta')
         with click_spinner.spinner():
             process = subprocess.Popen(
-                f'{self.sdk_tool} {bootloader_files}/fsbl/build.tcl {self.project_name} {self.work_root}'.split(), stdout=subprocess.PIPE)
-            output, success = process.communicate()
+                f'{self.sdk_tool} {bootloader_files}/fsbl/build.tcl {self.project_name} {self.work_root}'.split(),
+                 stdout=subprocess.PIPE,
+                 stderr=subprocess.PIPE)
+            stdout, stderr = process.communicate()
+            success = True if (process.returncode == 0) else False
         return success
 
     @Tool.verify_func
@@ -72,8 +80,11 @@ class Build(Tool):
         click.secho('Generating pmufw...', fg='magenta')
         with click_spinner.spinner():
             process = subprocess.Popen(
-                f'{self.sdk_tool} {bootloader_files}/pmufw/build.tcl {self.project_name} {self.work_root}'.split(), stdout=subprocess.PIPE)
-            output, success = process.communicate()
+                f'{self.sdk_tool} {bootloader_files}/pmufw/build.tcl {self.project_name} {self.work_root}'.split(), 
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE)
+            stdout, stderr = process.communicate()
+            success = True if (process.returncode == 0) else False
         return success
 
     @Tool.verify_func
@@ -81,9 +92,11 @@ class Build(Tool):
         click.secho('Generating arm trusted firmware...', fg='magenta')
         with click_spinner.spinner():
             process = subprocess.Popen(
-                f'bash {bootloader_files}/atf/build.sh {self.project_name} {self.work_root}'.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            output, success = process.communicate()
-            print(output)
+                f'bash {bootloader_files}/atf/build.sh {self.project_name} {self.work_root}'.split(), 
+                stdout=subprocess.PIPE, 
+                stderr=subprocess.PIPE)
+            stdout, stderr = process.communicate()
+            success = True if (process.returncode == 0) else False
         return success
 
     @Tool.verify_func
@@ -93,8 +106,11 @@ class Build(Tool):
         self.copytree(f'{bootloader_files}/uboot/src', f'./{self.work_root}/{self.project_name}.sdk/uboot/src')
         with click_spinner.spinner():
             process = subprocess.Popen(
-                f'bash {bootloader_files}/uboot/build.sh {self.project_name} {self.work_root}'.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            output, success = process.communicate()
+                f'bash {bootloader_files}/uboot/build.sh {self.project_name} {self.work_root}'.split(), 
+                stdout=subprocess.PIPE, 
+                stderr=subprocess.PIPE)
+            stdout, stderr = process.communicate()
+            success = True if (process.returncode == 0) else False
         return success
 
     @Tool.verify_func
@@ -104,7 +120,7 @@ class Build(Tool):
         jinja_env = Environment(loader=FileSystemLoader(bootloader_files))
 
         p = Path(f"{self.work_root}/{self.project_name}.bitstreams").glob('*.bit')
-        bitstreams = [x.absolute() for x in p if x.is_file()]
+        bitstreams = [x.absolute() for x in p if (x.is_file() and not ('_partial' in x.stem))]
         self.logger.info(bitstreams)
 
         self._renderTemplate(jinja_env, 'boot.bif.j2', Path.cwd() / self.work_root / f'{self.project_name}.sdk' / 'boot.bif', template_vars={'bitstreams' : bitstreams})
@@ -112,10 +128,14 @@ class Build(Tool):
 
         self.logger.info("Building BOOT.BIN...")
         with click_spinner.spinner():
+            self.logger.info(f'bootgen -arch zynqmp -image boot.bif -w -o boot.bin @ {self.work_root}/{self.project_name}.sdk')
             process = subprocess.Popen(
-                f'bootgen -arch zynqmp -image {self.work_root}/{self.project_name}.sdk/boot.bif -w -o {self.work_root}/{self.project_name}.sdk/boot.bin'.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE
-                )
-            output, success = process.communicate()
+                f'bootgen -arch zynqmp -image boot.bif -w -o boot.bin'.split(), 
+                cwd=f'{self.work_root}/{self.project_name}.sdk',
+                stdout=subprocess.PIPE, 
+                stderr=subprocess.PIPE)
+            stdout, stderr = process.communicate()
+            success = True if (process.returncode == 0) else False
         return success
 
     @Tool.verify_func
@@ -130,13 +150,13 @@ class Build(Tool):
             if success == False:
                 return success
 
-            print(f'{self.sdk_tool} {vitis_scripts}/dt/dtg.tcl {self.project_name} {self.work_root} psu_cortexa53_0 {self.work_root}/{self.project_name}.sdk/device_tree/dtg')
-            exit()
             process = subprocess.Popen(
-                f'{self.sdk_tool} {vitis_scripts}/dt/dtg.tcl {self.project_name} {self.work_root} psu_cortexa53_0 {self.work_root}/{self.project_name}.sdk/device_tree/dtg'.split(), stdout=subprocess.PIPE)
-            output, success = process.communicate()
-            print(output)
-            return success
+                f'{self.sdk_tool} {vitis_scripts}/dt/dtg.tcl {self.project_name} {self.work_root} psu_cortexa53_0 {self.work_root}/{self.project_name}.sdk/device_tree/dtg'.split(), 
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE)
+            stdout, stderr = process.communicate()
+            success = True if (process.returncode == 0) else False
+        return success
 
 
     def setup(self):
@@ -164,7 +184,7 @@ class Build(Tool):
             exit(1)
 
 
-        # self.__device_tree(vitis_scripts)
+        self.__device_tree(vitis_scripts)
 
         exit()
 

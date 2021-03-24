@@ -17,3 +17,4 @@ set hw_design         [hsi::open_hw_design [file join $sdk_workspace $hwspec_fil
 
 hsi::generate_app -hw $hw_design -os standalone -proc $proc_name -app $app_type -compile -dir $app_dir
 file copy -force [file join $app_dir "executable.elf"] [file join $sdk_workspace $app_release_elf]
+exit 0

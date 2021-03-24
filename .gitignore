@@ -45,3 +45,4 @@ hd_visual
 example/linux/example
 .logs
 parsetab.py
+*.run

@@ -32,7 +32,7 @@ CONFIG_ultra96-radio-leds
 CONFIG_sds-lib
 CONFIG_led-brightness
 CONFIG_axidma
-CONFIG_udmabuf
 CONFIG_zycap
 CONFIG_sds-lib
 CONFIG_usb-gadget-ethernet
+CONFIG_u-dma-buf

@@ -4,7 +4,7 @@ ENV    DEBIAN_FRONTEND=noninteractive
 ENV    LC_ALL=en_US.UTF-8
 ENV    LANG=en_US.UTF-8
 ENV    LANGUAGE=en_US.UTF-8
-ENV    TZ=Asia/Shanghai
+ENV    TZ=Europe/London
 
 ARG    installer_url="172.17.0.1:8000"
 ARG    version=2019.2

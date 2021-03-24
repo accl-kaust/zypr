@@ -4233,6 +4233,7 @@ CONFIG_zycap=y
 #
 CONFIG_axidma=y
 CONFIG_led-brightness=y
+CONFIG_u-dma-buf=y
 CONFIG_udmabuf=y
 CONFIG_wilc=y
 

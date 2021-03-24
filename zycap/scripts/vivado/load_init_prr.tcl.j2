@@ -66,6 +66,15 @@ place_design
 logger "Running PR default route..." INFO
 route_design
 
+logger "Starting initial implementation" INFO
+if { [get_property PROGRESS [get_runs impl_1]] != "100%"} {
+  launch_runs impl_1 -to_step write_bitstream
+  wait_on_run impl_1
+  logger "Default bitstream generation completed" SUCCESS
+} else {
+  logger "Default bitstream generation already complete" INFO
+}
+
 logger "Writing default routed checkpoint" INFO
 write_checkpoint -force ${design_name}.checkpoint/default_routed.dcp
 

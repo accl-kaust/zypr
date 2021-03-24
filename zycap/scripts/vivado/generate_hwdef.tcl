@@ -3,7 +3,7 @@
 # load logging library
 source [lindex $argv 1]
 
-logger "Generating HWDef files..."
+logger "Generating HWDef files..." INFO
 open_project [lindex $argv 0]
 
 set work_directory [get_property DIRECTORY [current_project]]

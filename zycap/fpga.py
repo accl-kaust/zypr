@@ -342,7 +342,7 @@ class Build(Tool):
         self.verify('Discovering Modules', success)
 
     def __merge(self, a, b, path=None):
-        "merges b into a"
+        "Merge dicts"
         if path is None: path = []
         for key in b:
             if key in a:
@@ -561,7 +561,7 @@ class Build(Tool):
                     self.logger.info(f'Found {interface_len} interfaces for {interface} - {protocol}')
                     output = open(f'{self.root_path}/.logs/{interface}-{protocol}.log', 'w+')
                     e = subprocess.run(
-                        f'{interface_script} -p {interface_len} -o {self.work_root}/{self.project_name}.ip/{interface}_{protocol}.v'.split(), stdout=output, stderr=output)
+                        f'{interface_script} -w 64 -p {interface_len} -o {self.work_root}/{self.project_name}.ip/{interface}_{protocol}.v'.split(), stdout=output, stderr=output)
                     if e.returncode != 0:
                         self.logger.error(f"Error {e} in IP generation")
                         return self.verify('Generated Infrastructure', False)
