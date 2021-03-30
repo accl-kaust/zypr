@@ -9,6 +9,8 @@ import click
 import click_spinner
 import time
 import pkg_resources
+import logging.handlers
+import socket
 from pathlib import Path
 from jinja2 import Environment, FileSystemLoader
 
@@ -175,18 +177,19 @@ class Build(Tool):
         self.logger.info(vitis_scripts)
         success = True
 
-        self.__device_tree(vitis_scripts)
-        exit()
+        # self.__device_tree(vitis_scripts)
+        # exit()
 
-        if all([self.__fsbl(bootloader_files), self.__pmufw(bootloader_files), self.__atf(bootloader_files), self.__uboot(bootloader_files), self.__image(bootloader_files),self.__device_tree(vitis_scripts)]):
-            self.logger.info("Generation all boot components successful!")
-        else:
-            exit(1)
+        # if all([self.__fsbl(bootloader_files), self.__pmufw(bootloader_files), self.__atf(bootloader_files), self.__uboot(bootloader_files), self.__image(bootloader_files),self.__device_tree(vitis_scripts)]):
+        #     self.logger.info("Generation all boot components successful!")
+        # else:
+        #     self.logger.error("Generation of boot components failed.")
+        #     exit(1)
 
 
-        self.__device_tree(vitis_scripts)
+        # self.__device_tree(vitis_scripts)
 
-        exit()
+        # exit()
 
         self.__prepare_kernel()
 
@@ -196,13 +199,16 @@ class Build(Tool):
     @Tool.verify_func
     def __prepare_petalinux(self, linux_docker, tool, version):
         success = True
-        self.logger.info(f'Starting HTTP server')
-        process = subprocess.Popen(
-            f'bash {linux_docker}/serve-petalinux.sh {linux_docker} {version}'.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        process.wait()
-        self.logger.info(f'Starting build')
-        self.docker_build_image(linux_docker,f'zycap/{tool}/{self.xilinx_version}')
-        self.logger.info(f'Using {linux_docker}/Dockerfile to build Linux Kernel')
+        try:
+            self.docker.image.get(f'zycap/{tool}/{self.xilinx_version}')
+        except:
+            self.logger.info(f'Starting HTTP server')
+            process = subprocess.Popen(
+                f'bash {linux_docker}/serve-petalinux.sh {linux_docker} {version}'.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            process.wait()
+            self.logger.info(f'Starting build')
+            self.docker_build_image(linux_docker,f'zycap/{tool}/{self.xilinx_version}')
+            self.logger.info(f'Using {linux_docker}/Dockerfile to build Linux Kernel')
         
         try:
             container = self.docker.containers.get(f'{tool}-{version}-kernel')
@@ -219,33 +225,70 @@ class Build(Tool):
                                                     detach=True
                                                 )            
         container.start()
+        self.logger.info("Attempting to start containers")
         if container.status == "running":
-            if (container.exec_run("/bin/bash -c 'for i in $(ls -d */); do echo ${i%%/}; done'",user='plnx').output.decode().strip() != self.project_name) and not self.force:
-                self.logger.warning(f"Project {self.project_name} not found, creating...")
-                build = container.exec_run(f"/bin/bash -c 'source /opt/petalinux/settings.sh && petalinux-create --type project --template zynqMP --name {self.project_name}'",user='plnx')
-                if build.exit_code != 0:
-                    self.logger.warning(build.output.decode())
-                    return False
+            if (self.project_name not in container.exec_run("/bin/bash -c 'for i in $(ls -d */); do echo ${i%%/}; done'",user='plnx').output.decode().strip() or self.force):
+                self.logger.warning(f"Creating project {self.project_name} {'(forced)' if self.force else ''}...")
+                print(f"/bin/bash -c 'source /opt/petalinux/settings.sh && petalinux-create --type project --template zynqMP --name {self.project_name} {'--force' if self.force else ''}'")
+                build = container.exec_run(f"/bin/bash -c 'source /opt/petalinux/settings.sh && petalinux-create --type project --template zynqMP --name {self.project_name} {'--force' if self.force else ''}'",
+                                            user='plnx',
+                                            stderr=True,
+                                            stdout=True,
+                                            stream=True)
+                for line in build[1]:
+                    print(line.decode().rstrip("\n"))
             # Copy in base Petalinux Project
+
             board = self.board.replace(':','/')
             project_spec = pkg_resources.resource_filename(
                 'zycap', f'boards/{board}/linux/{self.xilinx_version}/petalinux/project-spec')
             self.logger.info(f'Found {project_spec}')
             self.copytree(project_spec, f"{self.work_root}/{self.project_name}.linux/kernel/{self.project_name}/project-spec")
-            self.logger.info(f"Starting Kernel build")
+            self.logger.info(f"Starting Petalinux build")
             self.__build_petalinux(container)
 
         else:
-            self.logger.warning(f'Docker error - {container.status}')
+            self.logger.warning(f'Docker Warning - Container {container.status}')
             success = False
         return success
 
     def __build_petalinux(self, container):
-        petalinux = container.exec_run(f"/bin/bash -c 'source /opt/petalinux/settings.sh && cd {self.project_name} && petalinux-build'",user='plnx',socket=True)
+        self.logger.info(f"Starting Kernel build")
+        petalinux = container.exec_run(f"/bin/bash -c 'source /opt/petalinux/settings.sh && cd {self.project_name} && petalinux-build'",
+                                        user='plnx',
+                                        stdout=True,
+                                        stderr=True,
+                                        socket=True)
+
+        logs = container.logs(follow=True)
+        while True:
+            try:
+                output = logs.__next__
+                output = output.strip('\r\n')
+                json_output = json.loads(output)
+                if 'stream' in json_output:
+                    print(json_output['stream'].strip('\n'))
+            except StopIteration:
+                print("Docker image build complete.")
+                break
+            except ValueError:
+                print("Error parsing output from docker image build: %s" % output)
+        # while True:
+        # print(container.logs(follow=True))
+            # yield container.logs(follow=True)
+
+        # print(dir(petalinux[1]))
+        # print(petalinux[1].read(10))
+
+        # for line in petalinux[1]:
+        #     print(line, end='')
+
+        container.stop()
+        container.remove()
         print(petalinux.exit_code)
-        while petalinux.exit_code == None:
-            print("building...")
-            time.sleep(5) 
+        # while petalinux.exit_code == None:
+        #     print("building...")
+        #     time.sleep(5) 
         # while petalinux.output.fileno() != -1:
         #     data = petalinux.output.read(1024)
         #     print(data.decode('utf_8', 'ignore'))
@@ -256,14 +299,13 @@ class Build(Tool):
         linux_docker = pkg_resources.resource_filename(
             'zycap', f'docker/{tool}/{self.xilinx_version}')
         self.docker_config()
-        with click_spinner.spinner():
-            self.logger.info(f'Using {linux_docker}/Dockerfile to build Linux Kernel')
-            try: 
-                self.logger.info(f"Found {self.docker.images.get(f'zycap/{tool}/{self.xilinx_version}').tags}...")
-            except:
-                self.logger.warning(f'Docker image for zycap/{tool}/{self.xilinx_version} not found...')
-            if tool == "petalinux":
-                self.__prepare_petalinux(linux_docker, tool, version)
+        self.logger.info(f'Using {linux_docker}/Dockerfile to build Linux Kernel')
+        try: 
+            self.logger.info(f"Found {self.docker.images.get(f'zycap/{tool}/{self.xilinx_version}').tags}...")
+        except:
+            self.logger.warning(f'Docker image for zycap/{tool}/{self.xilinx_version} not found...')
+        if tool == "petalinux":
+            self.__prepare_petalinux(linux_docker, tool, version)
                     
 
             # print(container.top())

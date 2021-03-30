@@ -40,7 +40,7 @@ def run(ctx, config, fpga, linux, force):
         logger.info('FPGA')
         z.run()
     elif linux:
-        z = l(json=config, logger=logger)
+        z = l(json=config, logger=logger, force=force)
         logger.info('Linux')
         z.run()
     else:
