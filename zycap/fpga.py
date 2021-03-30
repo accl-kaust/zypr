@@ -125,6 +125,8 @@ class Build(Tool):
         self._create_path(checkpoint_path_init)
         self._create_path(checkpoint_path_final)
 
+        bitstream_path = Path.cwd() / self.work_root / f'{self.project_name}.bitstreams'
+        self._create_path(bitstream_path)
 
         sdk_path = Path.cwd() / self.work_root / f'{self.project_name}.sdk'
         self._create_path(sdk_path)
