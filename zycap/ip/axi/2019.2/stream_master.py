@@ -30,7 +30,7 @@ def main():
         exit(1)
 
 def generate(ports=1, name=None, output=None, width=8, icap=True):
-    n = ports + 1
+    n = ports
 
     if name is None:
         name = "axis_stream_master"
@@ -42,9 +42,15 @@ def generate(ports=1, name=None, output=None, width=8, icap=True):
 
     output_file = open(output, 'w')
 
-    print("Generating {0} port AXI stream mux wrapper {1} with DATA_WIDTH {2}...".format(n, name, width))
+    if icap:
+        cn = (n).bit_length()
+        icap_n = ports + 1
+    else:
+        cn = (n-1).bit_length()
+        icap_n = ports
 
-    cn = int(math.ceil(math.log(n, 2)))
+    print("Generating {0} port AXI stream mux wrapper {1} with DATA_WIDTH {2} (cn = {3}, icap_n = {4})...".format(n, name, width, cn, icap_n))
+
 
     t = Template(u"""/*
 
@@ -77,7 +83,7 @@ Modified 2021 Alex Bucknall
 `timescale 1ns / 1ps
 
 /*
- * AXI4-Stream {{n}} port mux (wrapper)
+ * AXI4-Stream {{icap_n}} port mux (wrapper)
  */
 module {{name}} #
 (
@@ -103,8 +109,8 @@ module {{name}} #
 (
     (* X_INTERFACE_INFO = "xilinx.com:signal:clock:1.0 clk CLK" *)
     input  wire                  clk,
-    (* X_INTERFACE_INFO = "xilinx.com:signal:reset:1.0 rst RST" *)
-    input  wire                  rst,
+    (* X_INTERFACE_INFO = "xilinx.com:signal:reset:1.0 rst_n RST" *)
+    input  wire                  rst_n,
 
     /*
      * ICAP Stream inputs
@@ -174,8 +180,11 @@ module {{name}} #
     input  wire [{{cn-1}}:0]            sel
 );
 
-axis_mux #(
-    .S_COUNT({{n}}),
+wire rst;
+assign rst = !rst_n;
+
+(* DONT_TOUCH = "TRUE" *) axis_mux #(
+    .S_COUNT({{icap_n}}),
     .DATA_WIDTH(DATA_WIDTH),
     .KEEP_ENABLE(KEEP_ENABLE),
     .KEEP_WIDTH(KEEP_WIDTH),
@@ -218,6 +227,7 @@ endmodule
 
     output_file.write(t.render(
         n=n,
+        icap_n=icap_n,
         cn=cn,
         name=name,
         width=width

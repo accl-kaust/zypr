@@ -2,6 +2,9 @@
 
 proj_name=$1
 build_dir=$2
+source=$3
+
+eval "$source"
 
 git clone https://github.com/Xilinx/arm-trusted-firmware.git ${build_dir}/${proj_name}.sdk/atf || true
 cd ${build_dir}/${proj_name}.sdk/atf

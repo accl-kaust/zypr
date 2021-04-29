@@ -2,6 +2,7 @@ import click
 import os
 import subprocess
 import pkg_resources
+import shutil
 import logging
 from pathlib import Path
 import glob
@@ -37,9 +38,9 @@ class Tool(object):
             success = func(*args, **kwargs)
             if not success:
                 click.secho('{} failed [✗]'.format(func.__name__), fg='red')
-                exit()
             else:
                 click.secho('{} complete [✓]'.format(func.__name__), fg='green')
+            return success
         return test
 
     def hash_directory(self, path):
@@ -126,9 +127,13 @@ class Tool(object):
         with open(target_file, 'w') as f:
             f.write(template.render(template_vars))
 
-    def _create_path(self,path):
+    def _create_path(self,path,force=False):
         try:
-            path.mkdir(parents=True, exist_ok=False)
+            if(force and path.is_dir()):
+                self.logger.debug(f"Directory '{path.as_posix()}' already exists, overwriting...")
+                shutil.rmtree(path)
+            path.mkdir(parents=True, exist_ok=force)
+
         except FileExistsError:
             self.logger.debug(f"Directory '{path.as_posix()}' already exists")
         else:

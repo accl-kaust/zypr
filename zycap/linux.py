@@ -3,6 +3,7 @@
 import os
 import sys
 import json as j
+import csv
 import subprocess
 from .utils.tool import Tool
 import click
@@ -22,13 +23,13 @@ class Build(Tool):
         self.verify('Setup', success)
         _, success = self.source_tools(
             '{0}/{1}/settings64.sh'.format(self.sdk_path, self.xilinx_version))
-        source = 'source {0}/{1}/settings64.sh'.format(self.sdk_path, self.xilinx_version)
+        self.source = 'source {0}/{1}/settings64.sh'.format(self.sdk_path, self.xilinx_version)
         dump = '/usr/bin/python -c "import os, json;print json.dumps(dict(os.environ))"'
-        pipe = subprocess.Popen(['/bin/bash', '-c', '%s && %s' %(source,dump)], stdout=subprocess.PIPE)
+        pipe = subprocess.Popen(['/bin/bash', '-c', '%s && %s' %(self.source,dump)], stdout=subprocess.PIPE)
         env = j.loads(pipe.stdout.read())
         os.environ = env
         self.verify('Setup', success)
-        self.__set_tool(self.xilinx_version)
+        self.__set_tool(self.xilinx_version)        
 
     def unpack_config(self, config):
         try:
@@ -75,6 +76,7 @@ class Build(Tool):
                  stderr=subprocess.PIPE)
             stdout, stderr = process.communicate()
             success = True if (process.returncode == 0) else False
+            if not success: self.logger.error(stderr)
         return success
 
     @Tool.verify_func
@@ -87,6 +89,7 @@ class Build(Tool):
                 stderr=subprocess.PIPE)
             stdout, stderr = process.communicate()
             success = True if (process.returncode == 0) else False
+            if not success: self.logger.error(stderr)
         return success
 
     @Tool.verify_func
@@ -94,11 +97,12 @@ class Build(Tool):
         click.secho('Generating arm trusted firmware...', fg='magenta')
         with click_spinner.spinner():
             process = subprocess.Popen(
-                f'bash {bootloader_files}/atf/build.sh {self.project_name} {self.work_root}'.split(), 
+                f'bash {bootloader_files}/atf/build.sh {self.project_name} {self.work_root} {self.source}'.split(), 
                 stdout=subprocess.PIPE, 
                 stderr=subprocess.PIPE)
             stdout, stderr = process.communicate()
             success = True if (process.returncode == 0) else False
+            if not success: self.logger.error(stderr)
         return success
 
     @Tool.verify_func
@@ -113,6 +117,7 @@ class Build(Tool):
                 stderr=subprocess.PIPE)
             stdout, stderr = process.communicate()
             success = True if (process.returncode == 0) else False
+            if not success: self.logger.error(stderr)
         return success
 
     @Tool.verify_func
@@ -138,6 +143,7 @@ class Build(Tool):
                 stderr=subprocess.PIPE)
             stdout, stderr = process.communicate()
             success = True if (process.returncode == 0) else False
+            if not success: self.logger.error(stderr)
         return success
 
     @Tool.verify_func
@@ -146,10 +152,14 @@ class Build(Tool):
         
         with click_spinner.spinner():
             process = subprocess.Popen(
-                f'bash {vitis_scripts}/dt/dtg.sh {self.work_root}/{self.project_name}.sdk/device_tree {self.xilinx_version}'.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            output, success = process.communicate()
+                f'bash {vitis_scripts}/dt/dtg.sh {self.work_root}/{self.project_name}.sdk/device_tree {self.xilinx_version}'.split(), 
+                stdout=subprocess.PIPE, 
+                stderr=subprocess.PIPE)
+            stdout, stderr = process.communicate()
+            success = True if (process.returncode == 0) else False
 
-            if success == False:
+            if not success:
+                self.logger.error(stderr)
                 return success
 
             process = subprocess.Popen(
@@ -158,7 +168,19 @@ class Build(Tool):
                 stderr=subprocess.PIPE)
             stdout, stderr = process.communicate()
             success = True if (process.returncode == 0) else False
+            if not success: self.logger.error(stderr)
         return success
+
+    @Tool.verify_func
+    def __generate_mmio(self):
+        self._create_path(Path.cwd() / self.work_root / f'{self.project_name}.sdk' / 'mmio')
+        success = True
+        with click_spinner.spinner():
+            with open(Path.cwd() / self.work_root / f'{self.project_name}.sdk' / 'mmio.csv') as mmio:
+                rdr = csv.DictReader(filter(lambda row: row[0]!='#', mmio))
+                for row in rdr:
+                    print(row)
+            return success
 
 
     def setup(self):
@@ -177,23 +199,26 @@ class Build(Tool):
         self.logger.info(vitis_scripts)
         success = True
 
+        self.__generate_mmio()
+        exit()
+
         # self.__device_tree(vitis_scripts)
         # exit()
 
-        # if all([self.__fsbl(bootloader_files), self.__pmufw(bootloader_files), self.__atf(bootloader_files), self.__uboot(bootloader_files), self.__image(bootloader_files),self.__device_tree(vitis_scripts)]):
-        #     self.logger.info("Generation all boot components successful!")
-        # else:
-        #     self.logger.error("Generation of boot components failed.")
-        #     exit(1)
-
-
-        # self.__device_tree(vitis_scripts)
-
+        # self.__image(bootloader_files)
         # exit()
 
-        self.__prepare_kernel()
+        if all([self.__fsbl(bootloader_files), self.__pmufw(bootloader_files), self.__atf(bootloader_files), self.__uboot(bootloader_files), self.__image(bootloader_files),self.__device_tree(vitis_scripts)]):
+            self.logger.info("Generation all boot components successful!")
+        else:
+            self.logger.error("Generation of boot components failed.")
+            exit(1)
 
-        self.export()
+        exit()
+
+        # self.__prepare_kernel()
+
+        # self.export()
         pass
 
     @Tool.verify_func
@@ -251,6 +276,7 @@ class Build(Tool):
             self.logger.warning(f'Docker Warning - Container {container.status}')
             success = False
         return success
+
 
     def __build_petalinux(self, container):
         self.logger.info(f"Starting Kernel build")

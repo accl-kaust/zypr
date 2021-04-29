@@ -1,0 +1,17 @@
+/dts-v1/;
+/plugin/;
+/ {
+	fragment@3 {
+		target = <&amba>;
+		overlay3: __overlay__ {
+            axidmatest_0: axidmatest@0 {
+                     compatible ="xlnx,axi-dma-test-1.00.a";
+                     dmas = <&axi_dma_0 0
+                             &axi_dma_0 1>;
+                     dma-names = "axidma0", "axidma1";
+        } ;
+        }
+    }
+}
+
+

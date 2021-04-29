@@ -26,7 +26,7 @@ def main():
         exit(1)
 
 def generate(ports=2, name=None, output=None, width=8, icap=True):
-    n = ports + 1
+    n = ports
 
     if name is None:
         name = "axis_stream_slave"
@@ -38,9 +38,15 @@ def generate(ports=2, name=None, output=None, width=8, icap=True):
 
     output_file = open(output, 'w')
 
+    if icap:
+        cn = (n).bit_length()
+        icap_n = ports + 1
+    else:
+        cn = (n-1).bit_length()
+        icap_n = ports
+
     print("Generating {0} port AXI stream demux wrapper {1} with DATA_WIDTH {2}...".format(n, name, width))
 
-    cn = int(math.ceil(math.log(n, 2)))
 
     t = Template(u"""/*
 
@@ -73,7 +79,7 @@ Modified 2021 Alex Bucknall
 `timescale 1ns / 1ps
 
 /*
- * AXI4-Stream {{n}} port demux (wrapper)
+ * AXI4-Stream {{icap_n}} port demux (wrapper)
  */
 module {{name}} #
 (
@@ -99,8 +105,8 @@ module {{name}} #
 (
     (* X_INTERFACE_INFO = "xilinx.com:signal:clock:1.0 clk CLK" *)
     input  wire                  clk,
-    (* X_INTERFACE_INFO = "xilinx.com:signal:reset:1.0 rst RST" *)
-    input  wire                  rst,
+    (* X_INTERFACE_INFO = "xilinx.com:signal:reset:1.0 rst_n RST" *)
+    input  wire                  rst_n,
 
     /*
      * AXI Stream input
@@ -172,8 +178,11 @@ module {{name}} #
     input  wire [{{cn-1}}:0]            sel
 );
 
-axis_demux #(
-    .M_COUNT({{n}}),
+wire rst;
+assign rst = !rst_n;
+
+(* DONT_TOUCH = "TRUE" *) axis_demux #(
+    .M_COUNT({{icap_n}}),
     .DATA_WIDTH(DATA_WIDTH),
     .KEEP_ENABLE(KEEP_ENABLE),
     .KEEP_WIDTH(KEEP_WIDTH),
@@ -217,6 +226,7 @@ endmodule
 
     output_file.write(t.render(
         n=n,
+        icap_n=icap_n,
         cn=cn,
         name=name,
         width=width

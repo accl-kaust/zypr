@@ -66,78 +66,38 @@
                             "SLICE_X36Y121:SLICE_X47Y155 DSP48E2_X3Y50:DSP48E2_X4Y61 RAMB18_X5Y50:RAMB18_X5Y61 RAMB36_X5Y25:RAMB36_X5Y30"
                         ],
                         "default_config":"config_a",
-                        "valid_configs":["sobel_accel_a","sobel_accel_b"]
+                        "valid_configs":["axis_fifo_a","axis_fifo_b"]
                     },
                     "region_b":{
                         "pblock":[
                             "SLICE_X36Y60:SLICE_X48Y96 DSP48E2_X3Y24:DSP48E2_X4Y37 RAMB18_X5Y24:RAMB18_X5Y37 RAMB36_X5Y12:RAMB36_X5Y18"
                         ],
                         "default_config":"config_b",
-                        "valid_configs":["sobel_accel_b","sobel_accel_a"]
+                        "valid_configs":["axis_fifo_a","axis_fifo_b"]
                     }
               },
               "configs": {
                   "config_a": {
                       "modules": {
-                          "sobel_a": {
-                            "desc": "HLS Sobel Filter A",
+                        "fifo_a": {
+                            "desc": "AXIS FIFO A",
                             "rtl": [
-                                "addWeighted.v",
-                                "AXIvideo2xfMat.v",
-                                "Block_Mat_exit215_pr.v",
-                                "fifo_w16_d2_A.v",
-                                "fifo_w16_d4_A.v",
-                                "fifo_w16_d5_A.v",
-                                "fifo_w8_d2_A.v",
-                                "regslice_core.v",
-                                "sobel_accel_a.v",
-                                "sobel_accel_control_s_axi.v",
-                                "sobel_accel_mux_3eOg.v",
-                                "Sobel.v",
-                                "start_for_addWeigfYi.v",
-                                "start_for_Sobel_U0.v",
-                                "start_for_xfMat2Ag8j.v",
-                                "xFGradientX3x3_0_0_s.v",
-                                "xFGradientY3x3_0_0_s.v",
-                                "xfMat2AXIvideo.v",
-                                "xFSobel3x3.v",
-                                "xFSobelFilter3x3_bkb.v",
-                                "xFSobelFilter3x3.v"
-                            ],
-                            "top_module": "sobel_accel_a.v",
-                            "top_cell": "sobel_accel_a"
-                          }
+                              "axis_fifo_a.v"
+                          ],
+                            "top_module": "axis_fifo_a.v",
+                            "top_cell": "axis_fifo_a"
+                        }
                       }
                   },
                   "config_b": {
                       "modules": {
-                          "sobel_b": {
-                              "desc": "HLS Sobel Filter B",
+                          "fifo_b": {
+                              "desc": "AXIS FIFO B",
                               "rtl": [
-                                "addWeighted.v",
-                                "AXIvideo2xfMat.v",
-                                "Block_Mat_exit215_pr.v",
-                                "fifo_w16_d2_A.v",
-                                "fifo_w16_d4_A.v",
-                                "fifo_w16_d5_A.v",
-                                "fifo_w8_d2_A.v",
-                                "regslice_core.v",
-                                "sobel_accel_b.v",
-                                "sobel_accel_control_s_axi.v",
-                                "sobel_accel_mux_3eOg.v",
-                                "Sobel.v",
-                                "start_for_addWeigfYi.v",
-                                "start_for_Sobel_U0.v",
-                                "start_for_xfMat2Ag8j.v",
-                                "xFGradientX3x3_0_0_s.v",
-                                "xFGradientY3x3_0_0_s.v",
-                                "xfMat2AXIvideo.v",
-                                "xFSobel3x3.v",
-                                "xFSobelFilter3x3_bkb.v",
-                                "xFSobelFilter3x3.v"
+                                "axis_fifo_b.v"
                             ],
-                              "top_module": "sobel_accel_b.v",
-                              "top_cell": "sobel_accel_b"
+                              "top_module": "axis_fifo_b.v",
+                              "top_cell": "axis_fifo_b"
                           }
                       }
                   }

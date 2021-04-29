@@ -162,8 +162,8 @@ module zycap #
     reg [OPT_MEM_ADDR_BITS:0] loc_addr;
     if ( s_axi_lite_aresetn == 1'b0 )
       begin
-        slv_reg0 <= 0;
-        slv_reg1 <= 0;
+        slv_reg0 <= 32'b1;
+        slv_reg1 <= 32'b0;
       end 
     else begin
       loc_addr = axi_awaddr[ADDR_LSB+OPT_MEM_ADDR_BITS:ADDR_LSB];

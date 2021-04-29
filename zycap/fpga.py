@@ -120,6 +120,9 @@ class Build(Tool):
 
         self.logger.debug(f"Board files: {board_files}...")
 
+        reports = Path.cwd() / self.work_root / f'{self.project_name}.reports'
+        self._create_path(reports)
+
         checkpoint_path_init = Path.cwd() / self.work_root / f'{self.project_name}.checkpoint' / 'init'
         checkpoint_path_final = Path.cwd() / self.work_root / f'{self.project_name}.checkpoint' / 'final'
         self._create_path(checkpoint_path_init)
@@ -129,7 +132,7 @@ class Build(Tool):
         self._create_path(bitstream_path)
 
         sdk_path = Path.cwd() / self.work_root / f'{self.project_name}.sdk'
-        self._create_path(sdk_path)
+        self._create_path(sdk_path, True)
 
         board_constraint = Path(f'{board_files}/src/constraint.xdc')
         board_bd = Path(f'{board_files}/base.tcl')
@@ -353,6 +356,8 @@ class Build(Tool):
                 elif a[key] == b[key]:
                     pass # same leaf value
                 else:
+                    print(a)
+                    print(b)
                     raise Exception('Conflict at %s' % '.'.join(path + [str(key)]))
             else:
                 a[key] = b[key]
@@ -452,9 +457,9 @@ class Build(Tool):
     def __gen_modules(self):
         click.secho('Generating PR Module Checkpoints...', fg='magenta')
 
-        prr = self.default_configs[self.default_mode]
+        self.prr = self.default_configs[self.default_mode]
 
-        print(prr)
+        print(self.prr)
 
         mods = self.modules['modules']
         # print(mods['fir']['obj'].ports)
@@ -468,11 +473,11 @@ class Build(Tool):
         gen = Generate(static=self.static,
                        modules=mod_list,
                        config_defaults=config_defaults,
-                       prr=prr,
+                       prr=self.prr,
                        part=self.part)
         gen.implement()
 
-        for pr in range(len(prr)):
+        for pr in range(len(self.prr)):
             for mod in mod_list:
                 self.logger.info(f'Mod {mod.name}')
                 gen.wrapper(mod, protocol_file=self.flat_protocol_dict, xilinx_pragmas=True)
@@ -561,9 +566,16 @@ class Build(Tool):
                     interface_len = len(self.protocol_dict[interface][protocol])
                     self.logger.debug(self.protocol_dict[interface][protocol])
                     self.logger.info(f'Found {interface_len} interfaces for {interface} - {protocol}')
+                    self.logger.info(f'Generating IP for {interface_len * len(self.prr)} * {interface} - {protocol} interfaces.')
                     output = open(f'{self.root_path}/.logs/{interface}-{protocol}.log', 'w+')
+                    width = 32
+                    passthrough = 0
                     e = subprocess.run(
-                        f'{interface_script} -w 64 -p {interface_len} -o {self.work_root}/{self.project_name}.ip/{interface}_{protocol}.v'.split(), stdout=output, stderr=output)
+                        f'{interface_script} -w {width} -p {(interface_len * len(self.prr)) + passthrough} -o {self.work_root}/{self.project_name}.ip/{interface}_{protocol}.v'.split(), stdout=output, stderr=output)
+                    with open(f"{self.work_root}/{self.project_name}_params.tcl", "a+") as f:
+                        f.write(f"set ip_axis_data_width {width}\n")
+                        f.write(f"set axis_mux_mi {(interface_len * len(self.prr)) + passthrough}\n")
+                        f.write(f"set axis_demux_si {(interface_len * len(self.prr)) + passthrough}\n")
                     if e.returncode != 0:
                         self.logger.error(f"Error {e} in IP generation")
                         return self.verify('Generated Infrastructure', False)

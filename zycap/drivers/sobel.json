@@ -1,7 +1,7 @@
 {
     "slug": "sobel_a",
     "type": "partial",
-    "base": "example.bin",
+    "bitstream": "example.bin",
     "overlay": "sobel_a.dtbo",
     "regions": [
         {"name": "sobel_a", "partial": "sobel_a.bin", "interfaces":
