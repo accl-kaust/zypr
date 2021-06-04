@@ -57,5 +57,7 @@ RUN    wget -q ${installer_url}/petalinux-v${version}-final-installer.run    && 
        rm -rf petalinux-v${version}-final-installer.run                      && \
        rm noninteractive-install.sh
 
+COPY   install.sh .
+
 # patch Petalinux
 COPY patches/arduino-toolchain_1.0.bb /opt/petalinux/components/yocto/source/aarch64/layers/meta-petalinux/recipes-utils/arduino-toolchain/arduino-toolchain_1.0.bb 

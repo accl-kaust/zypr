@@ -43,22 +43,31 @@ devmem $ADDRESS $WIDTH $VALUE
 ## Set AXI Stream Interconnect
 
 ```bash
+# For M00 -> S00
+devmem 0xa0010040 32 0x0 
+devmem 0xa0010044 32 0x80000000
+devmem 0xa0010000 32 0x2 
+
 # For S00 -> M00
 devmem 0xa0020040 32 0x0 
+devmem 0xa0020044 32 0x80000000
 devmem 0xa0020000 32 0x2 
 
-# For S00 -> M00
-devmem 0xa0030040 32 0x0 
-devmem 0xa0030000 32 0x2 
+# For M00 -> S01
+devmem 0xa0010040 32 0x80000000
+devmem 0xa0010044 32 0x0 
+devmem 0xa0010000 32 0x2 
 
 # For S00 -> M01
-devmem 0xa0020040 32 0x80000000
-devmem 0xa0020044 32 0x0 
+devmem 0xa0020040 32 0x1 
 devmem 0xa0020000 32 0x2 
 
-# For S00 -> M01
-devmem 0xa0030040 32 0x1 
-devmem 0xa0030000 32 0x2 
+devmem 0xa0030000 32 0x81
+devmem 0xa0030010 32 1080  # Rows
+devmem 0xa0030018 32 1920 # Cols
+devmem 0xa0030020 32 2160
+devmem 0xa0030028 32 3840
+
 ```
 
 ## Enable AP_START
@@ -76,3 +85,7 @@ devmem 0xa0040018 32 1920
 devmem 0xa0010010 32 1080
 devmem 0xa0010018 32 1920
 devmem 0xa0010000 32 0x1
+
+## HLS AXIS
+
+https://forums.xilinx.com/t5/High-Level-Synthesis-HLS/Vitis-Vision-cores-AXI4-Stream-buggy/m-p/1168941

@@ -41,8 +41,8 @@
 			#size-cells = <2>;
 			axi_dma_0: dma@a0000000 {
 				#dma-cells = <1>;
-				clock-names = "s_axi_lite_aclk", "m_axi_sg_aclk", "m_axi_mm2s_aclk", "m_axi_s2mm_aclk";
-				clocks = <&misc_clk_0>, <&misc_clk_0>, <&misc_clk_0>, <&misc_clk_0>;
+				clock-names = "s_axi_lite_aclk", "m_axi_mm2s_aclk", "m_axi_s2mm_aclk";
+				clocks = <&zynqmp_clk 71>, <&zynqmp_clk 71>, <&zynqmp_clk 71>;
 				compatible = "xlnx,axi-dma", "xlnx,axi-dma-7.1", "xlnx,axi-dma-1.00.a";
 				interrupt-names = "mm2s_introut", "s2mm_introut";
 				interrupt-parent = <&gic>;
@@ -55,7 +55,7 @@
 					compatible = "xlnx,axi-dma-mm2s-channel";
 					dma-channels = <0x1>;
 					interrupts = <0 89 4>;
-					xlnx,datawidth = <0x40>;
+					xlnx,datawidth = <0x20>;
 					xlnx,device-id = <0x0>;
 					xlnx,include-dre ;
 				};
@@ -63,17 +63,17 @@
 					compatible = "xlnx,axi-dma-s2mm-channel";
 					dma-channels = <0x1>;
 					interrupts = <0 90 4>;
-					xlnx,datawidth = <0x40>;
+					xlnx,datawidth = <0x20>;
 					xlnx,device-id = <0x1>;
 					xlnx,include-dre ;
 				};
 			};
-			misc_clk_0: misc_clk_0 {
-				#clock-cells = <0>;
-				clock-frequency = <200000000>;
-				compatible = "fixed-clock";
-			};
-           axis_demux_xbar: axis_switch@a0020000 {
+			// misc_clk_0: misc_clk_0 {
+			// 	#clock-cells = <0>;
+			// 	clock-frequency = <200000000>;
+			// 	compatible = "fixed-clock";
+			// };
+			axis_demux_xbar: axis_switch@a0020000 {
 				clock-names = "aclk", "s_axi_ctrl_aclk";
 				clocks = <&zynqmp_clk 71>, <&zynqmp_clk 71>;
 				compatible = "generic-uio";
@@ -83,7 +83,7 @@
 				xlnx,arb-on-num-cycles = <0x0>;
 				xlnx,arb-on-tlast = <0x0>;
 				xlnx,axis-signal-set = "0b00000000000000000000000011111111";
-				xlnx,axis-tdata-width = <0x40>;
+				xlnx,axis-tdata-width = <0x20>;
 				xlnx,axis-tdest-width = <0x1>;
 				xlnx,axis-tid-width = <0x1>;
 				xlnx,axis-tuser-width = <0x1>;

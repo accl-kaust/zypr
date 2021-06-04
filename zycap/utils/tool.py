@@ -100,10 +100,18 @@ class Tool(object):
     def check_files_exist(self, root, files: set, ext: str) -> (bool, list):
         temp_files = files
         path_files = {}
-        self.logger.info('Searching for: {}'.format(files))
+        self.logger.info('Searching for: {} in {} of type ({})'.format(files, root, ext))
         for each in glob.glob(f'{root}/**/*{ext}', recursive=True):
-            stem = Path(each).stem
+            # stem = Path(each).stem
+            if Path(root).stem != str(Path(each).parent.stem):
+                stem = str(Path(each).parent.stem)+"/"+Path(each).stem
+            else:
+                stem = Path(each).stem
+                print(f'{Path(root).stem} - {str(Path(each).parent.stem)}')
+
+
             if stem in temp_files:
+                self.logger.info('Found {}'.format(stem))
                 temp_files.discard(stem)
                 path_files[stem] = Path(each)
         result = files.intersection(temp_files)

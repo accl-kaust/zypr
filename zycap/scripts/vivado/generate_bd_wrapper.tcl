@@ -216,6 +216,8 @@ assign_bd_address
 assign_bd_address -export_to_file $work_directory/$design_name.sdk/mmio.csv
 
 generate_target all [get_files $work_directory/$design_name.srcs/sources_1/bd/$design_name/$design_name.bd]
+export_ip_user_files -of_objects [get_files $work_directory/$design_name.srcs/sources_1/bd/$design_name/$design_name.bd] -no_script -sync -force -quiet
+create_ip_run [get_files -of_objects [get_fileset sources_1] $work_directory/$design_name.srcs/sources_1/bd/$design_name/$design_name.bd]
 
 make_wrapper -files [get_files $work_directory/$design_name.srcs/sources_1/bd/$design_name/$design_name.bd] -top
 add_files -norecurse $work_directory/$design_name.srcs/sources_1/bd/$design_name/hdl/${design_name}_wrapper.v
