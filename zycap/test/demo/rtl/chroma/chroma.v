@@ -41,7 +41,7 @@ module chroma (
 );
 
 parameter    C_S_AXI_AXILITES_DATA_WIDTH = 32;
-parameter    C_S_AXI_AXILITES_ADDR_WIDTH = 5;
+parameter    C_S_AXI_AXILITES_ADDR_WIDTH = 6;
 parameter    C_S_AXI_DATA_WIDTH = 32;
 parameter    C_S_AXI_ADDR_WIDTH = 32;
 
@@ -671,6 +671,14 @@ assign xfMat2AXIstream_U0_start_full_n = 1'b1;
 assign xfMat2AXIstream_U0_start_write = 1'b0;
 
 endmodule //chroma
+
+
+
+
+
+
+
+
 
 
 
