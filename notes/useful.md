@@ -62,13 +62,64 @@ devmem 0xa0010000 32 0x2
 devmem 0xa0020040 32 0x1 
 devmem 0xa0020000 32 0x2 
 
+# IP Core
 devmem 0xa0030000 32 0x81
 devmem 0xa0030010 32 1080  # Rows
 devmem 0xa0030018 32 1920 # Cols
 devmem 0xa0030020 32 2160
 devmem 0xa0030028 32 3840
 
+# Demux
+devmem 0xa0030040 32 0x0
+devmem 0xa0030000 32 0x2
+
+# Mux
+devmem 0xa0040040 32 0x0
+devmem 0xa0040044 32 0x80000000
+devmem 0xa0040000 32 0x2
+
 ```
+## Generate PR Bitstreams
+
+```bash
+#
+bootgen -arch zynqmp -image bitstream.bif -w -process_bitstream bin
+```
+
+```bash
+# load default bitstream
+fpgautil -b example.bit.bin -o base.dtbo
+
+# clear overlay
+fpgautil -R
+
+# load new overlay fragment
+fpgautil -b example.bit.bin -o check.dtbo
+
+# Set AXI demux
+devmem 0xa0020040 32 0x1
+devmem 0xa0020000 32 0x2
+
+# Set AXI mux
+devmem 0xa0030040 32 0x80000000
+devmem 0xa0030044 32 0x1
+devmem 0xa0030000 32 0x2
+
+# Check target IP register for default
+devmem 0xa0050000 32
+
+# Swap to ICAP control
+echo 0xFFCA3008 0xFFFFFFFF 0 > /sys/firmware/zynqmp/config_reg
+echo 0xFFCA3008 > /sys/firmware/zynqmp/config_reg
+
+# Load bitstream
+./axidma_transfer mode_b.bin test.bin
+
+# Check target IP register for change
+devmem 0xa0050000 32
+```
+
+
 
 ## Enable AP_START
 

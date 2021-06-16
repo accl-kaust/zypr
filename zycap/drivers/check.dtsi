@@ -41,15 +41,14 @@
 			#size-cells = <2>;
 			axi_dma_0: dma@a0000000 {
 				#dma-cells = <1>;
-				clock-names = "s_axi_lite_aclk", "m_axi_sg_aclk", "m_axi_mm2s_aclk", "m_axi_s2mm_aclk";
-				clocks = <&misc_clk_0>, <&misc_clk_0>, <&misc_clk_0>, <&misc_clk_0>;
+				clock-names = "s_axi_lite_aclk", "m_axi_mm2s_aclk", "m_axi_s2mm_aclk";
+				clocks = <&misc_clk_0>, <&misc_clk_0>, <&misc_clk_0>;
 				compatible = "xlnx,axi-dma", "xlnx,axi-dma-7.1", "xlnx,axi-dma-1.00.a";
 				interrupt-names = "mm2s_introut", "s2mm_introut";
 				interrupt-parent = <&gic>;
 				interrupts = <0 89 4 0 90 4>;
 				reg = <0x0 0xa0000000 0x0 0x10000>;
 				xlnx,addrwidth = <0x40>;
-				xlnx,include-sg ;
 				xlnx,sg-length-width = <0x17>;
 				dma-channel@a0000000 {
 					compatible = "xlnx,axi-dma-mm2s-channel";
@@ -68,11 +67,41 @@
 					xlnx,include-dre ;
 				};
 			};
-			axis_interconnect_0_xbar: axis_switch@a0010000 {
+misc_clk_0: misc_clk_0 {
+				#clock-cells = <0>;
+				clock-frequency = <200000000>;
+				compatible = "fixed-clock";
+			};
+			axis_demux_xbar: axis_switch@a0020000 {
 				clock-names = "aclk", "s_axi_ctrl_aclk";
 				clocks = <&misc_clk_0>, <&misc_clk_0>;
 				compatible = "xlnx,axis-switch-1.1";
-				reg = <0x0 0xa0010000 0x0 0x10000>;
+				reg = <0x0 0xa0020000 0x0 0x10000>;
+				xlnx,arb-algorithm = <0x0>;
+				xlnx,arb-on-max-xfers = <0x1>;
+				xlnx,arb-on-num-cycles = <0x0>;
+				xlnx,arb-on-tlast = <0x0>;
+				xlnx,axis-signal-set = "0b00000000000000000000000000011011";
+				xlnx,axis-tdata-width = <0x20>;
+				xlnx,axis-tdest-width = <0x1>;
+				xlnx,axis-tid-width = <0x1>;
+				xlnx,axis-tuser-width = <0x1>;
+				xlnx,common-clock = <0x0>;
+				xlnx,decoder-reg = <0x0>;
+				xlnx,include-arbiter = <0x1>;
+				xlnx,log-si-slots = <0x1>;
+				xlnx,num-mi-slots = <0x1>;
+				xlnx,num-si-slots = <0x2>;
+				xlnx,output-reg = <0x0>;
+				xlnx,routing-mode = <0x1>;
+				xlnx,s-axi-ctrl-addr-width = <0x7>;
+				xlnx,s-axi-ctrl-data-width = <0x20>;
+			};
+			axis_mux_xbar: axis_switch@a0030000 {
+				clock-names = "aclk", "s_axi_ctrl_aclk";
+				clocks = <&misc_clk_0>, <&misc_clk_0>;
+				compatible = "xlnx,axis-switch-1.1";
+				reg = <0x0 0xa0030000 0x0 0x10000>;
 				xlnx,arb-algorithm = <0x0>;
 				xlnx,arb-on-max-xfers = <0x1>;
 				xlnx,arb-on-num-cycles = <0x0>;
@@ -93,46 +122,17 @@
 				xlnx,s-axi-ctrl-addr-width = <0x7>;
 				xlnx,s-axi-ctrl-data-width = <0x20>;
 			};
-			axis_interconnect_1_xbar: axis_switch@a0020000 {
-				clock-names = "aclk", "s_axi_ctrl_aclk";
-				clocks = <&misc_clk_0>, <&misc_clk_0>;
-				compatible = "xlnx,axis-switch-1.1";
-				reg = <0x0 0xa0020000 0x0 0x10000>;
-				xlnx,arb-algorithm = <0x0>;
-				xlnx,arb-on-max-xfers = <0x1>;
-				xlnx,arb-on-num-cycles = <0x0>;
-				xlnx,arb-on-tlast = <0x0>;
-				xlnx,axis-signal-set = "0b00000000000000000000000011111111";
-				xlnx,axis-tdata-width = <0x20>;
-				xlnx,axis-tdest-width = <0x1>;
-				xlnx,axis-tid-width = <0x1>;
-				xlnx,axis-tuser-width = <0x4>;
-				xlnx,common-clock = <0x0>;
-				xlnx,decoder-reg = <0x0>;
-				xlnx,include-arbiter = <0x1>;
-				xlnx,log-si-slots = <0x1>;
-				xlnx,num-mi-slots = <0x1>;
-				xlnx,num-si-slots = <0x2>;
-				xlnx,output-reg = <0x0>;
-				xlnx,routing-mode = <0x1>;
-				xlnx,s-axi-ctrl-addr-width = <0x7>;
-				xlnx,s-axi-ctrl-data-width = <0x20>;
+			pr_wrapper_0: pr_wrapper@a0040000 {
+				clock-names = "S_AXI_ACLK_0";
+				clocks = <&zynqmp_clk 71>;
+				compatible = "xlnx,pr-wrapper-1.0";
+				reg = <0x0 0xa0040000 0x0 0x10000>;
 			};
-			misc_clk_0: misc_clk_0 {
-				#clock-cells = <0>;
-				clock-frequency = <200000000>;
-				compatible = "fixed-clock";
-			};
-						axiconv_accel_0: axiconv_accel@a0030000 {
-				clock-names = "ap_clk";
-				clocks = <&misc_clk_0>;
-				compatible = "xlnx,axiconv-accel-1.0";
-				interrupt-names = "interrupt";
-				interrupt-parent = <&gic>;
-				interrupts = <0 91 4>;
-				reg = <0x0 0xa0030000 0x0 0x10000>;
-				xlnx,s-axi-control-addr-width = <0x5>;
-				xlnx,s-axi-control-data-width = <0x20>;
+			zycap_ctrl_0: zycap@a0010000 {
+				clock-names = "s_axi_lite_aclk";
+				clocks = <&zynqmp_clk 71>;
+				compatible = "xlnx,zycap-1.0";
+				reg = <0x0 0xa0010000 0x0 0x10000>;
 			};
 		};
 	};

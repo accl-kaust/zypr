@@ -94,6 +94,11 @@ class Build(Tool):
         synth = pkg_resources.resource_filename("zycap", f"scripts/vivado/synth.tcl")
         self.logger.info(synth)
 
+        report_scripts = pkg_resources.resource_filename(
+            "zycap", f"scripts/vivado/gen_reports.tcl"
+        )
+        self.logger.info(report_scripts)
+
         scripts = pkg_resources.resource_filename("zycap", f"scripts/vivado")
         jinja_env = Environment(loader=FileSystemLoader(scripts))
 
@@ -160,7 +165,13 @@ class Build(Tool):
         board_constraint = Path(f"{board_files}/src/constraint.xdc")
         board_bd = Path(f"{board_files}/base.tcl")
 
-        defines = {"design_name": self.project_name, "test": 1000}
+        defines = {
+            "design_name": self.project_name,
+            "hs_icap": 1,
+            "debug_icap": 0,
+            "loopback_check": 0,
+            "gpio_debug": 0,
+        }
 
         with open(f"{self.work_root}/{self.project_name}_params.tcl", "a+") as f:
             for each in defines:
@@ -176,6 +187,7 @@ class Build(Tool):
             {"name": synth, "file_type": "tclSource"},
             {"name": init_prr.as_posix(), "file_type": "tclSource"},
             {"name": prr.as_posix(), "file_type": "tclSource"},
+            {"name": report_scripts, "file_type": "tclSource"},
         ]
 
         parameters = {
@@ -184,9 +196,9 @@ class Build(Tool):
                 "default": 1000,
                 "paramtype": "vlogparam",
             },
-            "design_name": {
-                "datatype": "str",
-                "default": 2000,
+            "hs_icap": {
+                "datatype": "int",
+                "default": 1,
                 "paramtype": "cmdlinearg",
             },
         }
@@ -571,6 +583,7 @@ class Build(Tool):
             self.logger.info("Generation all successful!")
             self.export()
         else:
+            self.logger.warning("Generation incomplete.")
             exit(1)
 
     def __gen_zycap_ctrl(self):
@@ -659,6 +672,9 @@ class Build(Tool):
             success = False
         return self.verify("Generated Base Design", success)
 
+    def __gen_prepare_bitstreams(self):
+        pass
+
     def __gen_wrapper(self):
         self.edam["files"].insert(
             1,
@@ -742,21 +758,24 @@ class Build(Tool):
                     )
                     width = 32
                     passthrough = 0
-                    e = subprocess.run(
-                        f"{interface_script} -w {width} -p {(interface_len * len(self.prr)) + passthrough} -o {self.work_root}/{self.project_name}.ip/{interface}_{protocol}.v".split(),
-                        stdout=output,
-                        stderr=output,
+                    axis = (
+                        ((interface_len * len(self.prr)) + passthrough)
+                        if "STREAM" in protocol
+                        else 0
                     )
                     with open(
                         f"{self.work_root}/{self.project_name}_params.tcl", "a+"
                     ) as f:
                         f.write(f"set ip_axis_data_width {width}\n")
-                        f.write(
-                            f"set axis_mux_mi {(interface_len * len(self.prr)) + passthrough}\n"
-                        )
-                        f.write(
-                            f"set axis_demux_si {(interface_len * len(self.prr)) + passthrough}\n"
-                        )
+                        f.write(f"set axis_mux_mi {axis}\n")
+                        f.write(f"set axis_demux_si {axis}\n")
+
+                    e = subprocess.run(
+                        f"{interface_script} -w {width} -p {axis} -o {self.work_root}/{self.project_name}.ip/{interface}_{protocol}.v".split(),
+                        stdout=output,
+                        stderr=output,
+                    )
+
                     if e.returncode != 0:
                         self.logger.error(f"Error {e} in IP generation")
                         return self.verify("Generated Infrastructure", False)
@@ -774,8 +793,14 @@ class Build(Tool):
                 f"Attempting to generate ICAP interface for {self.family} - ICAPE{version}"
             )
             output = open(f"{self.root_path}/.logs/icap.log", "w+")
+            # e = subprocess.run(
+            #     f"{interface_script} -n icap -v {version} -o {self.work_root}/{self.project_name}.ip/ICAP.v".split(),
+            #     stdout=output,
+            #     stderr=output,
+            # )
+            # Use original ICAPE
             e = subprocess.run(
-                f"{interface_script} -n icap -v {version} -o {self.work_root}/{self.project_name}.ip/ICAP.v".split(),
+                f"cp {ip_config}icap/src/icape3_org.v {self.work_root}/{self.project_name}.ip/ICAP.v".split(),
                 stdout=output,
                 stderr=output,
             )
