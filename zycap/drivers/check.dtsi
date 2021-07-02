@@ -72,61 +72,11 @@ misc_clk_0: misc_clk_0 {
 				clock-frequency = <200000000>;
 				compatible = "fixed-clock";
 			};
-			axis_demux_xbar: axis_switch@a0020000 {
-				clock-names = "aclk", "s_axi_ctrl_aclk";
-				clocks = <&misc_clk_0>, <&misc_clk_0>;
-				compatible = "xlnx,axis-switch-1.1";
-				reg = <0x0 0xa0020000 0x0 0x10000>;
-				xlnx,arb-algorithm = <0x0>;
-				xlnx,arb-on-max-xfers = <0x1>;
-				xlnx,arb-on-num-cycles = <0x0>;
-				xlnx,arb-on-tlast = <0x0>;
-				xlnx,axis-signal-set = "0b00000000000000000000000000011011";
-				xlnx,axis-tdata-width = <0x20>;
-				xlnx,axis-tdest-width = <0x1>;
-				xlnx,axis-tid-width = <0x1>;
-				xlnx,axis-tuser-width = <0x1>;
-				xlnx,common-clock = <0x0>;
-				xlnx,decoder-reg = <0x0>;
-				xlnx,include-arbiter = <0x1>;
-				xlnx,log-si-slots = <0x1>;
-				xlnx,num-mi-slots = <0x1>;
-				xlnx,num-si-slots = <0x2>;
-				xlnx,output-reg = <0x0>;
-				xlnx,routing-mode = <0x1>;
-				xlnx,s-axi-ctrl-addr-width = <0x7>;
-				xlnx,s-axi-ctrl-data-width = <0x20>;
-			};
-			axis_mux_xbar: axis_switch@a0030000 {
-				clock-names = "aclk", "s_axi_ctrl_aclk";
-				clocks = <&misc_clk_0>, <&misc_clk_0>;
-				compatible = "xlnx,axis-switch-1.1";
-				reg = <0x0 0xa0030000 0x0 0x10000>;
-				xlnx,arb-algorithm = <0x0>;
-				xlnx,arb-on-max-xfers = <0x1>;
-				xlnx,arb-on-num-cycles = <0x0>;
-				xlnx,arb-on-tlast = <0x0>;
-				xlnx,axis-signal-set = "0b00000000000000000000000000011011";
-				xlnx,axis-tdata-width = <0x20>;
-				xlnx,axis-tdest-width = <0x1>;
-				xlnx,axis-tid-width = <0x1>;
-				xlnx,axis-tuser-width = <0x1>;
-				xlnx,common-clock = <0x0>;
-				xlnx,decoder-reg = <0x1>;
-				xlnx,include-arbiter = <0x1>;
-				xlnx,log-si-slots = <0x1>;
-				xlnx,num-mi-slots = <0x2>;
-				xlnx,num-si-slots = <0x1>;
-				xlnx,output-reg = <0x0>;
-				xlnx,routing-mode = <0x1>;
-				xlnx,s-axi-ctrl-addr-width = <0x7>;
-				xlnx,s-axi-ctrl-data-width = <0x20>;
-			};
-			pr_wrapper_0: pr_wrapper@a0040000 {
+			pr_wrapper_0: pr_wrapper@a0020000 {
 				clock-names = "S_AXI_ACLK_0";
 				clocks = <&zynqmp_clk 71>;
 				compatible = "xlnx,pr-wrapper-1.0";
-				reg = <0x0 0xa0040000 0x0 0x10000>;
+				reg = <0x0 0xa0020000 0x0 0x10000>;
 			};
 			zycap_ctrl_0: zycap@a0010000 {
 				clock-names = "s_axi_lite_aclk";

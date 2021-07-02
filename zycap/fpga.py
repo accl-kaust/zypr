@@ -17,6 +17,7 @@ from .utils.tool import Tool
 from .zycap_ctrl import ZycapCtrl
 
 from edalize import *
+import time
 
 
 class Build(Tool):
@@ -259,6 +260,7 @@ class Build(Tool):
 
     def run(self):
         """Start the fpga build run."""
+        self.start_time = time.time()
         success = False
         click.secho("Starting ZyCAP FPGA build...", fg="magenta")
         click.secho("Project Name: {}".format(self.design_name), fg="blue")
@@ -284,6 +286,9 @@ class Build(Tool):
             self.changes = False
 
         self.extract()
+        self.end_time = time.time()
+        self.logger.info(f"Completed in {self.end_time - self.start_time}")
+        exit()
         self.generate()
 
     def extract(self):
@@ -584,6 +589,8 @@ class Build(Tool):
             self.export()
         else:
             self.logger.warning("Generation incomplete.")
+            self.end_time = time.time()
+            self.logger.info(f"Completed in {self.end_time - self.start_time}")
             exit(1)
 
     def __gen_zycap_ctrl(self):

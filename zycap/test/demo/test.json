@@ -67,19 +67,9 @@
                 "pr_regions": {
                     "region_a": {
                         "pblock": [
-                            "SLICE_X16Y120:SLICE_X48Y179 CFGIO_SITE_X0Y0:CFGIO_SITE_X0Y0 DSP48E2_X1Y48:DSP48E2_X4Y71 RAMB18_X2Y48:RAMB18_X5Y71 RAMB36_X2Y24:RAMB36_X5Y35 SYSMONE4_X0Y0:SYSMONE4_X0Y0"
+                            "SLICE_X0Y0:SLICE_X36Y170 DSP48E2_X0Y0:DSP48E2_X2Y67 IOB_X0Y0:IOB_X0Y129 RAMB18_X0Y0:RAMB18_X4Y67 RAMB36_X0Y0:RAMB36_X4Y33"
                         ],
                         "default_config": "config_a",
-                        "valid_configs": [
-                            "mem_a",
-                            "mem_b"
-                        ]
-                    },
-                    "region_b": {
-                        "pblock": [
-                            "SLICE_X18Y60:SLICE_X48Y117 DSP48E2_X1Y24:DSP48E2_X4Y45 RAMB18_X3Y24:RAMB18_X5Y45 RAMB36_X3Y12:RAMB36_X5Y22"
-                        ],
-                        "default_config": "config_b",
                         "valid_configs": [
                             "mem_a",
                             "mem_b"

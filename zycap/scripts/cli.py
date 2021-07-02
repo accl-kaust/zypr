@@ -8,6 +8,7 @@ import pkg_resources
 from distutils.dir_util import copy_tree
 from os import path, symlink, unlink
 from pathlib import Path
+import time
 
 @click.group(
     cls=HelpColorsGroup,
@@ -35,6 +36,7 @@ def cli(ctx, verbose):
 def run(ctx, config, fpga, linux, force):
     """Run - start ZyCAP design processes"""
     logger = ctx.obj['LOG']
+    start_time = time.time()
     if fpga:
         z = f(json=config, logger=logger, force=force)
         logger.info('FPGA')
@@ -49,6 +51,7 @@ def run(ctx, config, fpga, linux, force):
         z_l = l(json=config, logger=logger)
         z.run()
         z_l.run()
+    print("Completed in %s seconds" % (time.time() - start_time))
 
 @click.option('--deps', '-d', is_flag=True, help='Install ZyCAP dependencies.')
 @click.option('--docker', default=None, metavar='<version>', help='Generate Docker Environment. Specify Xilinx Tool Version, i.e. 2019.1.')
