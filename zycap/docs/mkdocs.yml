@@ -1,13 +1,15 @@
 site_name: ZyCAP2 Docs
+site_url: https://example.com/foo/
 
 nav:
   - Intro: 'index.md'
   - Getting Started: 'getting-started.md'
   - Guides:
     - Hardware: '!include ./hdl/mkdocs.yml'
-    - Software: '!include ./sw/mkdocs.yml'
     - Linux: '!include ./linux/mkdocs.yml'
+    - Runtime: '!include ./api/mkdocs.yml'
   - Notes: 'notes.md'
+  - Publications: 'publications.md'
   - References: 'references.md'
   - Citation: 'cite.md'
 
