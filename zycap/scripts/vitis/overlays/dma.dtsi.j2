@@ -1,0 +1,28 @@
+axi_dma_0: dma@a0000000 {
+    #dma-cells = <1>;
+    clock-names = "s_axi_lite_aclk", "m_axi_mm2s_aclk", "m_axi_s2mm_aclk";
+    clocks = <&{{ clk | default('misc_clk_0') }}>, <&{{ clk | default('misc_clk_0') }}>, <&{{ clk | default('misc_clk_0') }}>;
+    compatible = "xlnx,axi-dma", "xlnx,axi-dma-7.1", "xlnx,axi-dma-1.00.a";
+    interrupt-names = "mm2s_introut", "s2mm_introut";
+    interrupt-parent = <&gic>;
+    interrupts = <0 89 4 0 90 4>;
+    reg = <0x0 0xa0000000 0x0 0x10000>;
+    xlnx,addrwidth = <0x40>;
+    xlnx,sg-length-width = <0x17>;
+    dma-channel@a0000000 {
+        compatible = "xlnx,axi-dma-mm2s-channel";
+        dma-channels = <0x1>;
+        interrupts = <0 89 4>;
+        xlnx,datawidth = <0x20>;
+        xlnx,device-id = <0x0>;
+        xlnx,include-dre ;
+    };
+    dma-channel@a0000030 {
+        compatible = "xlnx,axi-dma-s2mm-channel";
+        dma-channels = <0x1>;
+        interrupts = <0 90 4>;
+        xlnx,datawidth = <0x20>;
+        xlnx,device-id = <0x1>;
+        xlnx,include-dre ;
+    };
+};

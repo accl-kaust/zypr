@@ -1,6 +1,7 @@
 from ..fpga import Build as f
 from ..linux import Build as l
 from ..utils import logging
+from ..utils import setup as s
 from click_help_colors import HelpColorsGroup, HelpColorsCommand
 import click
 import subprocess
@@ -15,7 +16,7 @@ import time
     help_headers_color='yellow',
     help_options_color='green',
     help_options_custom_colors={
-        'run': 'green', 'docs': 'blue', 'setup': 'blue', 'clean': 'magenta'},
+        'run': 'green', 'install': 'blue', 'docs': 'blue', 'setup': 'blue', 'clean': 'magenta'},
     chain=True
 )
 @click.option('--verbose', '-v', is_flag=True, help='Enable logging.')
@@ -34,7 +35,7 @@ def cli(ctx, verbose):
 @cli.command()
 @click.pass_context
 def run(ctx, config, fpga, linux, force):
-    """Run - start ZyCAP design processes"""
+    """start ZyCAP build processes"""
     logger = ctx.obj['LOG']
     start_time = time.time()
     if fpga:
@@ -58,7 +59,7 @@ def run(ctx, config, fpga, linux, force):
 @cli.command()
 @click.pass_context
 def setup(ctx, docker, deps):
-    """Setup - setup build environment"""
+    """setup build environment"""
     logger = ctx.obj['LOG']
     if deps is False:
         deps = None
@@ -71,7 +72,7 @@ def setup(ctx, docker, deps):
 @cli.command()
 @click.pass_context
 def clean(ctx, linux, fpga, logs):
-    """Clean - cleans build environment"""
+    """cleans build environment"""
     logger = ctx.obj['LOG']
     logger.info('cleaning')
     if logs:
@@ -82,7 +83,7 @@ def clean(ctx, linux, fpga, logs):
 @cli.command()
 @click.pass_context
 def flash(ctx, linux, fpga):
-    """Flash - flashes attached device"""
+    """flashes attached device"""
     logger = ctx.obj['LOG']
     logger.info('flashing')
 
@@ -91,7 +92,7 @@ def flash(ctx, linux, fpga):
 @cli.command()
 @click.pass_context
 def docs(ctx, clean):
-    """Docs - serve documentation"""
+    """serve documentation"""
     logger = ctx.obj['LOG']
     if clean:
         if path.exists('.docs'):
@@ -109,6 +110,13 @@ def docs(ctx, clean):
         logger.info()
 
 @cli.command()
-def install(ctx):
-    """Install - install dependencies for ZyCAP"""
+@click.pass_context
+@click.option('--config', default="$HOME/.zycap.json")
+@click.option('--boards', default="ultra96v2")
+def install(ctx,config,boards):
+    """install dependencies for ZyCAP"""
+    click.secho(f"Installing from config at {config}", fg='yellow')
+    setup = s.Setup(config, boards)
+    if setup.status == True:
+        click.secho("All dependencies installed.",fg='green')
     pass

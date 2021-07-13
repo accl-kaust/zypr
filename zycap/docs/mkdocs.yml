@@ -2,6 +2,7 @@ site_name: ZyCAP2 Docs
 
 nav:
   - Intro: 'index.md'
+  - Installation: 'installation.md'
   - Getting Started: 'getting-started.md'
   - Guides:
     - Hardware: '!include ./hdl/mkdocs.yml'

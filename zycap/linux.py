@@ -220,7 +220,8 @@ class Build(Tool):
             ) as mmio:
                 rdr = csv.DictReader(filter(lambda row: row[0] != "#", mmio))
                 for row in rdr:
-                    print(row)
+                    if (row[None][1] == '/zynq_ultra_ps_e_0/Data'):
+                        self.logger.debug(f"Name: {row[None][2].split('/')[1]} | Address: {row[None][3]} | Width: {row[None][4]}")
             return success
 
     def setup(self):

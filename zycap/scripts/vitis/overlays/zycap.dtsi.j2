@@ -1,0 +1,6 @@
+zycap_ctrl_0: zycap@{{ address }} {
+    clock-names = "s_axi_lite_aclk";
+    clocks = <&{{ clk }}>;
+    compatible = "{{ driver | default('xlnx,zycap-1.0') }}";
+    reg = <0x0 {{ address }} 0x0 0x10000>;
+};
