@@ -116,7 +116,7 @@ echo 0xFFCA3008 > /sys/firmware/zynqmp/config_reg
 ./axidma_transfer mode_b.bin test.bin
 
 # Check target IP register for change
-devmem 0xa0050000 32
+devmem 0xa0020000 32
 ```
 
 

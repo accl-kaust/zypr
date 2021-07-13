@@ -83,14 +83,11 @@ def init_logger(dunder_name, testing_mode, verbose=False) -> logging.Logger:
 
     return logger
 
-# def clean(dir, pattern):
-#     for f in listdir(dir):
-#         if re.search(pattern, f):
-#             remove(path.join(dir, f))
-
 def clean(path, exts):
     for root, dirs, files in walk(path):
+        print(files)
         for currentFile in files:
             if currentFile.lower().endswith(exts):
                 print(f"removing file: {currentFile}")
-                remove(path.join(root, currentFile))
+                print(f"{path}/{currentFile}")
+                remove(f"{path}/{currentFile}")
