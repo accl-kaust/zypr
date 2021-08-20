@@ -1,13 +1,17 @@
 # ZyCAP 2
 
-- [ZyCAP 2](#zycap-2)
-  - [Requirements](#requirements)
-    - [Design Flow](#design-flow)
-
 ## Requirements
 
-- Xilinx PR License
+- Xilinx Vivado/Vitis (2019.2)
+- Xilinx PetaLinux (2019.2)
+- Ubuntu 18.04
 
-### Design Flow
+## Installation
 
-1. User implements
+```bash
+git clone git@github.com:warclab/zycap2.git --recursive
+cd zycap2
+pip install -e . dependencies
+cd zycap/interfacer
+pip install -e .
+```

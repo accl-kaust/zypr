@@ -38,6 +38,7 @@ __pycache__
 *.lpr
 webtalk_pa.xml
 *.zip
+Xil_installer
 
 # base design
 base
@@ -46,3 +47,4 @@ example/linux/example
 .logs
 parsetab.py
 *.run
+*.bin

@@ -1,0 +1,9 @@
+
+INFO: Checking installation environment requirements...
+Please refer to the PetaLinux Tools Installation Guide.
+
+Check the troubleshooting guide at the end of that manual, and if you are
+unable to resolve the issue please contact customer support with file:
+   /home/alex/GitHub/zycap2/zycap/docker/petalinux/2019.2/petalinux_installation_log
+
+ERROR: Failed to extract Petalinux installer...

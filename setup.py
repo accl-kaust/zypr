@@ -1,15 +1,50 @@
 import os
-from setuptools import setup, find_packages
+from setuptools import setup, find_packages, find_namespace_packages
+from setuptools.command.develop import develop
+from subprocess import run, DEVNULL
 
 
 def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
 
+class PreInstallCommand(develop):
+    """Pre-installation for installation mode."""
+
+    def run(self):
+        install_commands = [
+            "sudo apt install yosys -y",
+            "sudo apt install -y apt-transport-https ca-certificates curl gnupg lsb-release",
+            # "curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -",
+            # 'sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"',
+            # "sudo apt update",
+            "sudo apt install -y docker-ce docker-ce-cli containerd.io"
+        ]
+        for each in install_commands:
+            out = self.install(each)
+            if out != None:
+                exit(f"Failed installation: {out}")
+        develop.run(self)
+
+    def install(self, command):
+        print("Installing...")
+        output = run(command.split(), stdout=DEVNULL)
+        if output.returncode != 0:
+            return(output)
+
+    def docker(self):
+        print("Attempting to install docker tools, requires sudo.")
+        # return check_output(
+        #     .split())
+
+
 setup(
     name="zycap",
     version="0.0.1",
     packages=find_packages(),
+    cmdclass={
+        'develop': PreInstallCommand,
+    },
     package_data={
         'fpga': [
             'config/global.json',
@@ -29,8 +64,11 @@ setup(
             'vivado/*',
             'vitis/*'
         ]},
+    package_dir={
+        'zycap': 'zycap',
+    },
     include_package_data=True,
-    py_modules=['zycap', 'interfacer'],
+    py_modules=['zycap'],
     author="Alex Bucknall",
     author_email="alex.bucknall@gmail.com",
     description=(

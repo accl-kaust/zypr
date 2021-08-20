@@ -6,9 +6,9 @@ ENV    LANG=en_US.UTF-8
 ENV    LANGUAGE=en_US.UTF-8
 ENV    TZ=Europe/London
 
-ARG    installer_url="172.17.0.1:8000"
+ARG    installer_url="172.17.117.153:8000"
 ARG    version=2019.2
-ARG    user=plnx
+ARG    user=zycap
 
 RUN    adduser --disabled-password --gecos '' $user
 
@@ -51,7 +51,7 @@ WORKDIR /home/$user/project
 
 COPY   noninteractive-install.sh .
 
-RUN    wget -q ${installer_url}/petalinux-v${version}-final-installer.run    && \
+RUN    wget --timeout=600 ${installer_url}/petalinux-v${version}-final-installer.run    && \
        chmod a+x petalinux-v${version}-final-installer.run                   && \
        ./noninteractive-install.sh /opt/petalinux ${version}                 && \
        rm -rf petalinux-v${version}-final-installer.run                      && \
