@@ -1,0 +1,5 @@
+label: dos
+label-id: 0x00000000
+device: /dev/mmcblk0p1
+unit: sectors
+

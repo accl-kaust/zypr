@@ -1,0 +1,35 @@
+cff-version: 1.2.0
+message: "If you use this software or reference it in a publication, please cite it as below."
+authors:
+- family-names: "Bucknall"
+  given-names: "Alex Richard"
+  orcid: "https://orcid.org/0000-0002-7077-2466"
+- family-names: "Fahmy"
+  given-names: "Suhaib"
+  orcid: "https://orcid.org/0000-0003-0568-5048"
+title: "ZyCAP 2"
+version: 0.0.1
+doi: 10.1109/ICFPT51103.2020.00037
+date-released: 2021-08-19
+url: "https://github.com/warclab/zycap2"
+preferred-citation:
+  type: INPROCEEDINGS
+  authors:
+  - family-names: "Bucknall"
+    given-names: "Alex Richard"
+    orcid: "https://orcid.org/0000-0002-7077-2466"
+  - family-names: "Shreejith"
+    given-names: "Shanker"
+    orcid: "https://orcid.org/0000-0002-9717-1804"
+  - family-names: "Fahmy"
+    given-names: "Suhaib"
+    orcid: "https://orcid.org/0000-0003-0568-5048"
+  doi: "10.1109/ICFPT51103.2020.00037"
+  journal: "2020 International Conference on Field-Programmable Technology (ICFPT)"
+  month: 12
+  start: 215 # First page number
+  end: 220 # Last page number
+  title: "Build automation and runtime abstraction for partial reconfiguration on Xilinx Zynq Ultrascale+"
+  issue: ""
+  volume: ""
+  year: 2020

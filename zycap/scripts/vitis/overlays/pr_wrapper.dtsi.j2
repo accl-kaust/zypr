@@ -1,0 +1,6 @@
+pr_wrapper_0: pr_wrapper@{{ address }} {
+    clock-names = "S_AXI_ACLK_0";
+    clocks = <&{{ clk }}>;
+    compatible = "{{ driver | default('xlnx,pr-wrapper-1.0') }}";
+    reg = <0x0 {{ address }} 0x0 0x10000>;
+};

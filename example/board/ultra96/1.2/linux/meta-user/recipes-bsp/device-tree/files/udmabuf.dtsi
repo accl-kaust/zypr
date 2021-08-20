@@ -1,0 +1,8 @@
+/ {
+	udmabuf@0x00 {
+		compatible = "ikwzm,udmabuf-0.10.a";
+		device-name = "udmabuf0";
+		minor-number = <0>;
+		size = <0x00A00000>;
+	};
+};

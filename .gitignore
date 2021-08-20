@@ -1,0 +1,50 @@
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool, specifically when used with LiteIDE
+*.out
+
+node_modules
+# .vscode
+# .vivado
+# .python
+# .json
+.*
+.python-version
+.pytest_cache
+!/.gitignore
+!.github
+*.egg-info
+build
+dist
+__pycache__
+.pytest_cache
+
+# vivado
+*.log
+*.str
+*.jou
+*.Xil
+*.wpc
+*.xpr
+*.wdf
+*.lpr
+webtalk_pa.xml
+*.zip
+Xil_installer
+
+# base design
+base
+hd_visual
+example/linux/example
+.logs
+parsetab.py
+*.run
+*.bin

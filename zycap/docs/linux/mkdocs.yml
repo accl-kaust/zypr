@@ -1,0 +1,4 @@
+site_name: Linux
+
+nav:
+  - Intro: "intro.md"

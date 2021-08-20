@@ -1,0 +1,27 @@
+site_name: ZyCAP2 Docs
+
+nav:
+  - Intro: './docs/index.md'
+  - Getting Started: './docs/getting-started.md'
+  - Guides:
+    - Hardware: '!include ./docs/hdl/mkdocs.yml'
+    - Software: '!include ./docs/sw/mkdocs.yml'
+    - Linux: '!include ./docs/linux/mkdocs.yml'
+  - References: './docs/references.md'
+
+plugins:
+  - monorepo
+
+theme: 
+  name: material
+  palette:
+    primary: 'black'
+    accent: 'indigo'
+  logo: 'images/gear.svg'
+
+extra:
+  search:
+    language: 'en'
+
+repo_name: 'warc/zycap'
+repo_url: 'https://github.com/warc/zycap2'
