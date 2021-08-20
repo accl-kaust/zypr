@@ -1,12 +1,16 @@
 # ZyCAP 2
 
+ZyCAP 2 is an end-to-end build and runtime tool for Xilinx SoCs.
+
+## Motivation
+
 ## Requirements
 
-- Xilinx Vivado/Vitis (2019.2)
-- Xilinx PetaLinux (2019.2)
-- Ubuntu 18.04
+- Xilinx Vivado/Vitis (tested with 2019.2)
+- Xilinx PetaLinux (tested with 2019.2)
+- Docker (v20.10.7+)
 
-## Installation
+## Setup
 
 ```bash
 git clone git@github.com:warclab/zycap2.git --recursive
