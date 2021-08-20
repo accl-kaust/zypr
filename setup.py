@@ -40,7 +40,7 @@ class PreInstallCommand(develop):
 
 setup(
     name="zycap",
-    version="0.0.1",
+    version="0.0.2",
     packages=find_packages(),
     cmdclass={
         'develop': PreInstallCommand,
@@ -72,15 +72,17 @@ setup(
     author="Alex Bucknall",
     author_email="alex.bucknall@gmail.com",
     description=(
-        "ZyCAP is a Partial Reconfiguration build tool and runtime framework for Xilinx Zynq and Zynq Ultrascale+ SoCs"),
-    license="MIT",
+        "ZyCAP 2 is an end-to-end Partial Reconfiguration CLI for build and runtime control of PR applications on the Xilinx Zynq and Zynq Ultrascale+ SoCs"),
+    license="BSD",
     keywords=["verilog", "EDA", "hdl", "rtl", "synthesis",
               "FPGA", "Xilinx", "Partial Reconfiguration"],
     url="https://github.com/warclab/zycap2",
     long_description=read('README.md'),
+    long_description_content_type='text/markdown',
     classifiers=[
         "Development Status :: 4 - Beta",
-        "License :: OSI Approved :: MIT License",
+        "License :: OSI Approved :: BSD License",
+        "Operating System :: POSIX :: Linux",
         "Topic :: Scientific/Engineering :: Electronic Design Automation (EDA)",
         "Topic :: Utilities",
     ],
@@ -113,6 +115,6 @@ setup(
         [console_scripts]
         zycap=zycap.scripts.cli:cli
     ''',
-    # Supported Python versions: 3.5+
-    python_requires=">=3.5, <4",
+    # Supported Python versions: 3.7+
+    python_requires=">=3.7, <4",
 )
