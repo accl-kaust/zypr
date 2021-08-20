@@ -1,1 +1,0 @@
-$1 $2 -mode batch -source $3 -tclargs $4

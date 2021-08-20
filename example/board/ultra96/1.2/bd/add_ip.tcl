@@ -1,2 +1,0 @@
-set_property  ip_repo_paths  {/home/alex/GitHub/zycap2/example/ip/fft /home/alex/Documents/PhD/fan_controller/fan_controller_ip/fan_controller_ip.srcs/sources_1/imports /home/alex/GitHub/zycap2/example/board/ultra96/1.2/bd/fan_controller/Ultra96_fan_control_1.0} [current_project]
-update_ip_catalog
