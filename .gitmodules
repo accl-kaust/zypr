@@ -2,6 +2,6 @@
 	path = zycap/interfacer
 	url = git@github.com:warclab/interfacer.git
 	branch = initial-develop
-[submodule "papers/demo"]
-	path = papers/demo
+[submodule "publications/demo"]
+	path = publications/demo
 	url = git@github.com:Bucknalla/zycap2-demo-paper.git
