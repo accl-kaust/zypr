@@ -15,9 +15,6 @@ class PreInstallCommand(develop):
         install_commands = [
             "sudo apt install yosys -y",
             "sudo apt install -y apt-transport-https ca-certificates curl gnupg lsb-release",
-            # "curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -",
-            # 'sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"',
-            # "sudo apt update",
             "sudo apt install -y docker-ce docker-ce-cli containerd.io"
         ]
         for each in install_commands:
@@ -72,7 +69,7 @@ setup(
     author="Alex Bucknall",
     author_email="alex.bucknall@gmail.com",
     description=(
-        "ZyCAP 2 is an end-to-end Partial Reconfiguration CLI for build and runtime control of PR applications on the Xilinx Zynq and Zynq Ultrascale+ SoCs"),
+        "ZyCAP 2 is an end-to-end partial reconfiguration CLI for build and runtime control of adaptive applications on the Xilinx Zynq and Zynq Ultrascale+ SoCs"),
     license="BSD",
     keywords=["verilog", "EDA", "hdl", "rtl", "synthesis",
               "FPGA", "Xilinx", "Partial Reconfiguration"],
@@ -88,7 +85,7 @@ setup(
     ],
     install_requires=[
         'xmltodict',
-        'edalize',
+        'edalize >= 0.2.5',
         'nmigen',
         'fdt',
         'Click',
