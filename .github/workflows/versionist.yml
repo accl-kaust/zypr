@@ -4,7 +4,10 @@ on:
   push:
     branches:
       - "master"
-
+  pull_request:
+    branches:
+      - '*'
+      
 jobs:
   versionist:
     runs-on: ubuntu-20.04
