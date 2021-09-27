@@ -1,4 +1,4 @@
-name: versionist
+name: Versionist
 
 on:
   push:
@@ -7,10 +7,11 @@ on:
   pull_request:
     branches:
       - '*'
-      
+
 jobs:
   versionist:
     runs-on: ubuntu-20.04
+    name: Uses Versionist to update CHANGELOG and track features
 
     steps:
       - uses: actions/checkout@v2
