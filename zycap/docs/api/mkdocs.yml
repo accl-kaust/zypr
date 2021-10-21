@@ -1,4 +1,4 @@
-site_name: Software
+site_name: api
 
 nav:
-  - API: "API.md"
+  - Intro: "intro.md"

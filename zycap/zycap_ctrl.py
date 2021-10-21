@@ -10,9 +10,10 @@ import pkg_resources
 from pathlib import Path
 from jinja2 import Environment, FileSystemLoader
 
+
 class ZycapCtrl(Tool):
-    def __init__(self, logger, config=None, force=False):  
-        self.logger = logger        
+    def __init__(self, logger, config=None, force=False):
+        self.logger = logger
         self.force = force
         # success = self.unpack_config(config)
         success = True
@@ -32,5 +33,5 @@ class ZycapCtrl(Tool):
 
     def build(self, output_path):
         from shutil import copyfile
-        copyfile("/home/alex/GitHub/zycap2/zycap/test/demo/rtl/zycap.v","/home/alex/GitHub/zycap2/zycap/test/demo/build/example.inst/zycap.v")
-    
+        copyfile("/home/alex/GitHub/zycap2/zycap/tests/demo/rtl/zycap.v",
+                 "/home/alex/GitHub/zycap2/zycap/tests/demo/build/example.inst/zycap.v")

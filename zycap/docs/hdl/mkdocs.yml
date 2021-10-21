@@ -1,4 +1,4 @@
-site_name: Hardware
+site_name: hardware
 
 nav:
   - Intro: "intro.md"

@@ -1,3 +1,4 @@
+# scripts/cli.py
 from ..fpga import Build as f
 from ..linux import Build as l
 from ..utils import logging
@@ -10,6 +11,7 @@ from distutils.dir_util import copy_tree
 from os import path, symlink, unlink
 from pathlib import Path
 import time
+
 
 @click.group(
     cls=HelpColorsGroup,
@@ -54,6 +56,7 @@ def run(ctx, config, fpga, linux, force):
         z_l.run()
     print("Completed in %s seconds" % (time.time() - start_time))
 
+
 @click.option('--deps', '-d', is_flag=True, help='Install ZyCAP dependencies.')
 @click.option('--docker', default=None, metavar='<version>', help='Generate Docker Environment. Specify Xilinx Tool Version, i.e. 2019.1.')
 @cli.command()
@@ -76,7 +79,7 @@ def clean(ctx, linux, fpga, logs):
     logger = ctx.obj['LOG']
     logger.info('cleaning')
     if logs:
-        logging.clean(Path.cwd(), ('.log','.jou','.str'))
+        logging.clean(Path.cwd(), ('.log', '.jou', '.str'))
 
 
 @click.option('--device', '-d', default='Ultra96v2', help='Sets device to be flashed.')
@@ -109,14 +112,15 @@ def docs(ctx, clean):
     if error:
         logger.info()
 
+
 @cli.command()
 @click.pass_context
 @click.option('--config', default="$HOME/.zycap.json")
 @click.option('--boards', default="ultra96v2")
-def install(ctx,config,boards):
+def install(ctx, config, boards):
     """install dependencies for ZyCAP"""
     click.secho(f"Installing from config at {config}", fg='yellow')
     setup = s.Setup(config, boards)
     if setup.status == True:
-        click.secho("All dependencies installed.",fg='green')
+        click.secho("All dependencies installed.", fg='green')
     pass
