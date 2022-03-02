@@ -14,8 +14,6 @@ jobs:
         uses: elgohr/Github-Release-Action@master
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
-        with:
-          args: MyReleaseMessage
   pypi:
     runs-on: ubuntu-18.04
     name: Build and publish Python 🐍 distributions 📦 to PyPI and TestPyPI
