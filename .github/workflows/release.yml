@@ -1,36 +1,21 @@
-name: 'Release'
+name: Publish GitHub Release
+
 on:
   push:
-    branches: # This configuration does not affect the page_build event above
-      - master
-  pull_request:
-    branches:
-      - '*'
+    tags:
+      - "v*"
 
 jobs:
-  # docs:
-  #   TODO
-  # changelog:
-  #   name: Generate changelog and publish release
-  #   if: startsWith(github.ref, 'refs/tags/')
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Build Changelog
-  #       id: github_release
-  #       uses: mikepenz/release-changelog-builder-action@v1
-  #       with:
-  #         configuration: "configuration.json"
-  #       env:
-  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  #     - name: Create Release
-  #       uses: actions/create-release@v1
-  #       with:
-  #         tag_name: ${{ github.ref }}
-  #         release_name: ${{ github.ref }}
-  #         body: ${{steps.github_release.outputs.changelog}}
-  #       env:
-  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
+  create-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - name: Create a Release
+        uses: elgohr/Github-Release-Action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+        with:
+          args: MyReleaseMessage
   pypi:
     runs-on: ubuntu-18.04
     name: Build and publish Python 🐍 distributions 📦 to PyPI and TestPyPI
