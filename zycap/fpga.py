@@ -1,7 +1,11 @@
-import os, sys, glob, shutil
+import os
+import sys
+import glob
+import shutil
 import json
 import subprocess
-import click, click_spinner
+import click
+import click_spinner
 from pathlib import Path
 import pkg_resources
 from jinja2 import Environment, FileSystemLoader
@@ -226,11 +230,11 @@ class Build(Tool):
 
         move_bitstreams = {
             "name": "move_bitstreams",
-            "cmd": ["cp", "*.bit", f"{self.project_name}.bitstreams"],
+            "cmd": ["cp", "*.bit", f"{self.work_root}/{self.project_name}.bitstreams"],
         }
 
         self.hooks = {
-            "post_build": [generate_sdk_files, move_bitstreams],
+            "post_build": [generate_sdk_files],
             # 'pre_run' : [init_prr]
         }
 
@@ -287,8 +291,10 @@ class Build(Tool):
 
         self.extract()
         self.end_time = time.time()
-        self.logger.info(f"Completed in {self.end_time - self.start_time}")
-        exit()
+        self.logger.info(
+            f"Completed in {round(self.end_time - self.start_time, 2)} seconds"
+        )
+        # exit()
         self.generate()
 
     def extract(self):
@@ -576,21 +582,28 @@ class Build(Tool):
         with open(f"{self.work_root}/.hash", "w") as f:
             f.write(self.hash_directory(self.rtl_directory))
         self.setup_vivado_project()
-        if all(
-            [
-                self.__gen_modules(),
-                self.__gen_infrastructure(),
-                self.__gen_wrapper(),
-                self.__gen_zycap_ctrl(),
-                self.__gen_base(self.board),
-            ]
-        ):
+        stages = [
+            self.__gen_modules(),
+            self.__gen_infrastructure(),
+            self.__gen_wrapper(),
+            self.__gen_zycap_ctrl(),
+            self.__gen_base(self.board),
+        ]
+
+        results = []
+
+        for each in stages:
+            results.append(each)
+
+        if all(results):
             self.logger.info("Generation all successful!")
             self.export()
         else:
             self.logger.warning("Generation incomplete.")
             self.end_time = time.time()
-            self.logger.info(f"Completed in {self.end_time - self.start_time}")
+            self.logger.info(
+                f"Completed in {round(self.end_time - self.start_time,2)} seconds"
+            )
             exit(1)
 
     def __gen_zycap_ctrl(self):
@@ -604,6 +617,8 @@ class Build(Tool):
             1,
             {"name": f"{self.project_name}.inst/zycap.v", "file_type": "verilogSource"},
         )
+
+        return self.verify("Generated ZyCAP Controller", True)
 
     def __gen_modules(self):
         click.secho("Generating PR Module Checkpoints...", fg="magenta")
@@ -672,7 +687,7 @@ class Build(Tool):
             f.write("set_property source_mgmt_mode All [current_project]")
 
         try:
-            self.backend.build()
+            # self.backend.build()
             success = True
         except:
             self.logger.error("Problems with Vivado build process")
@@ -708,6 +723,7 @@ class Build(Tool):
                     "file_type": "verilogSource",
                 },
             )
+        return self.verify("Generated wrapper", True)
 
     def __gen_prr_permutations(self, *module_lists):
         self.logger.info(f"Generating possible combinations for modules...")

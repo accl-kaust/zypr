@@ -1,4 +1,4 @@
-site_name: Linux
+site_name: linux
 
 nav:
   - Intro: "intro.md"

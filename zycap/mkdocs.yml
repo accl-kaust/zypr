@@ -1,23 +1,45 @@
 site_name: ZyCAP2 Docs
+site_url: https://example.com/foo/
 
 nav:
-  - Intro: './docs/index.md'
-  - Getting Started: './docs/getting-started.md'
+  - Intro: 'index.md'
+  - Installation: 'installation.md'
+  - CLI: 'cli.md'
+  - Getting Started: 'getting-started.md'
   - Guides:
-    - Hardware: '!include ./docs/hdl/mkdocs.yml'
-    - Software: '!include ./docs/sw/mkdocs.yml'
-    - Linux: '!include ./docs/linux/mkdocs.yml'
-  - References: './docs/references.md'
+    - API: '!include docs/api/mkdocs.yml'
+    - Hardware: '!include docs/hdl/mkdocs.yml'
+    - Linux: '!include docs/linux/mkdocs.yml'
+    - Runtime: '!include docs/runtime/mkdocs.yml'
+  - Notes: 'notes.md'
+  - Publications: 'publications.md'
+  - Glossary: 'glossary.md'
+  - Bibliography: 'references.md'
+  - Cite: 'cite.md'
 
 plugins:
   - monorepo
 
+markdown_extensions:
+  - mkdocs-click
+  - pymdownx.superfences
 theme: 
   name: material
-  palette:
-    primary: 'black'
-    accent: 'indigo'
   logo: 'images/gear.svg'
+  icon:
+    logo: material/bookmark
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: red
+      toggle:
+        icon: material/weather-sunny
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: red
+      toggle:
+        icon: material/weather-night
+        name: Switch to light mode
 
 extra:
   search:

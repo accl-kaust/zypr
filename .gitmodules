@@ -1,7 +1,7 @@
 [submodule "zycap/interfacer"]
 	path = zycap/interfacer
 	url = git@github.com:warclab/interfacer.git
-	branch = initial-develop
+	branch = master
 [submodule "publications/demo"]
 	path = publications/demo
 	url = git@github.com:Bucknalla/zycap2-demo-paper.git
