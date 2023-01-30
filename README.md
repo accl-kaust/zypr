@@ -14,7 +14,7 @@ This project presents a complete end-to-end framework that provides high perform
 We compare this framework against traditional vendor tooling for PR management as well as recent open source tools that support PR under Linux.
 The framework provides a high performance runtime along with low overhead for its provided abstractions.
 
-We introduce improvements to our previous work, increasing the provisioning throughput for PR bitstreams on the Zynq Ultrascale+ by ~2$\times$ and ~5.4$\times$ compared to Xilinx's FPGA Manager.
+We introduce improvements to our previous work, increasing the provisioning throughput for PR bitstreams on the Zynq Ultrascale+ by ~2x and ~5.4x compared to Xilinx's FPGA Manager.
 
 ## Requirements
 
@@ -30,7 +30,7 @@ We introduce improvements to our previous work, increasing the provisioning thro
 
 ```bash
 git clone git@github.com:accl-kaust/zypr.git --recursive
-cd ZyPR2
+cd ZyPR
 pip install -e . dependencies
 cd ZyPR/interfacer
 pip install -e .
