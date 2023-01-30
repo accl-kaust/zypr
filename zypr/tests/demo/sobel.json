@@ -1,0 +1,179 @@
+{
+    "config": {
+        "config_xilinx": {
+            "xilinx_version": "2019.2",
+            "xilinx_proxy": "ssh -NfD 9050 alex@donnager.eng.warwick.ac.uk"
+        },
+        "config_tools": {
+            "tools_path": "/tools/Xilinx"
+        },
+        "config_vivado": {
+            "vivado_path": "/tools/Xilinx/Vivado",
+            "vivado_params": "-nojou -nolog"
+        },
+        "config_sdk": {
+            "sdk_path": "/tools/Xilinx/Vitis",
+            "sdk_params": ""
+        },
+        "config_petalinux": {
+            "petalinux_path": "/home/alex/Petalinux",
+            "petalinux_params": ""
+        },
+        "config_run": {
+            "static_synth": 1,
+            "rm_synth": 1,
+            "pr_impl": 1,
+            "pr_verify": 1,
+            "gen_bitstream": 1
+        },
+        "config_settings": {
+            "top_file": "top.v",
+            "check_dependencies": false,
+            "cores": 8
+        }
+    },
+    "project": {
+        "project_name": "example",
+        "project_owner": "bucknalla",
+        "project_device": {
+            "name": "ultra96v2",
+            "family": "zynq-ultrascale",
+            "device": "xczu3eg",
+            "package": "-sbva484",
+            "speed": "-1",
+            "option": "-e",
+            "board": "em.avnet.com:ultra96v2:part0:1.2",
+            "version": "1.2",
+            "constraint": "default.xdc"
+        }
+    },
+    "design": {
+        "design_name": "base",
+        "design_owner": "bucknalla",
+        "design_directory": "rtl",
+        "design_default_mode": "mode_a",
+        "design_mode": {
+            "mode_a": {
+                "name": "Demo PR Project 0",
+                "settings": {
+                    "dma": "video"
+                },
+                "pr_module": "partial_led_test_v1_0_S00_AXI",
+                "pr_cell": [
+                    "partial_led_test_v1_0_S00_AXI_inst",
+                    "demo"
+                ],
+                "pr_regions": {
+                    "region_a": {
+                        "pblock": [
+                            "SLICE_X29Y120:SLICE_X48Y167 CFGIO_SITE_X0Y0:CFGIO_SITE_X0Y0 DSP48E2_X3Y48:DSP48E2_X4Y65 RAMB18_X3Y48:RAMB18_X5Y65 RAMB36_X3Y24:RAMB36_X5Y32"
+                        ],
+                        "default_config": "config_a",
+                        "valid_configs": [
+                            "sobel_accel_a",
+                            "sobel_accel_b"
+                        ]
+                    },
+                    "region_b": {
+                        "pblock": [
+                            "SLICE_X29Y60:SLICE_X48Y117 DSP48E2_X3Y24:DSP48E2_X4Y45 RAMB18_X3Y24:RAMB18_X5Y45 RAMB36_X3Y12:RAMB36_X5Y22"
+                        ],
+                        "default_config": "config_b",
+                        "valid_configs": [
+                            "sobel_accel_b",
+                            "sobel_accel_a"
+                        ]
+                    }
+                },
+                "configs": {
+                    "config_a": {
+                        "modules": {
+                            "sobel_a": {
+                                "desc": "HLS Sobel Filter A",
+                                "rtl": [
+                                    "addWeighted.v",
+                                    "AXIvideo2xfMat.v",
+                                    "Block_Mat_exit215_pr.v",
+                                    "fifo_w16_d2_A.v",
+                                    "fifo_w16_d4_A.v",
+                                    "fifo_w16_d5_A.v",
+                                    "fifo_w8_d2_A.v",
+                                    "regslice_core.v",
+                                    "sobel_accel_a.v",
+                                    "sobel_accel_control_s_axi.v",
+                                    "sobel_accel_mux_3eOg.v",
+                                    "Sobel.v",
+                                    "start_for_addWeigfYi.v",
+                                    "start_for_Sobel_U0.v",
+                                    "start_for_xfMat2Ag8j.v",
+                                    "xFGradientX3x3_0_0_s.v",
+                                    "xFGradientY3x3_0_0_s.v",
+                                    "xfMat2AXIvideo.v",
+                                    "xFSobel3x3.v",
+                                    "xFSobelFilter3x3_bkb.v",
+                                    "xFSobelFilter3x3.v"
+                                ],
+                                "top_module": "sobel_accel_a.v",
+                                "top_cell": "sobel_accel_a"
+                            }
+                        }
+                    },
+                    "config_b": {
+                        "modules": {
+                            "sobel_b": {
+                                "desc": "HLS Sobel Filter B",
+                                "rtl": [
+                                    "addWeighted.v",
+                                    "AXIvideo2xfMat.v",
+                                    "Block_Mat_exit215_pr.v",
+                                    "fifo_w16_d2_A.v",
+                                    "fifo_w16_d4_A.v",
+                                    "fifo_w16_d5_A.v",
+                                    "fifo_w8_d2_A.v",
+                                    "regslice_core.v",
+                                    "sobel_accel_b.v",
+                                    "sobel_accel_control_s_axi.v",
+                                    "sobel_accel_mux_3eOg.v",
+                                    "Sobel.v",
+                                    "start_for_addWeigfYi.v",
+                                    "start_for_Sobel_U0.v",
+                                    "start_for_xfMat2Ag8j.v",
+                                    "xFGradientX3x3_0_0_s.v",
+                                    "xFGradientY3x3_0_0_s.v",
+                                    "xfMat2AXIvideo.v",
+                                    "xFSobel3x3.v",
+                                    "xFSobelFilter3x3_bkb.v",
+                                    "xFSobelFilter3x3.v"
+                                ],
+                                "top_module": "sobel_accel_b.v",
+                                "top_cell": "sobel_accel_b"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "design_static": {
+            "name": "Demo PR Project 0",
+            "rtl": [
+                "static.v"
+            ],
+            "top": "static",
+            "xdc": [
+                "ultra96.xdc"
+            ]
+        }
+    },
+    "linux": {
+        "linux_build": {
+            "build_platform": "petalinux"
+        },
+        "linux_device_tree": {
+            "device_tree_config": {
+                "udmabuf": {
+                    "size": 0
+                }
+            }
+        }
+    }
+}

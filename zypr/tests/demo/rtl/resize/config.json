@@ -1,0 +1,46 @@
+{
+    "resize": {
+        "S_AXI_AXILITES": {
+            "cols_in": {
+                "addressQualifier": "0",
+                "hostOffset": "0x0",
+                "hostSize": "0x4",
+                "id": "1",
+                "name": "cols_in",
+                "offset": "0x18",
+                "size": "0x4",
+                "type": "int"
+            },
+            "cols_out": {
+                "addressQualifier": "0",
+                "hostOffset": "0x0",
+                "hostSize": "0x4",
+                "id": "3",
+                "name": "cols_out",
+                "offset": "0x28",
+                "size": "0x4",
+                "type": "int"
+            },
+            "rows_in": {
+                "addressQualifier": "0",
+                "hostOffset": "0x0",
+                "hostSize": "0x4",
+                "id": "0",
+                "name": "rows_in",
+                "offset": "0x10",
+                "size": "0x4",
+                "type": "int"
+            },
+            "rows_out": {
+                "addressQualifier": "0",
+                "hostOffset": "0x0",
+                "hostSize": "0x4",
+                "id": "2",
+                "name": "rows_out",
+                "offset": "0x20",
+                "size": "0x4",
+                "type": "int"
+            }
+        }
+    }
+}

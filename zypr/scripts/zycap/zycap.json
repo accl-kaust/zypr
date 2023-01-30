@@ -1,0 +1,45 @@
+{
+    "regs" : [
+     {
+        "name" : "ZYCAP_AXIS_MUX", "access" : "rw",
+        "desc": "AXIS MUX Controller",
+        "pl_access" : "r",
+        "fields" : [
+          {
+            "name" : "EN", "msb" : 0, "lsb" : 0,
+            "desc" : "Enable/Disable MUX"
+          },
+          {
+            "name" : "DROP", "lsb" : 1, "msb" : 1,
+            "desc" : "Drop data"
+          },
+          {
+            "name" : "SEL", "lsb" : 2, "msb" : 3,
+            "desc" : "MUX Select"
+          }
+        ]
+      },
+      {
+          "name" : "ZYCAP_ICAP", "access" : "rw",
+          "desc": "ICAP Controller",
+          "pl_access" : "r",
+          "fields" : [
+            {
+              "name" : "RW", "msb" : 0, "lsb" : 0,
+              "desc" : "ICAP Read/Write"
+            }
+          ]
+      },
+      {
+          "name" : "ZYCAP_ICAP_ERR",
+          "desc": "ICAP Error Controller",
+          "pl_access" : "w",
+          "fields" : [
+            {
+              "name" : "STATUS", "msb" : 0 , "lsb" : 0, "access" : "ro",
+              "desc" : "ICAP Error"
+            }
+          ]
+      }
+    ]
+  }

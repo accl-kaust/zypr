@@ -1,0 +1,26 @@
+{
+    "sobel_accel": {
+        "S_AXI_CONTROL": {
+            "cols": {
+                "addressQualifier": "0",
+                "hostOffset": "0x0",
+                "hostSize": "0x4",
+                "id": "1",
+                "name": "cols",
+                "offset": "0x18",
+                "size": "0x4",
+                "type": "unsigned short"
+            },
+            "rows": {
+                "addressQualifier": "0",
+                "hostOffset": "0x0",
+                "hostSize": "0x4",
+                "id": "0",
+                "name": "rows",
+                "offset": "0x10",
+                "size": "0x4",
+                "type": "unsigned short"
+            }
+        }
+    }
+}

@@ -1,0 +1,22 @@
+/dts-v1/;
+/plugin/;
+/ {
+	fragment@2 {
+		target = <&amba>;
+		overlay2: __overlay__ {
+			#address-cells = <2>;
+			#size-cells = <2>;
+			{{ dma }}
+            {{ misc_clk }}
+            {{ pr_wrapper }}
+            {{ zycap_ctrl }}
+		};
+	};
+     fragment@3 {
+        target = <&amba>;
+        overlay3: __overlay__ {
+            {{ axidma_chrdev }}
+            {{ udmabuf }}
+        };
+	};
+};
