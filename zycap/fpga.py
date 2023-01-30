@@ -280,8 +280,13 @@ class Build(Tool):
             "{0}/{1}/settings64.sh".format(self.vivado_path, self.xilinx_version)
         )
         self.verify("Setup", success)
-        with open(f"{self.work_root}/.hash", "r") as f:
-            hash_file = f.readline()
+        try:
+            with open(f"{self.work_root}/.hash", "wr") as f:
+                hash_file = f.readline()
+        except:
+            self.logger.error('Hash not found, creating...')
+            hash_file = ""
+
 
         if hash_file != self.rtl_hash:
             self.logger.warning("detected file changes in RTL")
@@ -418,14 +423,17 @@ class Build(Tool):
             pass
             # TODO: handle no custom static design
 
-        success, self.modules["files"] = self.check_files_exist(
-            f"{self.root_path}/{self.rtl_directory}", module_files, ".v"
-        )
-        if len(self.modules["files"]) > 0:
-            self.logger.info(
-                f'Found module files {[s + ".v" for s in self.modules["files"]]}'
+
+        try:
+            success, self.modules["files"] = self.check_files_exist(
+                f"{self.root_path}/{self.rtl_directory}", module_files, ".v"
             )
-        if not success:
+            success == True
+            if len(self.modules["files"]) > 0:
+                self.logger.info(
+                    f'Found module files {[s + ".v" for s in self.modules["files"]]}'
+                )
+        except:
             self.logger.error(
                 f'Missing module files {[s + ".v" for s in module_files]}'
             )
@@ -579,14 +587,20 @@ class Build(Tool):
         return interfaces, protocols
 
     def generate(self):
-        with open(f"{self.work_root}/.hash", "w") as f:
-            f.write(self.hash_directory(self.rtl_directory))
+        try:
+            with open(f"{self.work_root}/.hash", "r") as f:
+                hash_file = f.readline()
+        except:
+            self.logger.error('Hash not found, creating...')
+            hash_file = ""
+
+            
         self.setup_vivado_project()
         stages = [
             self.__gen_modules(),
             self.__gen_infrastructure(),
             self.__gen_wrapper(),
-            self.__gen_zycap_ctrl(),
+            self.__gen_zycap_ctrl(self.config),
             self.__gen_base(self.board),
         ]
 
@@ -606,12 +620,12 @@ class Build(Tool):
             )
             exit(1)
 
-    def __gen_zycap_ctrl(self):
+    def __gen_zycap_ctrl(self, config):
 
         print(self.interfaces)
         z = ZycapCtrl(self.interfaces)
 
-        z.build(f"{self.project_name}.inst/zycap.v")
+        z.build(f"{Path.cwd() / self.work_root / self.project_name}.inst/zycap.v")
 
         self.edam["files"].insert(
             1,
@@ -687,7 +701,7 @@ class Build(Tool):
             f.write("set_property source_mgmt_mode All [current_project]")
 
         try:
-            # self.backend.build()
+            self.backend.build()
             success = True
         except:
             self.logger.error("Problems with Vivado build process")

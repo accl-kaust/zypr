@@ -1,10 +1,10 @@
 // Copyright 1986-2019 Xilinx, Inc. All Rights Reserved.
 // --------------------------------------------------------------------------------
 // Tool Version: Vivado v.2019.2 (lin64) Build 2708876 Wed Nov  6 21:39:14 MST 2019
-// Date        : Fri Jun  4 14:05:29 2021
-// Host        : alex-XPS-15 running 64-bit Ubuntu 20.04.2 LTS
+// Date        : Thu Jan 19 21:45:36 2023
+// Host        : alex-pc running 64-bit Ubuntu 22.04.1 LTS
 // Command     : write_verilog -force -mode synth_stub
-//               /home/alex/GitHub/zycap2/zycap/test/demo/rtl/gaussian/axis_dwidth_converter_1_stub.v
+//               /home/alex/GitHub/zycap2/zycap/tests/demo/rtl/gaussian/axis_dwidth_converter_1_stub.v
 // Design      : axis_dwidth_converter_1
 // Purpose     : Stub declaration of top-level module interface
 // Device      : xczu3eg-sbva484-1-e

@@ -2,7 +2,7 @@
 # Block diagram build script
 ################################################################
 
-set_property board_part em.avnet.com:ultra96v2:part0:1.0 [current_project]
+set_property board_part em.avnet.com:ultra96v2:part0:1.2 [current_project]
 
 # CHECKING IF PROJECT EXISTS
 if { [get_projects -quiet] eq "" } {

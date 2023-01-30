@@ -4,8 +4,8 @@
             "xilinx_version": "2018.3",
             "xilinx_proxy": ""
         },
-        "config_tools":{
-            "tools_path":"/tools/Xilinx"
+        "config_tools": {
+            "tools_path": "/tools/Xilinx"
         },
         "config_vivado": {
             "vivado_path": "/tools/Xilinx/Vivado",
@@ -37,7 +37,7 @@
             "package": "-sbva484",
             "speed": "-1",
             "option": "-i",
-            "board": "em.avnet.com:ultra96v2:part0:1.0",
+            "board": "em.avnet.com:ultra96v2:part0:1.2",
             "version": "1.2",
             "constraint": "default.xdc"
         }
@@ -64,7 +64,7 @@
                                     "top.v"
                                 ],
                                 "ip": [
-                                  "test.xci"
+                                    "test.xci"
                                 ],
                                 "top_module": "top.v",
                                 "top_cell": "partial_led_test_v1_0"
@@ -80,7 +80,7 @@
                                     "top_0.v"
                                 ],
                                 "ip": [
-                                  "test.xci"
+                                    "test.xci"
                                 ],
                                 "top_module": "top_0.v",
                                 "top_cell": "thingy"
@@ -132,11 +132,15 @@
                 }
             }
         },
-        "design_static" : {
-          "name": "Demo PR Project 0",
-          "rtl": ["static.v"],
-          "top": "static",
-          "xdc": ["ultra96.xdc"]
+        "design_static": {
+            "name": "Demo PR Project 0",
+            "rtl": [
+                "static.v"
+            ],
+            "top": "static",
+            "xdc": [
+                "ultra96.xdc"
+            ]
         }
     },
     "linux": {

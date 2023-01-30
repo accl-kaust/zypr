@@ -42,7 +42,7 @@
             "package": "-sbva484",
             "speed": "-1",
             "option": "-e",
-            "board": "em.avnet.com:ultra96v2:part0:1.0",
+            "board": "em.avnet.com:ultra96v2:part0:1.2",
             "version": "1.2",
             "constraint": "default.xdc"
         }
@@ -56,7 +56,7 @@
             "mode_a": {
                 "name": "Demo PR Project 0",
                 "settings": {
-                    "dma" : "video"
+                    "dma": "video"
                 },
                 "pr_module": "partial_led_test_v1_0_S00_AXI",
                 "pr_cell": [

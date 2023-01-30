@@ -1,0 +1,34 @@
+/include/ "system-conf.dtsi"
+/ {
+    chosen {
+		bootargs = "earlycon console=ttyPS0,115200 clk_ignore_unused root=/dev/mmcblk0p2 rw rootwait uio_pdrv_genirq.of_id=generic-uio";
+    };
+};
+
+&sdhci0 {
+    no-1-8-v;
+    disable-wp;
+};
+
+&sdhci1 {
+    bus-width= <0x4>;
+    disable-wp;
+    /* non-removeable; */
+    /* mmc-pwrseq = <&sdio_pwrseq>; */
+    max-frequency = <50000000>;
+    /delete-property/cap-power-off-card; // This is not compatible with the WILC3000 and means the WILC will always be powered on
+    status = "okay";
+    #address-cells = <1>;
+    #size-cells = <0>;
+    wilc_sdio@1 {
+        compatible = "microchip,wilc3000", "microchip,wilc3000";
+        reg = <0>;
+        // interrupt-parent = <&gpio>; // Microchip driver DOES NOT use gpio irq any more!
+        // interrupts = <76 2>; /* MIO76 WILC IRQ 1V8 */ // Microchip driver DOES NOT use gpio irq any more!
+        // irq-gpios = <&gpio 76 0>; // Microchip driver DOES NOT use gpio irq any more!
+        bus-width= <0x4>;
+        status = "okay";
+    };
+    // Remove TI child node from U96 V1 DT
+    /delete-node/wifi@2;
+};

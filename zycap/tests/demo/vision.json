@@ -37,7 +37,7 @@
         }
     },
     "project": {
-        "project_name": "example",
+        "project_name": "hls_vision_demo",
         "project_owner": "bucknalla",
         "project_device": {
             "name": "ultra96v2",
@@ -45,8 +45,8 @@
             "device": "xczu3eg",
             "package": "-sbva484",
             "speed": "-1",
-            "option": "-e",
-            "board": "em.avnet.com:ultra96v2:part0:1.0",
+            "option": "-i",
+            "board": "avnet.com:ultra96v2:part0:1.2",
             "version": "1.2",
             "constraint": "default.xdc"
         }
@@ -76,6 +76,16 @@
                         ]
                     },
                     "region_b": {
+                        "pblock": [
+                            "SLICE_X18Y60:SLICE_X48Y117 DSP48E2_X1Y24:DSP48E2_X4Y45 RAMB18_X3Y24:RAMB18_X5Y45 RAMB36_X3Y12:RAMB36_X5Y22"
+                        ],
+                        "default_config": "config_b",
+                        "valid_configs": [
+                            "top",
+                            "chroma"
+                        ]
+                    },
+                    "region_c": {
                         "pblock": [
                             "SLICE_X18Y60:SLICE_X48Y117 DSP48E2_X1Y24:DSP48E2_X4Y45 RAMB18_X3Y24:RAMB18_X5Y45 RAMB36_X3Y12:RAMB36_X5Y22"
                         ],

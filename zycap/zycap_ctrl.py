@@ -34,4 +34,4 @@ class ZycapCtrl(Tool):
     def build(self, output_path):
         from shutil import copyfile
         copyfile("/home/alex/GitHub/zycap2/zycap/tests/demo/rtl/zycap.v",
-                 "/home/alex/GitHub/zycap2/zycap/tests/demo/build/example.inst/zycap.v")
+                 output_path)

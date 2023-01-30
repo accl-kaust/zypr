@@ -6,7 +6,7 @@ set work_directory [get_property DIRECTORY [current_project]]
 set design_name [get_property NAME [current_project]]
 
 open_run synth_1 -name synth_1
-write_checkpoint -force example.checkpoint/top_synth.dcp
+write_checkpoint -force ${design_name}.checkpoint/top_synth.dcp
 
 # Set PR cells to HD.RECONFIGURABLE
 set bb_inst [get_cells -hier -filter IS_BLACKBOX]
