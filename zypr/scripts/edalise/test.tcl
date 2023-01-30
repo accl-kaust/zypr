@@ -1,0 +1,1 @@
+set design_name blinky_project

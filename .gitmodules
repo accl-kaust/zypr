@@ -1,0 +1,7 @@
+[submodule "zypr/interfacer"]
+	path = zypr/interfacer
+	url = git@github.com:accl-kaust/interfacer.git
+	branch = main
+[submodule "publications/demo"]
+	path = publications/demo
+	url = git@github.com:Bucknalla/zycap2-demo-paper.git

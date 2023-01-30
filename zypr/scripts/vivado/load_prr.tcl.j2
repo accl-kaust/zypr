@@ -1,0 +1,64 @@
+#!/usr/bin/tclsh
+
+set work_directory [get_property DIRECTORY [current_project]]
+set design_name [get_property NAME [current_project]]
+
+# Get PR regions
+set bb_inst [get_cells -hier -filter IS_BLACKBOX]
+
+{% for config in configs %}
+{% set config_name = '_'.join(config) %}
+############################# {{ config }} ###############################
+open_checkpoint ${design_name}.checkpoint/static_routed.dcp
+
+logger "Setting up {{ config }}." INFO
+{% for module in config -%}
+set Modules({{ loop.index - 1 }}) {{ module }}
+{% endfor %}
+# Load initial PR configs
+set ct 0 
+foreach i $bb_inst {
+    set name [string range $i [expr {[string last "/" $i] + 1}] end]
+    set module $Modules($ct)
+
+    logger "Loading $name with $module" INFO
+    read_checkpoint ${design_name}.checkpoint/${module}.dcp -cell ${i}
+
+    incr ct
+}
+
+opt_design
+place_design
+route_design
+
+write_checkpoint -force ${design_name}.checkpoint/final/{{ config_name }}.dcp
+set Checkpoints({{ loop.index - 1 }}) ${design_name}.checkpoint/final/{{ config_name }}.dcp
+logger "{{ config }} bitstream success." SUCCESS
+close_design
+{% endfor %}
+
+#########################################################################
+
+logger "Verifying PR Checkpoint compatibility..." INFO
+set checks {}
+foreach key [array names Checkpoints] {
+    lappend checks $Checkpoints($key)
+}
+
+if {[catch {pr_verify -full_check -initial $Checkpoints(0) -additional $checks} errmsg]} {
+   logger "ErrorMsg: $errmsg" ERROR
+}
+
+logger "Writing bitstreams" INFO
+foreach key [array names Checkpoints] {
+    open_checkpoint $Checkpoints($key)
+    set name [lindex [split [string range $Checkpoints($key) [expr {[string last "/" $Checkpoints($key)] + 1}] end] .] 0]
+    logger "Writing ${name}.bit" INFO
+
+    write_bitstream -force ${design_name}.bitstreams/${name}.bit
+    close_design
+}
+
+read_checkpoint ${design_name}.checkpoint/default_routed.dcp
+
+logger "All bitstreams complete" SUCCESS

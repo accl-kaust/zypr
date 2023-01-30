@@ -1,0 +1,229 @@
+{
+    "config": {
+        "config_xilinx": {
+            "xilinx_version": "2019.2",
+            "xilinx_proxy": "ssh -NfD 9050 alex@donnager.eng.warwick.ac.uk"
+        },
+        "config_tools": {
+            "tools_path": "/tools/Xilinx"
+        },
+        "config_vivado": {
+            "vivado_path": "/tools/Xilinx/Vivado",
+            "vivado_params": "-nojou -nolog"
+        },
+        "config_sdk": {
+            "sdk_path": "/tools/Xilinx/Vitis",
+            "sdk_params": ""
+        },
+        "config_petalinux": {
+            "petalinux_path": "/home/alex/Petalinux",
+            "petalinux_params": ""
+        },
+        "config_run": {
+            "static_synth": 1,
+            "rm_synth": 1,
+            "pr_impl": 1,
+            "pr_verify": 1,
+            "gen_bitstream": 1
+        },
+        "config_settings": {
+            "top_file": "top.v",
+            "check_dependencies": false,
+            "cores": 6
+        },
+        "config_zypr": {
+            "independent_dma": false,
+            "clock_freq": 200
+        }
+    },
+    "project": {
+        "project_name": "hls_vision_demo",
+        "project_owner": "bucknalla",
+        "project_device": {
+            "name": "ultra96v2",
+            "family": "zynq-ultrascale",
+            "device": "xczu3eg",
+            "package": "-sbva484",
+            "speed": "-1",
+            "option": "-i",
+            "board": "avnet.com:ultra96v2:part0:1.2",
+            "version": "1.2",
+            "constraint": "default.xdc"
+        }
+    },
+    "design": {
+        "design_name": "base",
+        "design_owner": "bucknalla",
+        "design_directory": "rtl",
+        "design_default_mode": "mode_a",
+        "design_mode": {
+            "mode_a": {
+                "name": "Demo PR Project 0",
+                "pr_module": "partial_led_test_v1_0_S00_AXI",
+                "pr_cell": [
+                    "partial_led_test_v1_0_S00_AXI_inst",
+                    "demo"
+                ],
+                "pr_regions": {
+                    "region_a": {
+                        "pblock": [
+                            "SLICE_X16Y120:SLICE_X48Y179 CFGIO_SITE_X0Y0:CFGIO_SITE_X0Y0 DSP48E2_X1Y48:DSP48E2_X4Y71 RAMB18_X2Y48:RAMB18_X5Y71 RAMB36_X2Y24:RAMB36_X5Y35 SYSMONE4_X0Y0:SYSMONE4_X0Y0"
+                        ],
+                        "default_config": "config_a",
+                        "valid_configs": [
+                            "chroma",
+                            "top"
+                        ]
+                    },
+                    "region_b": {
+                        "pblock": [
+                            "SLICE_X18Y60:SLICE_X48Y117 DSP48E2_X1Y24:DSP48E2_X4Y45 RAMB18_X3Y24:RAMB18_X5Y45 RAMB36_X3Y12:RAMB36_X5Y22"
+                        ],
+                        "default_config": "config_b",
+                        "valid_configs": [
+                            "top",
+                            "chroma"
+                        ]
+                    },
+                    "region_c": {
+                        "pblock": [
+                            "SLICE_X18Y60:SLICE_X48Y117 DSP48E2_X1Y24:DSP48E2_X4Y45 RAMB18_X3Y24:RAMB18_X5Y45 RAMB36_X3Y12:RAMB36_X5Y22"
+                        ],
+                        "default_config": "config_b",
+                        "valid_configs": [
+                            "top",
+                            "chroma"
+                        ]
+                    }
+                },
+                "configs": {
+                    "config_a": {
+                        "modules": {
+                            "chroma": {
+                                "desc": "Vitis HLS Chroma Filter",
+                                "rtl": [
+                                    "chroma/AXIstream2xfMat.v",
+                                    "chroma/bgr2hsv_Block_codeRe.v",
+                                    "chroma/bgr2hsv_Loop_1_prbkb.v",
+                                    "chroma/bgr2hsv_Loop_1_prcud.v",
+                                    "chroma/bgr2hsv_Loop_1_prdEe.v",
+                                    "chroma/bgr2hsv_Loop_1_proc.v",
+                                    "chroma/bgr2hsv.v",
+                                    "chroma/Block_Mat_exit71_pro.v",
+                                    "chroma/chroma_am_addmul_fYi.v",
+                                    "chroma/chroma_AXILiteS_s_axi.v",
+                                    "chroma/chroma_mac_muladdeOg.v",
+                                    "chroma/chroma.v",
+                                    "chroma/fifo_w1_d2_A.v",
+                                    "chroma/fifo_w24_d2_A.v",
+                                    "chroma/fifo_w32_d2_A_x.v",
+                                    "chroma/fifo_w32_d2_A.v",
+                                    "chroma/fifo_w32_d4_A.v",
+                                    "chroma/inRange.v",
+                                    "chroma/read_r.v",
+                                    "chroma/regslice_core.v",
+                                    "chroma/start_for_bgr2hsvhbi.v",
+                                    "chroma/start_for_inRangeibs.v",
+                                    "chroma/start_for_xfMat2Ag8j.v",
+                                    "chroma/write_r.v",
+                                    "chroma/xFinRangeKernel.v",
+                                    "chroma/xfMat2AXIstream.v"
+                                ],
+                                "top_module": "chroma.v",
+                                "top_cell": "chroma"
+                            }
+                        }
+                    },
+                    "config_b": {
+                        "modules": {
+                            "top": {
+                                "desc": "Vitis HLS Gaussian Filter",
+                                "rtl": [
+                                    "gaussian/ignore.v",
+                                    "gaussian/top.v",
+                                    "gaussian/AXIstream2xfMat.v",
+                                    "gaussian/Block_Mat_exit71_pro.v",
+                                    "gaussian/fifo_w8_d2_A.v",
+                                    "gaussian/fifo_w32_d2_A.v",
+                                    "gaussian/fifo_w32_d3_A.v",
+                                    "gaussian/fifo_w32_d4_A.v",
+                                    "gaussian/gaussian_am_addmubkb.v",
+                                    "gaussian/gaussian_am_addmucud.v",
+                                    "gaussian/gaussian_ama_addmdEe.v",
+                                    "gaussian/gaussian_ama_addmeOg.v",
+                                    "gaussian/gaussian_AXILiteS_s_axi.v",
+                                    "gaussian/gaussian_dadd_64nqcK.v",
+                                    "gaussian/gaussian_fadd_32njbC.v",
+                                    "gaussian/gaussian_fcmp_32nocq.v",
+                                    "gaussian/gaussian_fdiv_32nlbW.v",
+                                    "gaussian/gaussian_fexp_32npcA.v",
+                                    "gaussian/gaussian_fmul_32nkbM.v",
+                                    "gaussian/gaussian_fpext_32ncg.v",
+                                    "gaussian/gaussian_mux_32_8ibs.v",
+                                    "gaussian/gaussian_sitofp_3mb6.v",
+                                    "gaussian/gaussian.v",
+                                    "gaussian/GaussianBlur_cf.v",
+                                    "gaussian/GaussianBlur.v",
+                                    "gaussian/regslice_core.v",
+                                    "gaussian/start_for_GaussiarcU.v",
+                                    "gaussian/start_for_xfMat2Asc4.v",
+                                    "gaussian/xFapplygaussian3x3.v",
+                                    "gaussian/xfGaussianFilter3fYi.v",
+                                    "gaussian/xfGaussianFilter3x3.v",
+                                    "gaussian/xfMat2AXIstream.v"
+                                ],
+                                "dependencies": [
+                                    "gaussian/dependencies/gaussian_ap_dadd_3_full_dsp_64.vhd",
+                                    "gaussian/dependencies/gaussian_ap_fadd_2_full_dsp_32.vhd",
+                                    "gaussian/dependencies/gaussian_ap_fcmp_0_no_dsp_32.vhd",
+                                    "gaussian/dependencies/gaussian_ap_fdiv_7_no_dsp_32.vhd",
+                                    "gaussian/dependencies/gaussian_ap_fexp_6_full_dsp_32.vhd",
+                                    "gaussian/dependencies/gaussian_ap_fmul_1_max_dsp_32.vhd",
+                                    "gaussian/dependencies/gaussian_ap_fpext_0_no_dsp_32.vhd",
+                                    "gaussian/dependencies/gaussian_ap_sitofp_2_no_dsp_32.vhd"
+                                ],
+                                "tcl": [
+                                    "gaussian/tcl/gaussian_ap_dadd_3_full_dsp_64_ip.tcl",
+                                    "gaussian/tcl/gaussian_ap_fadd_2_full_dsp_32_ip.tcl",
+                                    "gaussian/tcl/gaussian_ap_fcmp_0_no_dsp_32_ip.tcl",
+                                    "gaussian/tcl/gaussian_ap_fdiv_7_no_dsp_32_ip.tcl",
+                                    "gaussian/tcl/gaussian_ap_fexp_6_full_dsp_32_ip.tcl",
+                                    "gaussian/tcl/gaussian_ap_fmul_1_max_dsp_32_ip.tcl",
+                                    "gaussian/tcl/gaussian_ap_fpext_0_no_dsp_32_ip.tcl",
+                                    "gaussian/tcl/gaussian_ap_sitofp_2_no_dsp_32_ip.tcl"
+                                ],
+                                "top_module": "top.v",
+                                "top_cell": "top",
+                                "ip": [
+                                    "gaussian/axis_dwidth_converter_1.xci"
+                                ]
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "design_static": {
+            "name": "Demo PR Project 0",
+            "rtl": [
+                "static.v"
+            ],
+            "top": "static",
+            "xdc": [
+                "ultra96.xdc"
+            ]
+        }
+    },
+    "linux": {
+        "linux_build": {
+            "build_platform": "petalinux"
+        },
+        "linux_device_tree": {
+            "device_tree_config": {
+                "udmabuf": {
+                    "size": 0
+                }
+            }
+        }
+    }
+}
